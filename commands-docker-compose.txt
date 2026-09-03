@@ -1,0 +1,616 @@
+DOCKER COMPOSE - USEFUL COMMANDS
+=================================
+
+Project files:
+    docker-compose.yml
+    .env
+    .env.example
+    .gitignore
+
+
+1. START THE ENTIRE STACK
+-------------------------
+
+Start all services in the background:
+
+    docker compose up -d
+
+Start and rebuild images if needed:
+
+    docker compose up -d --build
+
+Start without background mode (useful for seeing logs):
+
+    docker compose up
+
+
+2. STOP THE STACK
+-----------------
+
+Stop containers without deleting them:
+
+    docker compose stop
+
+Stop and remove containers/networks:
+
+    docker compose down
+
+Stop and remove containers, networks AND volumes:
+
+    docker compose down -v
+
+WARNING:
+    "docker compose down -v" deletes persistent data stored in
+    PostgreSQL, pgAdmin, Kafka, ZooKeeper and Elasticsearch volumes.
+
+
+3. CHECK SERVICES
+-----------------
+
+Show running containers:
+
+    docker compose ps
+
+Show all containers, including stopped ones:
+
+    docker compose ps -a
+
+Show service status:
+
+    docker compose ls
+
+
+4. LOGS
+--------
+
+Show logs for all services:
+
+    docker compose logs
+
+Follow logs in real time:
+
+    docker compose logs -f
+
+Show only the last 100 lines:
+
+    docker compose logs --tail=100
+
+Follow logs for one service:
+
+    docker compose logs -f postgres
+
+    docker compose logs -f keycloak
+
+    docker compose logs -f kafka
+
+    docker compose logs -f zookeeper
+
+    docker compose logs -f elasticsearch
+
+    docker compose logs -f kibana
+
+    docker compose logs -f pgadmin
+
+
+5. RESTART SERVICES
+-------------------
+
+Restart everything:
+
+    docker compose restart
+
+Restart one service:
+
+    docker compose restart postgres
+
+    docker compose restart keycloak
+
+    docker compose restart kafka
+
+    docker compose restart elasticsearch
+
+    docker compose restart kibana
+
+Restart several services:
+
+    docker compose restart kafka zookeeper
+
+
+6. START / STOP ONE SERVICE
+---------------------------
+
+Start one service:
+
+    docker compose start postgres
+
+Stop one service:
+
+    docker compose stop postgres
+
+Start several services:
+
+    docker compose start postgres keycloak
+
+Stop several services:
+
+    docker compose stop postgres keycloak
+
+
+7. REBUILD
+----------
+
+Rebuild all services:
+
+    docker compose build
+
+Rebuild without cache:
+
+    docker compose build --no-cache
+
+Rebuild one service:
+
+    docker compose build keycloak
+
+Rebuild and start:
+
+    docker compose up -d --build
+
+
+8. ENTER A CONTAINER
+--------------------
+
+Open a shell inside PostgreSQL:
+
+    docker exec -it postgres bash
+
+Open a shell inside Kafka:
+
+    docker exec -it kafka bash
+
+Open a shell inside Elasticsearch:
+
+    docker exec -it elasticsearch bash
+
+Open a shell inside ZooKeeper:
+
+    docker exec -it zookeeper bash
+
+
+9. POSTGRESQL
+-------------
+
+Connect directly to PostgreSQL:
+
+    docker exec -it postgres psql -U postgres -d keycloak
+
+List databases:
+
+    docker exec -it postgres psql -U postgres -c "\l"
+
+List users:
+
+    docker exec -it postgres psql -U postgres -c "\du"
+
+Inside psql:
+
+    \l
+    \dt
+    \dn
+    \du
+    \q
+
+
+10. KAFKA
+---------
+
+List Kafka topics:
+
+    docker exec -it kafka kafka-topics       --bootstrap-server kafka:29092       --list
+
+Create a topic:
+
+    docker exec -it kafka kafka-topics       --bootstrap-server kafka:29092       --create       --topic test-topic       --partitions 3       --replication-factor 1
+
+Describe a topic:
+
+    docker exec -it kafka kafka-topics       --bootstrap-server kafka:29092       --describe       --topic test-topic
+
+Delete a topic:
+
+    docker exec -it kafka kafka-topics       --bootstrap-server kafka:29092       --delete       --topic test-topic
+
+Start a Kafka producer:
+
+    docker exec -it kafka kafka-console-producer       --bootstrap-server kafka:29092       --topic test-topic
+
+Start a Kafka consumer:
+
+    docker exec -it kafka kafka-console-consumer       --bootstrap-server kafka:29092       --topic test-topic       --from-beginning
+
+List consumer groups:
+
+    docker exec -it kafka kafka-consumer-groups       --bootstrap-server kafka:29092       --list
+
+
+11. ELASTICSEARCH
+-----------------
+
+Check Elasticsearch:
+
+    curl http://localhost:9200
+
+Check cluster health:
+
+    curl http://localhost:9200/_cluster/health
+
+List indices:
+
+    curl http://localhost:9200/_cat/indices?v
+
+Get cluster information:
+
+    curl http://localhost:9200
+
+On PowerShell, you can also use:
+
+    Invoke-RestMethod http://localhost:9200
+
+
+12. KIBANA
+----------
+
+Open Kibana in your browser:
+
+    http://localhost:5601
+
+Kibana is connected internally to:
+
+    http://elasticsearch:9200
+
+
+13. KEYCLOAK
+------------
+
+Open Keycloak:
+
+    http://localhost:8080
+
+Default admin credentials are defined in:
+
+    .env
+
+Do NOT hard-code production credentials in docker-compose.yml.
+
+
+14. PGADMIN
+-----------
+
+Open pgAdmin:
+
+    http://localhost:5050
+
+Use the credentials from:
+
+    .env
+
+When creating a PostgreSQL server connection FROM pgAdmin,
+use:
+
+    Host: postgres
+    Port: 5432
+    Username: postgres
+    Password: <POSTGRES_PASSWORD from .env>
+
+IMPORTANT:
+    Do not use "localhost" as the PostgreSQL host inside pgAdmin.
+    pgAdmin is running inside Docker, so it must use the Docker
+    service name "postgres".
+
+
+15. DOCKER CONTAINERS
+---------------------
+
+List all running containers:
+
+    docker ps
+
+List all containers:
+
+    docker ps -a
+
+View one container:
+
+    docker inspect postgres
+
+View container resource usage:
+
+    docker stats
+
+Follow logs directly:
+
+    docker logs -f postgres
+
+Execute a command:
+
+    docker exec -it postgres bash
+
+
+16. DOCKER NETWORK
+------------------
+
+Show networks:
+
+    docker network ls
+
+Inspect the project network:
+
+    docker network inspect backend
+
+The services communicate using Docker service names:
+
+    postgres:5432
+    keycloak:8080
+    kafka:29092
+    zookeeper:2181
+    elasticsearch:9200
+    kibana:5601
+    pgadmin:80
+
+
+17. DOCKER VOLUMES
+------------------
+
+List volumes:
+
+    docker volume ls
+
+Inspect a volume:
+
+    docker volume inspect postgres_data
+
+    docker volume inspect kafka_data
+
+    docker volume inspect elasticsearch_data
+
+Remove unused volumes:
+
+    docker volume prune
+
+WARNING:
+    Be careful with volume deletion because volumes may contain
+    database and application data.
+
+
+18. VALIDATE COMPOSE FILE
+-------------------------
+
+Validate the compose file:
+
+    docker compose config
+
+Show the fully resolved configuration, including .env values:
+
+    docker compose config
+
+Check for configuration errors before starting:
+
+    docker compose config --quiet
+
+
+19. SEE ENVIRONMENT VARIABLES
+-----------------------------
+
+Show the variables loaded by Compose:
+
+    docker compose config
+
+The .env file is automatically loaded when it is located next
+to docker-compose.yml.
+
+
+20. UPDATE IMAGES
+-----------------
+
+Pull the latest configured images:
+
+    docker compose pull
+
+Pull one image:
+
+    docker compose pull postgres
+
+Then recreate containers:
+
+    docker compose up -d
+
+
+21. CLEAN REBUILD
+-----------------
+
+Useful when something is behaving strangely:
+
+    docker compose down
+
+    docker compose build --no-cache
+
+    docker compose up -d
+
+
+22. COMPLETE RESET
+------------------
+
+WARNING: THIS DELETES CONTAINERS, NETWORKS AND ALL COMPOSE VOLUMES.
+
+    docker compose down -v
+
+Then start from zero:
+
+    docker compose up -d
+
+
+23. USEFUL DAILY WORKFLOW
+-------------------------
+
+Start:
+
+    docker compose up -d
+
+Check:
+
+    docker compose ps
+
+Watch logs:
+
+    docker compose logs -f
+
+Restart after configuration changes:
+
+    docker compose up -d --build
+
+Stop:
+
+    docker compose down
+
+
+24. WINDOWS POWERSHELL
+----------------------
+
+Most Docker Compose commands work exactly the same in PowerShell:
+
+    docker compose up -d
+
+    docker compose ps
+
+    docker compose logs -f
+
+    docker compose down
+
+    docker compose restart
+
+    docker compose down -v
+
+
+25. HOST PORTS
+--------------
+
+PostgreSQL:
+    localhost:5432
+
+pgAdmin:
+    http://localhost:5050
+
+Keycloak:
+    http://localhost:8080
+
+ZooKeeper:
+    localhost:2181
+
+Kafka:
+    localhost:9092
+
+Elasticsearch:
+    http://localhost:9200
+
+Kibana:
+    http://localhost:5601
+
+
+26. INTERNAL DOCKER PORTS
+-------------------------
+
+From another container on the "backend" network:
+
+PostgreSQL:
+    postgres:5432
+
+pgAdmin:
+    pgadmin:80
+
+Keycloak:
+    keycloak:8080
+
+ZooKeeper:
+    zookeeper:2181
+
+Kafka:
+    kafka:29092
+
+Elasticsearch:
+    elasticsearch:9200
+
+Kibana:
+    kibana:5601
+
+
+27. IMPORTANT KAFKA CONNECTION RULE
+-----------------------------------
+
+Application running directly on your computer:
+
+    localhost:9092
+
+Application running inside Docker:
+
+    kafka:29092
+
+Do NOT use localhost:9092 from a container.
+
+
+28. IMPORTANT POSTGRES CONNECTION RULE
+--------------------------------------
+
+Application running directly on your computer:
+
+    jdbc:postgresql://localhost:5432/<database>
+
+Application running inside Docker:
+
+    jdbc:postgresql://postgres:5432/<database>
+
+
+29. QUICK HEALTH CHECK
+----------------------
+
+Check all containers:
+
+    docker compose ps
+
+Check PostgreSQL:
+
+    docker exec postgres pg_isready -U postgres
+
+Check Kafka topics:
+
+    docker exec kafka kafka-topics       --bootstrap-server kafka:29092       --list
+
+Check Elasticsearch:
+
+    curl http://localhost:9200/_cluster/health
+
+Open Keycloak:
+
+    http://localhost:8080
+
+Open pgAdmin:
+
+    http://localhost:5050
+
+Open Kibana:
+
+    http://localhost:5601
+
+
+30. MOST USED COMMANDS
+----------------------
+
+    docker compose up -d
+    docker compose ps
+    docker compose logs -f
+    docker compose logs -f <service>
+    docker compose restart <service>
+    docker compose up -d --build
+    docker compose pull
+    docker compose down
+    docker compose down -v
+    docker compose config
+    docker compose exec <service> bash
