@@ -1,0 +1,311 @@
+services:
+
+  # ============================================================
+  # POSTGRESQL
+  # ============================================================
+
+  postgres:
+    image: postgres:17
+    container_name: postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+    ports:
+      - "${POSTGRES_HOST_PORT}:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    networks:
+      - backend
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
+  # ============================================================
+  # PGADMIN
+  # ============================================================
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    restart: unless-stopped
+
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+
+    ports:
+      - "${PGADMIN_HOST_PORT}:80"
+
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    networks:
+      - backend
+
+
+  # ============================================================
+  # KEYCLOAK
+  # ============================================================
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: keycloak
+    restart: unless-stopped
+
+    command:
+      - start-dev
+      - --http-port=8080
+      - --http-enabled=true
+
+    environment:
+
+      # ----------------------------
+      # Database
+      # ----------------------------
+
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      KC_DB_USERNAME: ${POSTGRES_USER}
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD}
+
+      # ----------------------------
+      # Keycloak administrator
+      # ----------------------------
+
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+
+      # ----------------------------
+      # HTTP
+      # ----------------------------
+
+      KC_HTTP_ENABLED: "true"
+
+    ports:
+      - "${KEYCLOAK_HOST_PORT}:8080"
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    networks:
+      - backend
+
+
+  # ============================================================
+  # ZOOKEEPER
+  # ============================================================
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.8.1
+    container_name: zookeeper
+    restart: unless-stopped
+
+    environment:
+
+      ZOOKEEPER_CLIENT_PORT: ${ZOOKEEPER_CLIENT_PORT}
+      ZOOKEEPER_TICK_TIME: 2000
+
+    ports:
+      - "${ZOOKEEPER_HOST_PORT}:2181"
+
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+      - zookeeper_logs:/var/lib/zookeeper/log
+
+    networks:
+      - backend
+
+
+  # ============================================================
+  # KAFKA
+  # ============================================================
+
+  kafka:
+    image: confluentinc/cp-kafka:7.8.1
+    container_name: kafka
+    restart: unless-stopped
+
+    depends_on:
+      - zookeeper
+
+    ports:
+      - "${KAFKA_EXTERNAL_PORT}:9092"
+      - "${KAFKA_INTERNAL_PORT}:29092"
+
+    environment:
+
+      # ----------------------------
+      # Broker
+      # ----------------------------
+
+      KAFKA_BROKER_ID: ${KAFKA_BROKER_ID}
+
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+
+      # ----------------------------
+      # Replication
+      # ----------------------------
+
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+
+      # ----------------------------
+      # Listeners
+      # ----------------------------
+
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: >-
+        INTERNAL:PLAINTEXT,
+        EXTERNAL:PLAINTEXT
+
+      KAFKA_LISTENERS: >-
+        INTERNAL://0.0.0.0:29092,
+        EXTERNAL://0.0.0.0:9092
+
+      KAFKA_ADVERTISED_LISTENERS: >-
+        INTERNAL://kafka:29092,
+        EXTERNAL://localhost:${KAFKA_EXTERNAL_PORT}
+
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+
+      # ----------------------------
+      # Development
+      # ----------------------------
+
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+
+    networks:
+      - backend
+
+
+  # ============================================================
+  # ELASTICSEARCH
+  # ============================================================
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTICSEARCH_VERSION}
+    container_name: elasticsearch
+    restart: unless-stopped
+
+    environment:
+
+      # ----------------------------
+      # Single node
+      # ----------------------------
+
+      discovery.type: single-node
+
+      # ----------------------------
+      # Security
+      # ----------------------------
+
+      xpack.security.enabled: "false"
+
+      # ----------------------------
+      # JVM
+      # ----------------------------
+
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+
+    ports:
+      - "${ELASTICSEARCH_HOST_PORT}:9200"
+
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+
+    networks:
+      - backend
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -fs http://localhost:9200/_cluster/health || exit 1"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+
+  # ============================================================
+  # KIBANA
+  # ============================================================
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:${KIBANA_VERSION}
+    container_name: kibana
+    restart: unless-stopped
+
+    environment:
+
+      ELASTICSEARCH_HOSTS: '["http://elasticsearch:9200"]'
+
+    ports:
+      - "${KIBANA_HOST_PORT}:5601"
+
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+
+    networks:
+      - backend
+
+
+# ============================================================
+# VOLUMES
+# ============================================================
+
+volumes:
+
+  postgres_data:
+    name: postgres_data
+
+  pgadmin_data:
+    name: pgadmin_data
+
+  zookeeper_data:
+    name: zookeeper_data
+
+  zookeeper_logs:
+    name: zookeeper_logs
+
+  kafka_data:
+    name: kafka_data
+
+  elasticsearch_data:
+    name: elasticsearch_data
+
+
+# ============================================================
+# NETWORK
+# ============================================================
+
+networks:
+
+  backend:
+    name: backend
+    driver: bridge
