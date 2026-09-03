@@ -1,12 +1,6 @@
 DOCKER COMPOSE - USEFUL COMMANDS
 =================================
 
-Project files:
-    docker-compose.yml
-    .env
-    .env.example
-    .gitignore
-
 
 1. START THE ENTIRE STACK
 -------------------------
