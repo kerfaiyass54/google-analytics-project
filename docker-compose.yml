@@ -6,7 +6,7 @@ services:
 
   postgres:
     image: postgres:17
-    container_name: postgres
+    container_name: analytics_postgres
     restart: unless-stopped
 
     environment:
@@ -40,7 +40,7 @@ services:
 
   pgadmin:
     image: dpage/pgadmin4:latest
-    container_name: pgadmin
+    container_name: analytics_pgadmin
     restart: unless-stopped
 
     environment:
@@ -67,7 +67,7 @@ services:
 
   keycloak:
     image: quay.io/keycloak/keycloak:latest
-    container_name: keycloak
+    container_name: analytics_keycloak
     restart: unless-stopped
 
     command:
@@ -116,7 +116,7 @@ services:
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.8.1
-    container_name: zookeeper
+    container_name: analytics_zookeeper
     restart: unless-stopped
 
     environment:
@@ -141,7 +141,7 @@ services:
 
   kafka:
     image: confluentinc/cp-kafka:7.8.1
-    container_name: kafka
+    container_name: analytics_kafka
     restart: unless-stopped
 
     depends_on:
@@ -208,7 +208,7 @@ services:
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTICSEARCH_VERSION}
-    container_name: elasticsearch
+    container_name: analytics_elasticsearch
     restart: unless-stopped
 
     environment:
@@ -257,7 +257,7 @@ services:
 
   kibana:
     image: docker.elastic.co/kibana/kibana:${KIBANA_VERSION}
-    container_name: kibana
+    container_name: analytics_kibana
     restart: unless-stopped
 
     environment:
