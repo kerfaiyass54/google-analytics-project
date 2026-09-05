@@ -1,6 +1,8 @@
 package com.googleanalytics.analyticsforgoogle.mapper;
 
 
+import com.googleanalytics.analyticsforgoogle.dtos.GooglePlayAppRequest;
+import com.googleanalytics.analyticsforgoogle.dtos.GooglePlayAppResponse;
 import com.googleanalytics.analyticsforgoogle.entities.GooglePlayApp;
 import org.springframework.stereotype.Component;
 
