@@ -11,6 +11,7 @@ import org.apache.kafka.common.errors.DuplicateResourceException;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,52 +21,67 @@ import org.springframework.transaction.annotation.Transactional;
 public class GooglePlayAppService {
 
     private final GooglePlayAppRepository repository;
+
     private final GooglePlayAppMapper mapper;
 
     // =========================================================
     // CREATE
     // =========================================================
 
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @Transactional
     public GooglePlayAppResponse create(
             GooglePlayAppRequest request
     ) {
 
-        String appName = request.app().trim();
+        String appName =
+                request.app().trim();
 
         if (repository.existsByAppIgnoreCase(appName)) {
+
             throw new DuplicateResourceException(
-                    "Application '" + appName + "' already exists."
+                    "Application '" +
+                            appName +
+                            "' already exists."
             );
         }
 
-        GooglePlayApp entity = mapper.toEntity(request);
+        GooglePlayApp entity =
+                mapper.toEntity(request);
 
-        GooglePlayApp savedEntity = repository.save(entity);
+        GooglePlayApp savedEntity =
+                repository.save(entity);
 
-        return mapper.toResponse(savedEntity);
+        return mapper.toResponse(
+                savedEntity
+        );
     }
 
     // =========================================================
     // DETAILS
     // =========================================================
 
-    public GooglePlayAppResponse getDetails(Long id) {
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    public GooglePlayAppResponse getDetails(
+            Long id
+    ) {
 
-        GooglePlayApp entity = findById(id);
-
-        return mapper.toResponse(entity);
+        return mapper.toResponse(
+                findById(id)
+        );
     }
 
     // =========================================================
-    // PAGINATED LIST
+    // PAGINATION
     // =========================================================
 
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public Page<GooglePlayAppResponse> findAll(
             Pageable pageable
     ) {
 
-        return repository.findAll(pageable)
+        return repository
+                .findAll(pageable)
                 .map(mapper::toResponse);
     }
 
@@ -73,52 +89,54 @@ public class GooglePlayAppService {
     // UPDATE
     // =========================================================
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public GooglePlayAppResponse update(
             Long id,
             GooglePlayAppRequest request
     ) {
 
-        GooglePlayApp entity = findById(id);
+        GooglePlayApp entity =
+                findById(id);
 
-        String appName = request.app().trim();
+        String appName =
+                request.app().trim();
 
-        /*
-         * Prevent another application from using
-         * the same name.
-         */
-        if (repository.existsByAppIgnoreCaseAndIdNot(
-                appName,
-                id
-        )) {
+        if (repository
+                .existsByAppIgnoreCaseAndIdNot(
+                        appName,
+                        id
+                )) {
 
             throw new DuplicateResourceException(
-                    "Application '" + appName + "' already exists."
+                    "Application '" +
+                            appName +
+                            "' already exists."
             );
         }
 
-        /*
-         * Update the managed entity.
-         *
-         * No repository.save() is necessary because
-         * JPA dirty checking will detect the changes.
-         */
         mapper.updateEntity(
                 entity,
                 request
         );
 
-        return mapper.toResponse(entity);
+        return mapper.toResponse(
+                entity
+        );
     }
 
     // =========================================================
     // DELETE
     // =========================================================
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
-    public void delete(Long id) {
+    public void delete(
+            Long id
+    ) {
 
-        GooglePlayApp entity = findById(id);
+        GooglePlayApp entity =
+                findById(id);
 
         repository.delete(entity);
     }
@@ -127,9 +145,12 @@ public class GooglePlayAppService {
     // PRIVATE
     // =========================================================
 
-    private GooglePlayApp findById(Long id) {
+    private GooglePlayApp findById(
+            Long id
+    ) {
 
-        return repository.findById(id)
+        return repository
+                .findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
                                 "Google Play application with id "
