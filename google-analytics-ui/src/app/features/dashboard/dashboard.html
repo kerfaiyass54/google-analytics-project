@@ -1,12 +1,35 @@
 <div class="dashboard-page">
 
+  <!-- ===================================================== -->
+  <!-- PAGE SIDEBAR -->
+  <!-- ===================================================== -->
+
+  <app-sidebar-page
+    [items]="sidebarItems"
+  />
+
+
+  <!-- ===================================================== -->
+  <!-- LOADING STATE -->
+  <!-- ===================================================== -->
+
   @if (loading()) {
+
     <section class="dashboard-state loading-state">
+
+      <div class="state-background"></div>
+
       <div class="state-icon">
         <i class="bi bi-bar-chart-line-fill"></i>
       </div>
 
-      <h2>Loading dashboard</h2>
+      <span class="state-eyebrow">
+        PLAYMETRICS
+      </span>
+
+      <h2>
+        Loading dashboard
+      </h2>
 
       <p>
         Fetching Google Play Store statistics...
@@ -17,16 +40,31 @@
         role="status"
         aria-label="Loading"
       ></div>
+
     </section>
+
   }
 
+
+  <!-- ===================================================== -->
+  <!-- ERROR STATE -->
+  <!-- ===================================================== -->
+
   @else if (error()) {
+
     <section class="dashboard-state error-state">
+
       <div class="state-icon">
         <i class="bi bi-exclamation-triangle-fill"></i>
       </div>
 
-      <h2>Unable to load dashboard</h2>
+      <span class="state-eyebrow">
+        DASHBOARD ERROR
+      </span>
+
+      <h2>
+        Unable to load dashboard
+      </h2>
 
       <p>
         {{ error() }}
@@ -38,120 +76,525 @@
         (click)="retry()"
       >
         <i class="bi bi-arrow-clockwise"></i>
-        Try Again
+
+        <span>
+          Try Again
+        </span>
       </button>
+
     </section>
+
   }
 
+
+  <!-- ===================================================== -->
+  <!-- DASHBOARD -->
+  <!-- ===================================================== -->
+
   @else if (stats(); as statistics) {
-    <header class="dashboard-header">
-      <div>
+
+    <!-- =================================================== -->
+      <!-- HEADER -->
+      <!-- =================================================== -->
+
+    <header
+      class="dashboard-header"
+      appScrollReveal
+    >
+
+      <div class="header-content">
+
         <span class="dashboard-eyebrow">
           GOOGLE PLAY STORE ANALYTICS
         </span>
 
-        <h1>Analytics Dashboard</h1>
+        <h1>
+          Analytics Dashboard
+        </h1>
 
         <p>
           Explore application distribution, ratings, reviews,
-          size, and pricing statistics.
+          size, and pricing statistics across the Google Play
+          Store dataset.
         </p>
+
       </div>
+
+
+      <!-- Decorative background -->
+
+      <div
+        class="header-decoration"
+        aria-hidden="true"
+      >
+
+        <div
+          class="decoration-circle circle-one"
+        ></div>
+
+        <div
+          class="decoration-circle circle-two"
+        ></div>
+
+        <div class="decoration-grid"></div>
+
+      </div>
+
     </header>
+
+
+    <!-- =================================================== -->
+      <!-- DASHBOARD CONTENT -->
+      <!-- =================================================== -->
 
     <main class="dashboard-content">
 
-      <!-- ================================================= -->
-      <!-- FREE VS PAID -->
-      <!-- ================================================= -->
-
-      <section class="dashboard-full">
-        <app-free-vs-paid
-          [freeApps]="statistics.freeApps"
-          [paidApps]="statistics.paidApps"
-        />
-      </section>
-
 
       <!-- ================================================= -->
-      <!-- CATEGORY ANALYSIS -->
+      <!-- 01 - FREE VS PAID -->
       <!-- ================================================= -->
 
-      <section class="dashboard-grid dashboard-grid-two">
+      @defer (on viewport) {
 
-        <app-application-category
-          [categories]="statistics.categories"
-        />
+        <section
+          id="free-paid"
+          class="dashboard-section dashboard-full"
+          appScrollReveal
+        >
 
-        <app-ratings-category
-          [categories]="statistics.categories"
-        />
+          <div class="section-label">
 
-      </section>
+            <span class="section-number">
+              01
+            </span>
 
+            <div>
 
-      <!-- ================================================= -->
-      <!-- REVIEWS -->
-      <!-- ================================================= -->
+              <span class="section-eyebrow">
+                APP DISTRIBUTION
+              </span>
 
-      <section class="dashboard-full">
-        <app-reviews-category
-          [categories]="statistics.categories"
-        />
-      </section>
+              <h2>
+                Free vs Paid
+              </h2>
 
+            </div>
 
-      <!-- ================================================= -->
-      <!-- RATING STATISTICS -->
-      <!-- ================================================= -->
+          </div>
 
-      <section class="dashboard-full">
-        <app-ratings-statistics
-          [minimum]="statistics.minimumRating"
-          [average]="statistics.averageRating"
-          [maximum]="statistics.maximumRating"
-        />
-      </section>
+          <app-free-vs-paid
+            [freeApps]="statistics.freeApps"
+            [paidApps]="statistics.paidApps"
+          />
 
+        </section>
 
-      <!-- ================================================= -->
-      <!-- REVIEW STATISTICS -->
-      <!-- ================================================= -->
+      } @placeholder {
 
-      <section class="dashboard-full">
-        <app-reviews-statistics
-          [minimum]="statistics.minimumReviews"
-          [average]="statistics.averageReviews"
-          [maximum]="statistics.maximumReviews"
-        />
-      </section>
+        <div
+          class="deferred-placeholder"
+          aria-hidden="true"
+        >
+
+          <div class="placeholder-line"></div>
+
+          <div class="placeholder-content"></div>
+
+        </div>
+
+      }
 
 
       <!-- ================================================= -->
-      <!-- SIZE STATISTICS -->
+      <!-- 02 + 03 - CATEGORY ANALYSIS -->
       <!-- ================================================= -->
 
-      <section class="dashboard-full">
-        <app-size-statistics
-          [minimum]="statistics.minimumSizeMb"
-          [average]="statistics.averageSizeMb"
-          [maximum]="statistics.maximumSizeMb"
-        />
-      </section>
+      <div class="dashboard-grid dashboard-grid-two">
+
+
+        <!-- =============================================== -->
+        <!-- 02 - APPLICATIONS -->
+        <!-- =============================================== -->
+
+        @defer (on viewport) {
+
+          <section
+            id="applications-category"
+            class="dashboard-section"
+            appScrollReveal
+          >
+
+            <div class="section-label">
+
+              <span class="section-number">
+                02
+              </span>
+
+              <div>
+
+                <span class="section-eyebrow">
+                  CATEGORY DISTRIBUTION
+                </span>
+
+                <h2>
+                  Applications by Category
+                </h2>
+
+              </div>
+
+            </div>
+
+            <app-application-category
+              [categories]="statistics.categories"
+            />
+
+          </section>
+
+        } @placeholder {
+
+          <div
+            class="deferred-placeholder chart-placeholder"
+            aria-hidden="true"
+          >
+
+            <div class="placeholder-chart"></div>
+
+          </div>
+
+        }
+
+
+        <!-- =============================================== -->
+        <!-- 03 - RATINGS -->
+        <!-- =============================================== -->
+
+        @defer (on viewport) {
+
+          <section
+            id="ratings-category"
+            class="dashboard-section"
+            appScrollReveal
+          >
+
+            <div class="section-label">
+
+              <span class="section-number">
+                03
+              </span>
+
+              <div>
+
+                <span class="section-eyebrow">
+                  RATING ANALYSIS
+                </span>
+
+                <h2>
+                  Average Rating by Category
+                </h2>
+
+              </div>
+
+            </div>
+
+            <app-ratings-category
+              [categories]="statistics.categories"
+            />
+
+          </section>
+
+        } @placeholder {
+
+          <div
+            class="deferred-placeholder chart-placeholder"
+            aria-hidden="true"
+          >
+
+            <div class="placeholder-chart"></div>
+
+          </div>
+
+        }
+
+      </div>
 
 
       <!-- ================================================= -->
-      <!-- PRICE STATISTICS -->
+      <!-- 04 - REVIEWS -->
       <!-- ================================================= -->
 
-      <section class="dashboard-full">
-        <app-price-statistics
-          [minimum]="statistics.minimumPrice"
-          [average]="statistics.averagePrice"
-          [maximum]="statistics.maximumPrice"
-        />
-      </section>
+      @defer (on viewport) {
+
+        <section
+          id="reviews-category"
+          class="dashboard-section dashboard-full"
+          appScrollReveal
+        >
+
+          <div class="section-label">
+
+            <span class="section-number">
+              04
+            </span>
+
+            <div>
+
+              <span class="section-eyebrow">
+                ENGAGEMENT ANALYSIS
+              </span>
+
+              <h2>
+                Reviews by Category
+              </h2>
+
+            </div>
+
+          </div>
+
+          <app-reviews-category
+            [categories]="statistics.categories"
+          />
+
+        </section>
+
+      } @placeholder {
+
+        <div
+          class="deferred-placeholder wide-placeholder"
+          aria-hidden="true"
+        >
+
+          <div class="placeholder-chart"></div>
+
+        </div>
+
+      }
+
+
+      <!-- ================================================= -->
+      <!-- 05 - RATING STATISTICS -->
+      <!-- ================================================= -->
+
+      @defer (on viewport) {
+
+        <section
+          id="rating-statistics"
+          class="dashboard-section dashboard-full"
+          appScrollReveal
+        >
+
+          <div class="section-label">
+
+            <span class="section-number">
+              05
+            </span>
+
+            <div>
+
+              <span class="section-eyebrow">
+                RATING METRICS
+              </span>
+
+              <h2>
+                Rating Statistics
+              </h2>
+
+            </div>
+
+          </div>
+
+          <app-ratings-statistics
+            [minimum]="statistics.minimumRating"
+            [average]="statistics.averageRating"
+            [maximum]="statistics.maximumRating"
+          />
+
+        </section>
+
+      } @placeholder {
+
+        <div
+          class="deferred-placeholder statistics-placeholder"
+          aria-hidden="true"
+        >
+
+          <div class="placeholder-stat"></div>
+          <div class="placeholder-stat"></div>
+          <div class="placeholder-stat"></div>
+
+        </div>
+
+      }
+
+
+      <!-- ================================================= -->
+      <!-- 06 - REVIEW STATISTICS -->
+      <!-- ================================================= -->
+
+      @defer (on viewport) {
+
+        <section
+          id="review-statistics"
+          class="dashboard-section dashboard-full"
+          appScrollReveal
+        >
+
+          <div class="section-label">
+
+            <span class="section-number">
+              06
+            </span>
+
+            <div>
+
+              <span class="section-eyebrow">
+                REVIEW METRICS
+              </span>
+
+              <h2>
+                Review Statistics
+              </h2>
+
+            </div>
+
+          </div>
+
+          <app-reviews-statistics
+            [minimum]="statistics.minimumReviews"
+            [average]="statistics.averageReviews"
+            [maximum]="statistics.maximumReviews"
+          />
+
+        </section>
+
+      } @placeholder {
+
+        <div
+          class="deferred-placeholder statistics-placeholder"
+          aria-hidden="true"
+        >
+
+          <div class="placeholder-stat"></div>
+          <div class="placeholder-stat"></div>
+          <div class="placeholder-stat"></div>
+
+        </div>
+
+      }
+
+
+      <!-- ================================================= -->
+      <!-- 07 - SIZE STATISTICS -->
+      <!-- ================================================= -->
+
+      @defer (on viewport) {
+
+        <section
+          id="size-statistics"
+          class="dashboard-section dashboard-full"
+          appScrollReveal
+        >
+
+          <div class="section-label">
+
+            <span class="section-number">
+              07
+            </span>
+
+            <div>
+
+              <span class="section-eyebrow">
+                APPLICATION SIZE
+              </span>
+
+              <h2>
+                Size Statistics
+              </h2>
+
+            </div>
+
+          </div>
+
+          <app-size-statistics
+            [minimum]="statistics.minimumSizeMb"
+            [average]="statistics.averageSizeMb"
+            [maximum]="statistics.maximumSizeMb"
+          />
+
+        </section>
+
+      } @placeholder {
+
+        <div
+          class="deferred-placeholder statistics-placeholder"
+          aria-hidden="true"
+        >
+
+          <div class="placeholder-stat"></div>
+          <div class="placeholder-stat"></div>
+          <div class="placeholder-stat"></div>
+
+        </div>
+
+      }
+
+
+      <!-- ================================================= -->
+      <!-- 08 - PRICE STATISTICS -->
+      <!-- ================================================= -->
+
+      @defer (on viewport) {
+
+        <section
+          id="price-statistics"
+          class="dashboard-section dashboard-full"
+          appScrollReveal
+        >
+
+          <div class="section-label">
+
+            <span class="section-number">
+              08
+            </span>
+
+            <div>
+
+              <span class="section-eyebrow">
+                PRICING ANALYSIS
+              </span>
+
+              <h2>
+                Price Statistics
+              </h2>
+
+            </div>
+
+          </div>
+
+          <app-price-statistics
+            [minimum]="statistics.minimumPrice"
+            [average]="statistics.averagePrice"
+            [maximum]="statistics.maximumPrice"
+          />
+
+        </section>
+
+      } @placeholder {
+
+        <div
+          class="deferred-placeholder statistics-placeholder"
+          aria-hidden="true"
+        >
+
+          <div class="placeholder-stat"></div>
+          <div class="placeholder-stat"></div>
+          <div class="placeholder-stat"></div>
+
+        </div>
+
+      }
 
     </main>
+
   }
+
 </div>
