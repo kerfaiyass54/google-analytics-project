@@ -47,7 +47,9 @@
               class="nav-link navigation-link"
               [routerLink]="item.route"
               routerLinkActive="active"
-              [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' }">
+              [routerLinkActiveOptions]="{
+                exact: item.route === '/dashboard'
+              }">
 
               <span class="navigation-icon">
                 <i [class]="'bi ' + item.icon"></i>
@@ -100,11 +102,17 @@
             <div class="user-information">
 
               <span class="user-name">
-                User
+                {{ authService.username() ?? 'User' }}
               </span>
 
               <span class="user-role">
-                Analyst
+
+                @if (authService.isAdmin()) {
+                  Administrator
+                } @else {
+                  Analyst
+                }
+
               </span>
 
             </div>
@@ -113,6 +121,7 @@
 
           <ul class="dropdown-menu dropdown-menu-end user-dropdown">
 
+            <!-- User information -->
             <li class="dropdown-header">
 
               <div class="dropdown-user-avatar">
@@ -120,8 +129,21 @@
               </div>
 
               <div>
-                <strong>User</strong>
-                <small>Analyst account</small>
+
+                <strong>
+                  {{ authService.username() ?? 'User' }}
+                </strong>
+
+                <small>
+
+                  @if (authService.isAdmin()) {
+                    Administrator account
+                  } @else {
+                    Analyst account
+                  }
+
+                </small>
+
               </div>
 
             </li>
@@ -130,6 +152,7 @@
               <hr class="dropdown-divider">
             </li>
 
+            <!-- Settings -->
             <li>
               <a
                 class="dropdown-item"
@@ -137,11 +160,14 @@
 
                 <i class="bi bi-person-gear"></i>
 
-                <span>Account settings</span>
+                <span>
+                  Account settings
+                </span>
 
               </a>
             </li>
 
+            <!-- Profile -->
             <li>
               <a
                 class="dropdown-item"
@@ -149,7 +175,9 @@
 
                 <i class="bi bi-person"></i>
 
-                <span>My profile</span>
+                <span>
+                  My profile
+                </span>
 
               </a>
             </li>
@@ -158,15 +186,19 @@
               <hr class="dropdown-divider">
             </li>
 
+            <!-- Logout -->
             <li>
 
               <button
                 class="dropdown-item logout-item"
-                type="button">
+                type="button"
+                (click)="logout()">
 
                 <i class="bi bi-box-arrow-right"></i>
 
-                <span>Logout</span>
+                <span>
+                  Logout
+                </span>
 
               </button>
 

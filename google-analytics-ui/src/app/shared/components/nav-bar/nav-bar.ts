@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-nav-bar',
@@ -7,8 +9,11 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   imports: [RouterLink, RouterLinkActive],
   templateUrl: './nav-bar.html',
   styleUrl: './nav-bar.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NavBar {
+  readonly authService = inject(AuthService);
+
   readonly navigationItems = [
     {
       label: 'Home',
@@ -31,4 +36,8 @@ export class NavBar {
       route: '/eda',
     },
   ];
+
+  async logout(): Promise<void> {
+    await this.authService.logout();
+  }
 }

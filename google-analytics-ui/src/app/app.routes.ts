@@ -2,11 +2,13 @@ import { Routes } from '@angular/router';
 
 import { HomePage } from './shared/components/home-page/home-page';
 import { DeveloperTools } from './shared/components/developer-tools/developer-tools';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
     path: '',
     component: HomePage,
+    canActivate: [authGuard],
     children: [
       {
         path: 'dashboard',
