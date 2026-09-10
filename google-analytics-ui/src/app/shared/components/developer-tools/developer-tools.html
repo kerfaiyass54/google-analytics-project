@@ -47,6 +47,22 @@
     </div>
 
   </div>
+  <div class="card border-0 shadow-sm mt-4">
+
+    <div class="card-body p-4">
+
+      <app-pie-chart
+        [title]="'Applications Distribution'"
+        [labels]="chartLabels()"
+        [datasets]="pieChartDatasets()"
+        [height]="400"
+        [showLegend]="true"
+        [showTitle]="true"
+      />
+
+    </div>
+
+  </div>
 
 </div>
 

@@ -2,15 +2,25 @@ import { Component, signal } from '@angular/core';
 import { BarChart } from '../charts/bar-chart/bar-chart';
 import { ChartDataset } from '../../models/chart.model';
 import { LineChart } from '../../../shared/components/charts/line-chart/line-chart';
+import { PieChart } from '../../../shared/components/charts/pie-chart/pie-chart';
 
 
 @Component({
   selector: 'app-developer-tools',
-  imports: [BarChart, LineChart],
+  imports: [BarChart, LineChart, PieChart],
   templateUrl: './developer-tools.html',
   styleUrl: './developer-tools.css',
 })
 export class DeveloperTools {
+  readonly pieChartDatasets = signal<ChartDataset[]>([
+    {
+      label: 'Applications',
+      data: [120, 85, 65, 45, 30],
+      backgroundColor: ['#6366f1', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b'],
+      borderWidth: 2,
+      borderColor: '#ffffff',
+    },
+  ]);
   readonly lineChartDatasets = signal<ChartDataset[]>([
     {
       label: 'Average Rating',
