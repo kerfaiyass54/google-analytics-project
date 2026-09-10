@@ -46,12 +46,6 @@ export class Dashboard implements OnInit {
 
   readonly error = signal<string | null>(null);
 
-  /**
-   * Sidebar navigation for the dashboard sections.
-   *
-   * The IDs here must match the IDs used by the
-   * dashboard sections in dashboard.html.
-   */
   readonly sidebarItems: SidebarItem[] = [
     {
       id: 'free-paid',
@@ -99,10 +93,6 @@ export class Dashboard implements OnInit {
     this.loadStatistics();
   }
 
-  // =========================================================
-  // LOAD STATISTICS
-  // =========================================================
-
   private loadStatistics(): void {
     this.loading.set(true);
     this.error.set(null);
@@ -124,10 +114,6 @@ export class Dashboard implements OnInit {
       },
     });
   }
-
-  // =========================================================
-  // RETRY
-  // =========================================================
 
   retry(): void {
     this.loadStatistics();

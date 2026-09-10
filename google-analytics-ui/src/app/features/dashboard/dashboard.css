@@ -5,30 +5,33 @@
 
 .dashboard-page {
   position: relative;
-
   width: 100%;
   min-height: 100%;
 
-  padding: 36px;
+  /*
+   * Space reserved for the collapsed sidebar.
+   * This prevents the sidebar from covering dashboard content.
+   */
+  padding: 28px 28px 40px 92px;
 
-  overflow: hidden;
+  overflow-x: hidden;
 
   background:
     radial-gradient(
       circle at 90% 0%,
-      rgba(99, 102, 241, 0.055),
-      transparent 30%
+      rgba(99, 102, 241, 0.045),
+      transparent 28%
     ),
     radial-gradient(
       circle at 0% 40%,
-      rgba(59, 130, 246, 0.035),
-      transparent 28%
+      rgba(59, 130, 246, 0.025),
+      transparent 25%
     );
 }
 
 
 /* ============================================================
-   HEADER
+   DASHBOARD HEADER
    ============================================================ */
 
 .dashboard-header {
@@ -38,54 +41,55 @@
   align-items: center;
   justify-content: space-between;
 
-  min-height: 190px;
+  min-height: 155px;
 
-  margin-bottom: 42px;
-  padding: 42px 46px;
+  margin-bottom: 30px;
+  padding: 30px 34px;
 
   overflow: hidden;
 
-  border: 1px solid rgba(148, 163, 184, 0.18);
-  border-radius: 28px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 22px;
 
   background:
     linear-gradient(
       135deg,
       rgba(255, 255, 255, 0.98),
-      rgba(248, 250, 252, 0.92)
+      rgba(248, 250, 252, 0.94)
     );
 
   box-shadow:
-    0 24px 60px rgba(15, 23, 42, 0.07),
-    0 4px 16px rgba(15, 23, 42, 0.035);
+    0 16px 40px rgba(15, 23, 42, 0.055),
+    0 3px 12px rgba(15, 23, 42, 0.025);
 }
 
 .header-content {
   position: relative;
   z-index: 2;
 
-  max-width: 760px;
+  max-width: 700px;
 }
 
 .dashboard-eyebrow {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
 
-  margin-bottom: 12px;
+  gap: 7px;
+
+  margin-bottom: 9px;
 
   color: #6366f1;
 
-  font-size: 0.68rem;
+  font-size: 0.61rem;
   font-weight: 800;
 
-  letter-spacing: 0.16em;
+  letter-spacing: 0.15em;
 }
 
 .dashboard-eyebrow::before {
   content: "";
 
-  width: 24px;
+  width: 20px;
   height: 2px;
 
   border-radius: 999px;
@@ -98,22 +102,22 @@
 
   color: #0f172a;
 
-  font-size: clamp(2rem, 4vw, 3rem);
+  font-size: clamp(1.75rem, 3vw, 2.45rem);
   font-weight: 850;
 
-  letter-spacing: -0.055em;
+  letter-spacing: -0.05em;
   line-height: 1.05;
 }
 
 .dashboard-header p {
-  max-width: 700px;
+  max-width: 650px;
 
-  margin: 14px 0 0;
+  margin: 11px 0 0;
 
   color: #64748b;
 
-  font-size: 0.95rem;
-  line-height: 1.7;
+  font-size: 0.82rem;
+  line-height: 1.65;
 }
 
 
@@ -123,7 +127,6 @@
 
 .header-decoration {
   position: absolute;
-
   inset: 0;
 
   pointer-events: none;
@@ -132,50 +135,49 @@
 .decoration-circle {
   position: absolute;
 
-  border: 1px solid rgba(99, 102, 241, 0.1);
-
+  border: 1px solid rgba(99, 102, 241, 0.08);
   border-radius: 50%;
 }
 
 .circle-one {
-  width: 240px;
-  height: 240px;
+  width: 190px;
+  height: 190px;
 
-  top: -100px;
-  right: -50px;
+  top: -85px;
+  right: -35px;
 }
 
 .circle-two {
-  width: 160px;
-  height: 160px;
+  width: 125px;
+  height: 125px;
 
-  top: 20px;
-  right: 120px;
+  top: 18px;
+  right: 100px;
 }
 
 .decoration-grid {
   position: absolute;
 
-  width: 260px;
-  height: 180px;
+  width: 210px;
+  height: 145px;
 
-  right: 20px;
-  bottom: -30px;
+  right: 10px;
+  bottom: -25px;
 
-  opacity: 0.3;
+  opacity: 0.25;
 
   background-image:
     linear-gradient(
-      rgba(99, 102, 241, 0.12) 1px,
+      rgba(99, 102, 241, 0.11) 1px,
       transparent 1px
     ),
     linear-gradient(
       90deg,
-      rgba(99, 102, 241, 0.12) 1px,
+      rgba(99, 102, 241, 0.11) 1px,
       transparent 1px
     );
 
-  background-size: 24px 24px;
+  background-size: 22px 22px;
 
   mask-image:
     linear-gradient(
@@ -187,14 +189,16 @@
 
 
 /* ============================================================
-   CONTENT
+   DASHBOARD CONTENT
    ============================================================ */
 
 .dashboard-content {
   display: flex;
   flex-direction: column;
 
-  gap: 38px;
+  gap: 28px;
+
+  width: 100%;
 }
 
 .dashboard-full {
@@ -206,15 +210,12 @@
 
   width: 100%;
 
-  gap: 38px;
+  gap: 28px;
 }
 
 .dashboard-grid-two {
   grid-template-columns:
-    repeat(
-      2,
-      minmax(0, 1fr)
-    );
+    repeat(2, minmax(0, 1fr));
 }
 
 
@@ -227,7 +228,10 @@
 
   min-width: 0;
 
-  scroll-margin-top: 110px;
+  /*
+   * Gives scrollIntoView some space below the navbar.
+   */
+  scroll-margin-top: 95px;
 }
 
 
@@ -239,9 +243,9 @@
   display: flex;
   align-items: center;
 
-  gap: 14px;
+  gap: 11px;
 
-  margin-bottom: 18px;
+  margin-bottom: 12px;
 }
 
 .section-number {
@@ -251,47 +255,47 @@
 
   flex: 0 0 auto;
 
-  width: 36px;
-  height: 36px;
+  width: 30px;
+  height: 30px;
 
-  border: 1px solid rgba(99, 102, 241, 0.16);
-  border-radius: 11px;
+  border: 1px solid rgba(99, 102, 241, 0.13);
+  border-radius: 9px;
 
-  background: rgba(99, 102, 241, 0.07);
+  background: rgba(99, 102, 241, 0.06);
 
   color: #6366f1;
 
-  font-size: 0.68rem;
+  font-size: 0.59rem;
   font-weight: 800;
 
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
 
   transition:
-    transform 250ms ease,
-    background 250ms ease,
-    box-shadow 250ms ease;
+    transform 200ms ease,
+    background 200ms ease,
+    box-shadow 200ms ease;
 }
 
 .dashboard-section:hover .section-number {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 
-  background: rgba(99, 102, 241, 0.11);
+  background: rgba(99, 102, 241, 0.09);
 
   box-shadow:
-    0 8px 18px rgba(99, 102, 241, 0.12);
+    0 5px 12px rgba(99, 102, 241, 0.1);
 }
 
 .section-eyebrow {
   display: block;
 
-  margin-bottom: 3px;
+  margin-bottom: 2px;
 
   color: #94a3b8;
 
-  font-size: 0.62rem;
+  font-size: 0.54rem;
   font-weight: 800;
 
-  letter-spacing: 0.12em;
+  letter-spacing: 0.11em;
 }
 
 .section-label h2 {
@@ -299,10 +303,10 @@
 
   color: #1e293b;
 
-  font-size: 1rem;
+  font-size: 0.88rem;
   font-weight: 750;
 
-  letter-spacing: -0.02em;
+  letter-spacing: -0.018em;
 }
 
 
@@ -314,15 +318,15 @@
   opacity: 0;
 
   transform:
-    translateY(34px)
-    scale(0.985);
+    translateY(25px)
+    scale(0.99);
 
-  filter: blur(4px);
+  filter: blur(3px);
 
   transition:
-    opacity 650ms cubic-bezier(0.22, 1, 0.36, 1),
-    transform 700ms cubic-bezier(0.22, 1, 0.36, 1),
-    filter 700ms cubic-bezier(0.22, 1, 0.36, 1);
+    opacity 550ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 600ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 600ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .scroll-reveal-visible {
@@ -342,38 +346,36 @@
 
 .deferred-placeholder {
   width: 100%;
-  min-height: 280px;
+  min-height: 220px;
 
   overflow: hidden;
 
-  border: 1px solid rgba(148, 163, 184, 0.14);
-  border-radius: 22px;
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: 18px;
 
-  background: rgba(248, 250, 252, 0.8);
+  background: rgba(248, 250, 252, 0.75);
 
   animation:
     placeholderPulse 1.6s ease-in-out infinite;
 }
 
 .chart-placeholder {
-  min-height: 390px;
+  min-height: 300px;
 }
 
 .wide-placeholder {
-  min-height: 390px;
+  min-height: 300px;
 }
 
 .statistics-placeholder {
   display: grid;
 
   grid-template-columns:
-    repeat(3, 1fr);
+    repeat(3, minmax(0, 1fr));
 
-  gap: 18px;
+  gap: 12px;
 
-  min-height: 170px;
-
-  padding: 18px;
+  min-height: 125px;
 
   background: transparent;
 
@@ -381,10 +383,10 @@
 }
 
 .placeholder-line {
-  width: 35%;
-  height: 14px;
+  width: 30%;
+  height: 10px;
 
-  margin: 30px;
+  margin: 22px;
 
   border-radius: 999px;
 
@@ -392,12 +394,12 @@
 }
 
 .placeholder-content {
-  width: 80%;
-  height: 220px;
+  width: calc(100% - 44px);
+  height: 160px;
 
-  margin: 0 auto 30px;
+  margin: 0 22px 22px;
 
-  border-radius: 18px;
+  border-radius: 14px;
 
   background:
     linear-gradient(
@@ -414,12 +416,12 @@
 }
 
 .placeholder-chart {
-  width: calc(100% - 60px);
-  height: 260px;
+  width: calc(100% - 44px);
+  height: 210px;
 
-  margin: 60px 30px 30px;
+  margin: 45px 22px 22px;
 
-  border-radius: 18px;
+  border-radius: 14px;
 
   background:
     linear-gradient(
@@ -436,17 +438,17 @@
 }
 
 .placeholder-stat {
-  min-height: 150px;
+  min-height: 110px;
 
-  border: 1px solid rgba(148, 163, 184, 0.14);
-  border-radius: 20px;
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: 16px;
 
   background: #f8fafc;
 }
 
 
 /* ============================================================
-   LOADING / ERROR
+   LOADING / ERROR STATE
    ============================================================ */
 
 .dashboard-state {
@@ -458,16 +460,16 @@
   align-items: center;
   justify-content: center;
 
-  min-height: 520px;
+  min-height: 450px;
 
-  padding: 40px;
+  padding: 35px;
 
   overflow: hidden;
 
   text-align: center;
 
-  border: 1px solid rgba(148, 163, 184, 0.18);
-  border-radius: 28px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 22px;
 
   background:
     linear-gradient(
@@ -477,11 +479,11 @@
     );
 
   box-shadow:
-    0 24px 60px rgba(15, 23, 42, 0.07),
-    0 4px 12px rgba(15, 23, 42, 0.04);
+    0 18px 45px rgba(15, 23, 42, 0.055),
+    0 3px 12px rgba(15, 23, 42, 0.025);
 
   animation:
-    stateEnter 500ms cubic-bezier(
+    stateEnter 450ms cubic-bezier(
       0.22,
       1,
       0.36,
@@ -492,16 +494,16 @@
 .state-background {
   position: absolute;
 
-  width: 320px;
-  height: 320px;
+  width: 270px;
+  height: 270px;
 
-  top: -180px;
+  top: -150px;
   left: 50%;
 
   border-radius: 50%;
 
   background:
-    rgba(99, 102, 241, 0.06);
+    rgba(99, 102, 241, 0.05);
 
   transform:
     translateX(-50%);
@@ -514,18 +516,18 @@
   align-items: center;
   justify-content: center;
 
-  width: 68px;
-  height: 68px;
+  width: 58px;
+  height: 58px;
 
-  margin-bottom: 18px;
+  margin-bottom: 14px;
 
-  border-radius: 20px;
+  border-radius: 17px;
 
-  font-size: 1.5rem;
+  font-size: 1.25rem;
 }
 
 .loading-state .state-icon {
-  background: rgba(99, 102, 241, 0.1);
+  background: rgba(99, 102, 241, 0.09);
 
   color: #6366f1;
 
@@ -534,20 +536,20 @@
 }
 
 .error-state .state-icon {
-  background: rgba(239, 68, 68, 0.1);
+  background: rgba(239, 68, 68, 0.09);
 
   color: #ef4444;
 }
 
 .state-eyebrow {
-  margin-bottom: 8px;
+  margin-bottom: 7px;
 
   color: #94a3b8;
 
-  font-size: 0.62rem;
+  font-size: 0.56rem;
   font-weight: 800;
 
-  letter-spacing: 0.14em;
+  letter-spacing: 0.13em;
 }
 
 .dashboard-state h2 {
@@ -555,19 +557,19 @@
 
   color: #0f172a;
 
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   font-weight: 750;
 }
 
 .dashboard-state p {
-  max-width: 500px;
+  max-width: 450px;
 
-  margin: 9px 0 22px;
+  margin: 8px 0 18px;
 
   color: #64748b;
 
-  font-size: 0.86rem;
-  line-height: 1.7;
+  font-size: 0.78rem;
+  line-height: 1.65;
 }
 
 
@@ -579,24 +581,24 @@
   display: inline-flex;
   align-items: center;
 
-  gap: 9px;
+  gap: 8px;
 
-  padding: 11px 19px;
+  padding: 9px 16px;
 
   border: 0;
-  border-radius: 12px;
+  border-radius: 10px;
 
   background: #6366f1;
 
   color: #ffffff;
 
-  font-size: 0.84rem;
+  font-size: 0.76rem;
   font-weight: 700;
 
   cursor: pointer;
 
   box-shadow:
-    0 8px 20px rgba(99, 102, 241, 0.2);
+    0 7px 16px rgba(99, 102, 241, 0.18);
 
   transition:
     transform 180ms ease,
@@ -608,10 +610,10 @@
   background: #4f46e5;
 
   transform:
-    translateY(-2px);
+    translateY(-1px);
 
   box-shadow:
-    0 14px 28px rgba(99, 102, 241, 0.25);
+    0 10px 20px rgba(99, 102, 241, 0.22);
 }
 
 .retry-button:active {
@@ -629,8 +631,8 @@
     opacity: 0;
 
     transform:
-      translateY(20px)
-      scale(0.98);
+      translateY(16px)
+      scale(0.985);
   }
 
   to {
@@ -651,14 +653,14 @@
 
   50% {
     transform:
-      translateY(-6px);
+      translateY(-5px);
   }
 }
 
 @keyframes placeholderPulse {
   0%,
   100% {
-    opacity: 0.65;
+    opacity: 0.6;
   }
 
   50% {
@@ -680,78 +682,148 @@
 
 
 /* ============================================================
-   RESPONSIVE
+   LARGE SCREENS
+   ============================================================ */
+
+@media (min-width: 1400px) {
+
+  .dashboard-page {
+    padding-left: 100px;
+    padding-right: 34px;
+  }
+
+  .dashboard-content {
+    gap: 32px;
+  }
+
+  .dashboard-grid {
+    gap: 32px;
+  }
+
+  .dashboard-header {
+    padding: 34px 40px;
+  }
+}
+
+
+/* ============================================================
+   TABLET
    ============================================================ */
 
 @media (max-width: 1200px) {
 
   .dashboard-page {
-    padding: 28px;
+    padding:
+      24px
+      24px
+      36px
+      78px;
   }
 
   .dashboard-header {
-    padding: 36px;
+    min-height: 145px;
+
+    padding: 28px 30px;
   }
 
   .dashboard-grid-two {
     grid-template-columns: 1fr;
   }
+
+  .dashboard-content {
+    gap: 26px;
+  }
+
+  .dashboard-grid {
+    gap: 26px;
+  }
 }
 
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
 
 @media (max-width: 768px) {
 
   .dashboard-page {
-    padding: 20px 16px;
+    padding:
+      18px
+      16px
+      30px
+      16px;
   }
 
   .dashboard-header {
     min-height: auto;
 
-    margin-bottom: 30px;
+    margin-bottom: 24px;
 
-    padding: 30px 24px;
+    padding: 25px 21px;
 
-    border-radius: 22px;
+    border-radius: 19px;
   }
 
   .dashboard-header h1 {
-    font-size: 2rem;
+    font-size: 1.75rem;
   }
 
   .dashboard-header p {
-    font-size: 0.86rem;
+    font-size: 0.76rem;
+  }
+
+  .dashboard-eyebrow {
+    font-size: 0.55rem;
   }
 
   .header-decoration {
-    opacity: 0.5;
+    opacity: 0.45;
   }
 
   .dashboard-content {
-    gap: 30px;
+    gap: 25px;
   }
 
   .dashboard-grid {
-    gap: 30px;
+    gap: 25px;
   }
 
   .section-label {
-    margin-bottom: 14px;
+    gap: 9px;
+
+    margin-bottom: 10px;
+  }
+
+  .section-number {
+    width: 28px;
+    height: 28px;
+
+    border-radius: 8px;
+  }
+
+  .section-eyebrow {
+    font-size: 0.5rem;
   }
 
   .section-label h2 {
-    font-size: 0.92rem;
+    font-size: 0.82rem;
   }
 
   .deferred-placeholder {
-    min-height: 250px;
+    min-height: 210px;
 
-    border-radius: 18px;
+    border-radius: 16px;
   }
 
   .chart-placeholder,
   .wide-placeholder {
-    min-height: 320px;
+    min-height: 270px;
+  }
+
+  .placeholder-chart {
+    height: 185px;
+
+    margin-top: 40px;
   }
 
   .statistics-placeholder {
@@ -759,25 +831,75 @@
 
     min-height: auto;
 
-    padding: 0;
+    gap: 10px;
   }
 
   .placeholder-stat {
-    min-height: 120px;
+    min-height: 95px;
   }
 
   .dashboard-state {
-    min-height: 420px;
+    min-height: 390px;
 
-    padding: 30px 20px;
+    padding: 28px 18px;
 
-    border-radius: 22px;
+    border-radius: 19px;
   }
 }
 
 
 /* ============================================================
-   ACCESSIBILITY
+   SMALL MOBILE
+   ============================================================ */
+
+@media (max-width: 480px) {
+
+  .dashboard-page {
+    padding:
+      14px
+      12px
+      25px
+      12px;
+  }
+
+  .dashboard-header {
+    padding: 22px 18px;
+
+    border-radius: 17px;
+  }
+
+  .dashboard-header h1 {
+    font-size: 1.55rem;
+  }
+
+  .dashboard-header p {
+    font-size: 0.72rem;
+    line-height: 1.55;
+  }
+
+  .dashboard-eyebrow {
+    font-size: 0.5rem;
+  }
+
+  .section-label h2 {
+    font-size: 0.78rem;
+  }
+
+  .section-eyebrow {
+    font-size: 0.46rem;
+  }
+
+  .section-number {
+    width: 26px;
+    height: 26px;
+
+    font-size: 0.54rem;
+  }
+}
+
+
+/* ============================================================
+   REDUCED MOTION
    ============================================================ */
 
 @media (prefers-reduced-motion: reduce) {
