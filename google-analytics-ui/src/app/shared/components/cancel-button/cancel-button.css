@@ -1,0 +1,100 @@
+:host {
+  display: inline-block;
+}
+
+/* ==========================================================
+   BUTTON
+   ========================================================== */
+
+.cancel-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  min-height: 42px;
+  padding: 10px 17px;
+
+  color: #475569;
+
+  background: #ffffff;
+
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 4px 12px rgba(15, 23, 42, 0.05);
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+/* ==========================================================
+   HOVER
+   ========================================================== */
+
+.cancel-button:hover {
+  color: #0f172a;
+
+  background: #f8fafc;
+
+  border-color: #94a3b8;
+
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 8px 20px rgba(15, 23, 42, 0.08);
+}
+
+/* ==========================================================
+   ACTIVE
+   ========================================================== */
+
+.cancel-button:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* ==========================================================
+   ICON
+   ========================================================== */
+
+.cancel-button i {
+  font-size: 14px;
+
+  transition:
+    transform 0.2s ease;
+}
+
+.cancel-button:hover i {
+  transform: translateX(-3px);
+}
+
+/* ==========================================================
+   FOCUS
+   ========================================================== */
+
+.cancel-button:focus-visible {
+  outline: 3px solid rgba(100, 116, 139, 0.2);
+  outline-offset: 2px;
+}
+
+/* ==========================================================
+   REDUCED MOTION
+   ========================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .cancel-button,
+  .cancel-button i {
+    transition: none;
+  }
+}

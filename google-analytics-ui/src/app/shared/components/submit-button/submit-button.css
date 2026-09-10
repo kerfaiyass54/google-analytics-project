@@ -1,0 +1,207 @@
+:host {
+  display: inline-block;
+}
+
+/* ==========================================================
+   BUTTON
+   ========================================================== */
+
+.submit-button {
+  --button-color: #6366f1;
+  --button-hover: #4f46e5;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  min-height: 42px;
+  padding: 10px 17px;
+
+  border: 1px solid transparent;
+  border-radius: 12px;
+
+  color: #ffffff;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  letter-spacing: -0.01em;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 6px 16px color-mix(
+      in srgb,
+      var(--button-color) 20%,
+      transparent
+    );
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+}
+
+/* ==========================================================
+   PRIMARY
+   ========================================================== */
+
+.submit-button.primary {
+  --button-color: #6366f1;
+  --button-hover: #4f46e5;
+
+  background: var(--button-color);
+}
+
+.submit-button.primary:hover:not(:disabled) {
+  background: var(--button-hover);
+}
+
+/* ==========================================================
+   SUCCESS
+   ========================================================== */
+
+.submit-button.success {
+  --button-color: #10b981;
+  --button-hover: #059669;
+
+  background: var(--button-color);
+}
+
+.submit-button.success:hover:not(:disabled) {
+  background: var(--button-hover);
+}
+
+/* ==========================================================
+   DANGER
+   ========================================================== */
+
+.submit-button.danger {
+  --button-color: #ef4444;
+  --button-hover: #dc2626;
+
+  background: var(--button-color);
+}
+
+.submit-button.danger:hover:not(:disabled) {
+  background: var(--button-hover);
+}
+
+/* ==========================================================
+   WARNING
+   ========================================================== */
+
+.submit-button.warning {
+  --button-color: #f59e0b;
+  --button-hover: #d97706;
+
+  background: var(--button-color);
+}
+
+.submit-button.warning:hover:not(:disabled) {
+  background: var(--button-hover);
+}
+
+/* ==========================================================
+   SECONDARY
+   ========================================================== */
+
+.submit-button.secondary {
+  --button-color: #64748b;
+  --button-hover: #475569;
+
+  background: var(--button-color);
+}
+
+.submit-button.secondary:hover:not(:disabled) {
+  background: var(--button-hover);
+}
+
+/* ==========================================================
+   HOVER
+   ========================================================== */
+
+.submit-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 10px 24px color-mix(
+      in srgb,
+      var(--button-color) 28%,
+      transparent
+    );
+}
+
+/* ==========================================================
+   ACTIVE
+   ========================================================== */
+
+.submit-button:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
+
+/* ==========================================================
+   DISABLED
+   ========================================================== */
+
+.submit-button:disabled {
+  opacity: 0.55;
+
+  cursor: not-allowed;
+
+  box-shadow: none;
+}
+
+/* ==========================================================
+   FULL WIDTH
+   ========================================================== */
+
+.submit-button.full-width {
+  width: 100%;
+}
+
+/* ==========================================================
+   ICON
+   ========================================================== */
+
+.submit-button i {
+  font-size: 14px;
+}
+
+/* ==========================================================
+   LOADING
+   ========================================================== */
+
+.submit-button .spinner-border {
+  width: 14px;
+  height: 14px;
+
+  border-width: 2px;
+}
+
+/* ==========================================================
+   ACCESSIBILITY
+   ========================================================== */
+
+.submit-button:focus-visible {
+  outline: 3px solid color-mix(
+    in srgb,
+    var(--button-color) 25%,
+    transparent
+  );
+
+  outline-offset: 2px;
+}
+
+/* ==========================================================
+   REDUCED MOTION
+   ========================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .submit-button {
+    transition: none;
+  }
+}

@@ -1,0 +1,28 @@
+<button
+  class="submit-button"
+  [class.primary]="variant() === 'primary'"
+  [class.success]="variant() === 'success'"
+  [class.danger]="variant() === 'danger'"
+  [class.warning]="variant() === 'warning'"
+  [class.secondary]="variant() === 'secondary'"
+  [class.full-width]="fullWidth()"
+  [disabled]="disabled() || loading()"
+  [attr.type]="type()"
+  (click)="onClick()"
+>
+  @if (loading()) {
+    <span
+      class="spinner-border spinner-border-sm"
+      aria-hidden="true"
+    ></span>
+
+    <span>Processing...</span>
+  } @else {
+
+    @if (icon()) {
+      <i [class]="icon()"></i>
+    }
+
+    <span>{{ label() }}</span>
+  }
+</button>
