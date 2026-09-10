@@ -1,0 +1,36 @@
+<nav
+  class="page-sidebar"
+  aria-label="Page sections"
+>
+  <div class="sidebar-inner">
+
+    @for (item of items(); track item.id) {
+      <button
+        type="button"
+        class="sidebar-item"
+        [class.active]="activeId() === item.id"
+        [attr.aria-label]="item.name"
+        [attr.aria-current]="
+          activeId() === item.id ? 'true' : null
+        "
+        (click)="scrollToSection(item.id)"
+      >
+
+        <!-- Icon -->
+        <span class="sidebar-icon">
+          <i [class]="item.icon"></i>
+        </span>
+
+        <!-- Label -->
+        <span class="sidebar-label">
+          {{ item.name }}
+        </span>
+
+        <!-- Active indicator -->
+        <span class="active-indicator"></span>
+
+      </button>
+    }
+
+  </div>
+</nav>

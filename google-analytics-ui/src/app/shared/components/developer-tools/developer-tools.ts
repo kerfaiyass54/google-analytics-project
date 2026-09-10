@@ -1,20 +1,19 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-
 import {
   PaginatedTable,
   PaginatedTableColumn,
   PaginatedTableRequest,
   PaginatedTableResponse,
 } from '../paginated-table/paginated-table';
-import { CardSimple } from '../card-simple/card-simple';
-import { CardDetails } from '../card-details/card-details';
-import { ConfirmDialog } from '../confirm-dialog/confirm-dialog';
+import { SidebarItem, SidebarPage } from '../sidebar-page/sidebar-page';
 
-interface GooglePlayApp {
+
+
+export interface GooglePlayApp {
   id: number;
   app: string;
   category: string;
-  rating: number | null;
+  rating: number;
   reviews: number;
   installs: string;
   type: string;
@@ -29,15 +28,42 @@ interface GooglePlayApp {
 @Component({
   selector: 'app-developer-tools',
   standalone: true,
-  imports: [PaginatedTable, CardSimple, CardDetails, ConfirmDialog],
+  imports: [PaginatedTable, SidebarPage],
   templateUrl: './developer-tools.html',
   styleUrl: './developer-tools.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DeveloperTools {
-  // ==========================================================
+  // ============================================================
+  // SIDEBAR
+  // ============================================================
+
+  readonly sidebarItems: SidebarItem[] = [
+    {
+      id: 'developer-overview',
+      name: 'Overview',
+      icon: 'bi bi-speedometer2',
+    },
+    {
+      id: 'developer-applications',
+      name: 'Applications',
+      icon: 'bi bi-grid-3x3-gap-fill',
+    },
+    {
+      id: 'developer-statistics',
+      name: 'Statistics',
+      icon: 'bi bi-bar-chart-fill',
+    },
+    {
+      id: 'developer-analytics',
+      name: 'Analytics',
+      icon: 'bi bi-graph-up-arrow',
+    },
+  ];
+
+  // ============================================================
   // TABLE COLUMNS
-  // ==========================================================
+  // ============================================================
 
   readonly columns: PaginatedTableColumn[] = [
     {
@@ -70,206 +96,211 @@ export class DeveloperTools {
       label: 'Type',
       type: 'badge',
     },
+    {
+      key: 'price',
+      label: 'Price',
+      type: 'number',
+    },
   ];
 
-  // ==========================================================
+  // ============================================================
   // MOCK DATA
-  // ==========================================================
+  // ============================================================
 
   private readonly applications: GooglePlayApp[] = [
     {
       id: 1,
+      app: 'Photo Editor Pro',
+      category: 'PHOTOGRAPHY',
+      rating: 4.5,
+      reviews: 125430,
+      installs: '10,000,000+',
+      type: 'Free',
+      price: 0,
+      contentRating: 'Everyone',
+      genres: 'Photography',
+      lastUpdated: '2025-08-12',
+      currentVersion: '4.2.1',
+      androidVersion: '5.0 and up',
+    },
+    {
+      id: 2,
       app: 'Google Maps',
       category: 'TRAVEL_AND_LOCAL',
-      rating: 4.5,
-      reviews: 1815203,
+      rating: 4.3,
+      reviews: 4523100,
       installs: '1,000,000,000+',
       type: 'Free',
       price: 0,
       contentRating: 'Everyone',
       genres: 'Travel & Local',
-      lastUpdated: '2026-08-20',
-      currentVersion: '12.45.1',
-      androidVersion: '5.0 and up',
-    },
-    {
-      id: 2,
-      app: 'Facebook',
-      category: 'SOCIAL',
-      rating: 4.1,
-      reviews: 78158306,
-      installs: '5,000,000,000+',
-      type: 'Free',
-      price: 0,
-      contentRating: 'Teen',
-      genres: 'Social',
-      lastUpdated: '2026-08-18',
-      currentVersion: '520.0.0',
-      androidVersion: '8.0 and up',
+      lastUpdated: '2025-08-20',
+      currentVersion: '11.45',
+      androidVersion: '6.0 and up',
     },
     {
       id: 3,
-      app: 'Instagram',
-      category: 'SOCIAL',
-      rating: 4.5,
-      reviews: 66577313,
-      installs: '1,000,000,000+',
-      type: 'Free',
-      price: 0,
-      contentRating: 'Teen',
-      genres: 'Social',
-      lastUpdated: '2026-08-21',
-      currentVersion: '395.0.0',
-      androidVersion: '9.0 and up',
-    },
-    {
-      id: 4,
       app: 'Spotify Music',
       category: 'MUSIC_AND_AUDIO',
-      rating: 4.6,
-      reviews: 22148593,
-      installs: '1,000,000,000+',
+      rating: 4.4,
+      reviews: 1892300,
+      installs: '500,000,000+',
       type: 'Free',
       price: 0,
       contentRating: 'Teen',
       genres: 'Music & Audio',
-      lastUpdated: '2026-08-19',
-      currentVersion: '9.2.10',
+      lastUpdated: '2025-08-18',
+      currentVersion: '9.1.0',
       androidVersion: '6.0 and up',
     },
     {
-      id: 5,
+      id: 4,
       app: 'Netflix',
       category: 'VIDEO_PLAYERS',
-      rating: 4.4,
-      reviews: 12345678,
+      rating: 4.2,
+      reviews: 1625400,
       installs: '1,000,000,000+',
       type: 'Free',
       price: 0,
       contentRating: 'Teen',
       genres: 'Video Players & Editors',
-      lastUpdated: '2026-08-15',
-      currentVersion: '8.145.0',
+      lastUpdated: '2025-08-21',
+      currentVersion: '8.120',
       androidVersion: '7.0 and up',
     },
     {
+      id: 5,
+      app: 'Minecraft',
+      category: 'GAME',
+      rating: 4.6,
+      reviews: 4832100,
+      installs: '50,000,000+',
+      type: 'Paid',
+      price: 7.49,
+      contentRating: 'Everyone 10+',
+      genres: 'Arcade',
+      lastUpdated: '2025-08-10',
+      currentVersion: '1.21.20',
+      androidVersion: '8.0 and up',
+    },
+    {
       id: 6,
+      app: 'WhatsApp Messenger',
+      category: 'COMMUNICATION',
+      rating: 4.4,
+      reviews: 13245000,
+      installs: '5,000,000,000+',
+      type: 'Free',
+      price: 0,
+      contentRating: 'Everyone',
+      genres: 'Communication',
+      lastUpdated: '2025-08-22',
+      currentVersion: '2.25.18',
+      androidVersion: '5.0 and up',
+    },
+    {
+      id: 7,
       app: 'Duolingo',
       category: 'EDUCATION',
       rating: 4.7,
-      reviews: 2567890,
+      reviews: 2154300,
       installs: '100,000,000+',
       type: 'Free',
       price: 0,
       contentRating: 'Everyone',
       genres: 'Education',
-      lastUpdated: '2026-08-17',
-      currentVersion: '6.42.2',
-      androidVersion: '6.0 and up',
+      lastUpdated: '2025-08-19',
+      currentVersion: '6.48',
+      androidVersion: '7.0 and up',
     },
     {
-      id: 7,
+      id: 8,
       app: 'Adobe Lightroom',
       category: 'PHOTOGRAPHY',
-      rating: 4.3,
-      reviews: 2456789,
+      rating: 4.5,
+      reviews: 985400,
       installs: '100,000,000+',
       type: 'Free',
       price: 0,
       contentRating: 'Everyone',
       genres: 'Photography',
-      lastUpdated: '2026-08-12',
-      currentVersion: '10.5.0',
-      androidVersion: '8.0 and up',
-    },
-    {
-      id: 8,
-      app: 'Minecraft',
-      category: 'GAME',
-      rating: 4.6,
-      reviews: 5123456,
-      installs: '50,000,000+',
-      type: 'Paid',
-      price: 7.49,
-      contentRating: 'Everyone 10+',
-      genres: 'Adventure',
-      lastUpdated: '2026-08-10',
-      currentVersion: '1.21.50',
+      lastUpdated: '2025-08-17',
+      currentVersion: '10.4',
       androidVersion: '8.0 and up',
     },
     {
       id: 9,
+      app: 'Google Drive',
+      category: 'PRODUCTIVITY',
+      rating: 4.3,
+      reviews: 4215600,
+      installs: '5,000,000,000+',
+      type: 'Free',
+      price: 0,
+      contentRating: 'Everyone',
+      genres: 'Productivity',
+      lastUpdated: '2025-08-21',
+      currentVersion: '2.25',
+      androidVersion: '6.0 and up',
+    },
+    {
+      id: 10,
+      app: 'Canva',
+      category: 'PRODUCTIVITY',
+      rating: 4.7,
+      reviews: 1265400,
+      installs: '100,000,000+',
+      type: 'Free',
+      price: 0,
+      contentRating: 'Everyone',
+      genres: 'Productivity',
+      lastUpdated: '2025-08-20',
+      currentVersion: '4.85',
+      androidVersion: '8.0 and up',
+    },
+    {
+      id: 11,
       app: 'Microsoft Word',
       category: 'PRODUCTIVITY',
-      rating: 4.4,
-      reviews: 4856789,
+      rating: 4.5,
+      reviews: 4521000,
       installs: '1,000,000,000+',
       type: 'Free',
       price: 0,
       contentRating: 'Everyone',
       genres: 'Productivity',
-      lastUpdated: '2026-08-14',
-      currentVersion: '16.0.19000',
-      androidVersion: '10 and up',
-    },
-    {
-      id: 10,
-      app: 'Canva',
-      category: 'ART_AND_DESIGN',
-      rating: 4.8,
-      reviews: 1234567,
-      installs: '100,000,000+',
-      type: 'Free',
-      price: 0,
-      contentRating: 'Everyone',
-      genres: 'Art & Design',
-      lastUpdated: '2026-08-16',
-      currentVersion: '4.2.0',
-      androidVersion: '8.0 and up',
-    },
-    {
-      id: 11,
-      app: 'Notion',
-      category: 'PRODUCTIVITY',
-      rating: 4.5,
-      reviews: 987654,
-      installs: '50,000,000+',
-      type: 'Free',
-      price: 0,
-      contentRating: 'Everyone',
-      genres: 'Productivity',
-      lastUpdated: '2026-08-13',
-      currentVersion: '2.48.0',
+      lastUpdated: '2025-08-18',
+      currentVersion: '16.0',
       androidVersion: '8.0 and up',
     },
     {
       id: 12,
       app: 'Telegram',
       category: 'COMMUNICATION',
-      rating: 4.3,
-      reviews: 14567890,
+      rating: 4.5,
+      reviews: 8542100,
       installs: '1,000,000,000+',
       type: 'Free',
       price: 0,
       contentRating: 'Teen',
       genres: 'Communication',
-      lastUpdated: '2026-08-11',
-      currentVersion: '11.14.2',
+      lastUpdated: '2025-08-22',
+      currentVersion: '11.5',
       androidVersion: '6.0 and up',
     },
     {
       id: 13,
       app: 'Amazon Shopping',
       category: 'SHOPPING',
-      rating: 4.4,
-      reviews: 29876543,
+      rating: 4.3,
+      reviews: 3421500,
       installs: '500,000,000+',
       type: 'Free',
       price: 0,
       contentRating: 'Teen',
       genres: 'Shopping',
-      lastUpdated: '2026-08-09',
-      currentVersion: '30.12.0',
+      lastUpdated: '2025-08-16',
+      currentVersion: '28.12',
       androidVersion: '8.0 and up',
     },
     {
@@ -277,111 +308,111 @@ export class DeveloperTools {
       app: 'Coursera',
       category: 'EDUCATION',
       rating: 4.6,
-      reviews: 876543,
+      reviews: 185400,
       installs: '10,000,000+',
       type: 'Free',
       price: 0,
       contentRating: 'Everyone',
       genres: 'Education',
-      lastUpdated: '2026-08-07',
-      currentVersion: '6.1.2',
+      lastUpdated: '2025-08-14',
+      currentVersion: '6.9',
       androidVersion: '7.0 and up',
     },
     {
       id: 15,
+      app: 'Calm',
+      category: 'HEALTH_AND_FITNESS',
+      rating: 4.4,
+      reviews: 492300,
+      installs: '50,000,000+',
+      type: 'Free',
+      price: 0,
+      contentRating: 'Everyone',
+      genres: 'Health & Fitness',
+      lastUpdated: '2025-08-13',
+      currentVersion: '6.42',
+      androidVersion: '7.0 and up',
+    },
+    {
+      id: 16,
       app: 'Todoist',
       category: 'PRODUCTIVITY',
-      rating: 4.5,
-      reviews: 345678,
+      rating: 4.6,
+      reviews: 325600,
       installs: '10,000,000+',
       type: 'Free',
       price: 0,
       contentRating: 'Everyone',
       genres: 'Productivity',
-      lastUpdated: '2026-08-06',
-      currentVersion: '9.12.0',
+      lastUpdated: '2025-08-15',
+      currentVersion: '9.12',
       androidVersion: '8.0 and up',
     },
     {
-      id: 16,
-      app: '1Password',
-      category: 'TOOLS',
-      rating: 4.6,
-      reviews: 234567,
-      installs: '5,000,000+',
-      type: 'Paid',
-      price: 2.99,
-      contentRating: 'Everyone',
-      genres: 'Tools',
-      lastUpdated: '2026-08-05',
-      currentVersion: '8.10.50',
-      androidVersion: '9.0 and up',
-    },
-    {
       id: 17,
-      app: 'Khan Academy',
-      category: 'EDUCATION',
-      rating: 4.6,
-      reviews: 567890,
-      installs: '10,000,000+',
+      app: 'PUBG Mobile',
+      category: 'GAME',
+      rating: 4.3,
+      reviews: 18745000,
+      installs: '1,000,000,000+',
       type: 'Free',
       price: 0,
-      contentRating: 'Everyone',
-      genres: 'Education',
-      lastUpdated: '2026-08-04',
-      currentVersion: '8.2.1',
-      androidVersion: '6.0 and up',
+      contentRating: 'Teen',
+      genres: 'Action',
+      lastUpdated: '2025-08-21',
+      currentVersion: '3.9.0',
+      androidVersion: '5.1 and up',
     },
     {
       id: 18,
       app: 'Shazam',
       category: 'MUSIC_AND_AUDIO',
       rating: 4.8,
-      reviews: 8123456,
+      reviews: 872300,
       installs: '500,000,000+',
       type: 'Free',
       price: 0,
       contentRating: 'Everyone',
       genres: 'Music & Audio',
-      lastUpdated: '2026-08-03',
-      currentVersion: '15.20.0',
+      lastUpdated: '2025-08-19',
+      currentVersion: '14.32',
       androidVersion: '8.0 and up',
     },
     {
       id: 19,
-      app: 'Evernote',
+      app: 'Forest',
       category: 'PRODUCTIVITY',
-      rating: 4.2,
-      reviews: 1789456,
-      installs: '100,000,000+',
-      type: 'Free',
-      price: 0,
+      rating: 4.5,
+      reviews: 62500,
+      installs: '10,000,000+',
+      type: 'Paid',
+      price: 1.99,
       contentRating: 'Everyone',
       genres: 'Productivity',
-      lastUpdated: '2026-08-02',
-      currentVersion: '10.100.0',
-      androidVersion: '8.0 and up',
+      lastUpdated: '2025-08-11',
+      currentVersion: '4.75',
+      androidVersion: '6.0 and up',
     },
     {
       id: 20,
-      app: 'Google Drive',
+      app: 'Notion',
       category: 'PRODUCTIVITY',
       rating: 4.4,
-      reviews: 6543210,
-      installs: '5,000,000,000+',
+      reviews: 185600,
+      installs: '50,000,000+',
       type: 'Free',
       price: 0,
       contentRating: 'Everyone',
       genres: 'Productivity',
-      lastUpdated: '2026-08-01',
-      currentVersion: '2.26.0',
+      lastUpdated: '2025-08-20',
+      currentVersion: '0.6.5',
       androidVersion: '8.0 and up',
     },
   ];
 
-  // ==========================================================
-  // TABLE RESPONSE
-  // ==========================================================
+  // ============================================================
+  // TABLE STATE
+  // ============================================================
 
   readonly tableResponse = signal<PaginatedTableResponse<GooglePlayApp>>({
     content: [],
@@ -391,25 +422,25 @@ export class DeveloperTools {
     totalPages: 0,
   });
 
-  // ==========================================================
-  // LOADING
-  // ==========================================================
-
   readonly loading = signal<boolean>(false);
 
-  // ==========================================================
-  // INITIALIZATION
-  // ==========================================================
+  // ============================================================
+  // CONSTRUCTOR
+  // ============================================================
 
   constructor() {
     this.loadApplications(0, 10, '');
   }
 
-  // ==========================================================
-  // LOCAL PAGINATION + SEARCH
-  // ==========================================================
+  // ============================================================
+  // PAGINATION / SEARCH
+  // ============================================================
 
-  loadApplications(page: number, size: number, search: string): void {
+  onPageChange(request: PaginatedTableRequest): void {
+    this.loadApplications(request.page, request.size, request.search);
+  }
+
+  private loadApplications(page: number, size: number, search: string): void {
     this.loading.set(true);
 
     setTimeout(() => {
@@ -418,27 +449,30 @@ export class DeveloperTools {
       const filteredApplications =
         normalizedSearch.length === 0
           ? this.applications
-          : this.applications.filter(
-              (application) =>
-                application.app.toLowerCase().includes(normalizedSearch) ||
-                application.category.toLowerCase().includes(normalizedSearch) ||
-                application.genres.toLowerCase().includes(normalizedSearch) ||
-                application.type.toLowerCase().includes(normalizedSearch),
+          : this.applications.filter((application) =>
+              [
+                application.app,
+                application.category,
+                application.genres,
+                application.type,
+                application.contentRating,
+              ].some((value) => value.toLowerCase().includes(normalizedSearch)),
             );
 
       const totalElements = filteredApplications.length;
 
-      const totalPages = Math.ceil(totalElements / size);
+      const totalPages = totalElements === 0 ? 0 : Math.ceil(totalElements / size);
 
-      const startIndex = page * size;
+      const safePage = totalPages === 0 ? 0 : Math.min(page, totalPages - 1);
 
+      const startIndex = safePage * size;
       const endIndex = startIndex + size;
 
       const content = filteredApplications.slice(startIndex, endIndex);
 
       this.tableResponse.set({
         content,
-        page,
+        page: safePage,
         size,
         totalElements,
         totalPages,
@@ -446,21 +480,5 @@ export class DeveloperTools {
 
       this.loading.set(false);
     }, 300);
-  }
-
-  // ==========================================================
-  // TABLE PAGINATION / SEARCH
-  // ==========================================================
-
-  onPageChange(request: PaginatedTableRequest): void {
-    this.loadApplications(request.page, request.size, request.search);
-  }
-
-  deleteApplication(): void {
-    console.log('Delete application');
-  }
-
-  cancelDelete(): void {
-    console.log('Delete cancelled');
   }
 }
