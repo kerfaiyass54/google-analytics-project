@@ -16,12 +16,18 @@ export const routes: Routes = [
       },
       {
         path: 'list',
-        loadComponent: () => import('./features/list-applications/list-applications').then((m) => m.ListApplications),
+        loadComponent: () =>
+          import('./features/list-applications/list-applications').then((m) => m.ListApplications),
       },
       {
-        path: 'user-details',
+        path: 'operations',
         loadComponent: () =>
-          import('./shared/components/user-details/user-details').then((m) => m.UserDetails),
+          import('./features/operations-page/operations-page').then((m) => m.OperationsPage),
+      },
+      {
+        path: 'eda',
+        loadComponent: () =>
+          import('./features/eda-page/eda-page').then((m) => m.EdaPage),
       },
     ],
   },
