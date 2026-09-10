@@ -1,0 +1,396 @@
+<section class="table-card">
+
+  <!-- ======================================================
+       HEADER
+       ====================================================== -->
+
+  <header class="table-header">
+
+    <div class="title-section">
+
+      <div class="title-icon">
+        <i class="bi bi-grid-3x3-gap-fill"></i>
+      </div>
+
+      <div class="title-content">
+
+        <h2>
+          {{ title() }}
+        </h2>
+
+        <span class="table-subtitle">
+          {{ totalElements }} records
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <!-- SEARCH -->
+
+    <div class="search-container">
+
+      <i class="bi bi-search search-icon"></i>
+
+      <input
+        type="search"
+        class="search-input"
+        [value]="search()"
+        [placeholder]="searchPlaceholder()"
+        (input)="onSearch($any($event.target).value)"
+        (keydown)="onSearchKeydown($event)"
+        autocomplete="off"
+      />
+
+      @if (search()) {
+
+        <button
+          type="button"
+          class="clear-search"
+          aria-label="Clear search"
+          (click)="clearSearch()"
+        >
+          <i class="bi bi-x-lg"></i>
+        </button>
+
+      } @else {
+
+        <span class="search-shortcut">
+          /
+        </span>
+
+      }
+
+    </div>
+
+  </header>
+
+
+  <!-- ======================================================
+       TABLE
+       ====================================================== -->
+
+  <div class="table-wrapper">
+
+    <table class="modern-table">
+
+      <!-- TABLE HEAD -->
+
+      <thead>
+
+      <tr>
+
+        @for (
+          column of columns();
+          track column.key
+          ) {
+
+          <th>
+
+              <span class="column-label">
+                {{ column.label }}
+              </span>
+
+          </th>
+
+        }
+
+      </tr>
+
+      </thead>
+
+
+      <!-- TABLE BODY -->
+
+      <tbody>
+
+        @if (loading()) {
+
+          @for (
+            item of [1, 2, 3, 4, 5];
+            track item
+            ) {
+
+            <tr class="skeleton-row">
+
+              @for (
+                column of columns();
+                track column.key
+                ) {
+
+                <td>
+
+                  <span class="skeleton"></span>
+
+                </td>
+
+              }
+
+            </tr>
+
+          }
+
+        } @else {
+
+          @for (
+            row of rows;
+            track trackRow($index, row)
+            ) {
+
+            <tr class="table-row">
+
+              @for (
+                column of columns();
+                track column.key
+                ) {
+
+                <td>
+
+                  @if (
+                    column.type === 'badge'
+                    ) {
+
+                    <span class="status-badge">
+
+                      <span class="badge-dot"></span>
+
+                      {{ getCellValue(row, column) }}
+
+                    </span>
+
+                  } @else {
+
+                    <span class="cell-value">
+                      {{ getCellValue(row, column) }}
+                    </span>
+
+                  }
+
+                </td>
+
+              }
+
+            </tr>
+
+          } @empty {
+
+            <tr class="empty-row">
+
+              <td
+                [attr.colspan]="columns().length"
+              >
+
+                <div class="empty-state">
+
+                  <div class="empty-icon">
+                    <i class="bi bi-search"></i>
+                  </div>
+
+                  <strong>
+                    No results found
+                  </strong>
+
+                  <span>
+                    Try changing your search criteria.
+                  </span>
+
+                </div>
+
+              </td>
+
+            </tr>
+
+          }
+
+        }
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+
+  <!-- ======================================================
+       FOOTER
+       ====================================================== -->
+
+  <footer class="table-footer">
+
+    <!-- RESULT INFORMATION -->
+
+    <div class="pagination-info">
+
+      Showing
+
+      <strong>
+        {{ firstElement }}
+      </strong>
+
+      –
+
+      <strong>
+        {{ lastElement }}
+      </strong>
+
+      of
+
+      <strong>
+        {{ totalElements }}
+      </strong>
+
+    </div>
+
+
+    <!-- PAGINATION -->
+
+    <div class="pagination">
+
+      <!-- FIRST -->
+
+      <button
+        type="button"
+        class="page-button navigation-button"
+        [disabled]="
+          loading() ||
+          currentPage() === 0 ||
+          totalPages === 0
+        "
+        (click)="firstPage()"
+        aria-label="First page"
+      >
+
+        <i class="bi bi-chevron-double-left"></i>
+
+      </button>
+
+
+      <!-- PREVIOUS -->
+
+      <button
+        type="button"
+        class="page-button navigation-button"
+        [disabled]="
+          loading() ||
+          currentPage() === 0 ||
+          totalPages === 0
+        "
+        (click)="previousPage()"
+        aria-label="Previous page"
+      >
+
+        <i class="bi bi-chevron-left"></i>
+
+      </button>
+
+
+      <!-- PAGE NUMBERS -->
+
+      @for (
+        page of visiblePageNumbers;
+        track $index
+        ) {
+
+        @if (page === -1) {
+
+          <span class="pagination-dots">
+            ...
+          </span>
+
+        } @else {
+
+          <button
+            type="button"
+            class="page-button"
+            [class.active]="
+              page === currentPage()
+            "
+            [disabled]="loading()"
+            (click)="goToPage(page)"
+          >
+            {{ page + 1 }}
+          </button>
+
+        }
+
+      }
+
+
+      <!-- NEXT -->
+
+      <button
+        type="button"
+        class="page-button navigation-button"
+        [disabled]="
+          loading() ||
+          currentPage() >= totalPages - 1 ||
+          totalPages === 0
+        "
+        (click)="nextPage()"
+        aria-label="Next page"
+      >
+
+        <i class="bi bi-chevron-right"></i>
+
+      </button>
+
+
+      <!-- LAST -->
+
+      <button
+        type="button"
+        class="page-button navigation-button"
+        [disabled]="
+          loading() ||
+          currentPage() >= totalPages - 1 ||
+          totalPages === 0
+        "
+        (click)="lastPage()"
+        aria-label="Last page"
+      >
+
+        <i class="bi bi-chevron-double-right"></i>
+
+      </button>
+
+    </div>
+
+
+    <!-- PAGE SIZE -->
+
+    <div class="page-size">
+
+      <span>
+        Rows
+      </span>
+
+      <select
+        [value]="selectedPageSize()"
+        [disabled]="loading()"
+        (change)="
+          onPageSizeChange(
+            $any($event.target).value
+          )
+        "
+        aria-label="Rows per page"
+      >
+
+        @for (
+          size of pageSizeOptions();
+          track size
+          ) {
+
+          <option [value]="size">
+            {{ size }}
+          </option>
+
+        }
+
+      </select>
+
+    </div>
+
+  </footer>
+
+</section>

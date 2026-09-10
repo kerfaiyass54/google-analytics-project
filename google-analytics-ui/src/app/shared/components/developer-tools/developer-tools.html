@@ -1,87 +1,9 @@
-<div class="developer-tools">
-
-  <div class="container py-5">
-
-    <div class="mb-4">
-      <h1 class="fw-bold">
-        Chart.js Developer Tools
-      </h1>
-
-      <p class="text-secondary">
-        Reusable Angular signal-based charts
-      </p>
-    </div>
-
-    <div class="card border-0 shadow-sm">
-
-      <div class="card-body p-4">
-
-        <app-bar-chart
-          [title]="chartTitle()"
-          [labels]="chartLabels()"
-          [datasets]="chartDatasets()"
-          [height]="400"
-          [showLegend]="true"
-          [showGrid]="true"
-        />
-
-      </div>
-
-    </div>
-
-  </div>
-
-  <div class="card border-0 shadow-sm mt-4">
-
-    <div class="card-body p-4">
-
-      <app-line-chart
-        [title]="'Average Rating Trend'"
-        [labels]="chartLabels()"
-        [datasets]="lineChartDatasets()"
-        [height]="400"
-        [showLegend]="true"
-        [showGrid]="true"
-      />
-
-    </div>
-
-  </div>
-
-  <div class="card border-0 shadow-sm mt-4">
-
-    <div class="card-body p-4">
-
-      <app-pie-chart
-        [title]="'Applications Distribution'"
-        [labels]="chartLabels()"
-        [datasets]="pieChartDatasets()"
-        [height]="400"
-        [showLegend]="true"
-        [showTitle]="true"
-      />
-
-    </div>
-
-  </div>
-
-</div>
-
-<div class="card border-0 shadow-sm mt-4">
-
-  <div class="card-body p-4">
-
-    <app-doughnut-chart
-      [title]="'Applications by Category'"
-      [labels]="chartLabels()"
-      [datasets]="doughnutChartDatasets()"
-      [height]="400"
-      [showLegend]="true"
-      [showTitle]="true"
-    />
-
-  </div>
-
-</div>
-
-
+<app-paginated-table
+  title="Applications"
+  searchPlaceholder="Search applications..."
+  [columns]="columns"
+  [response]="tableResponse()"
+  [loading]="loading()"
+  [pageSizeOptions]="[5, 10, 20, 50, 100]"
+  (pageChange)="onPageChange($event)"
+/>
