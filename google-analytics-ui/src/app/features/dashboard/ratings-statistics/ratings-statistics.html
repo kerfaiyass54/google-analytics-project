@@ -1,0 +1,53 @@
+<section class="statistics-section">
+  <header class="section-header">
+    <div class="section-icon">
+      <i class="bi bi-star-fill"></i>
+    </div>
+
+    <div>
+      <h2>Rating Statistics</h2>
+      <p>Minimum, average, and maximum application ratings</p>
+    </div>
+  </header>
+
+  <div class="statistics-grid">
+    <article class="stat-card minimum-card">
+      <div class="stat-icon">
+        <i class="bi bi-arrow-down"></i>
+      </div>
+
+      <div class="stat-content">
+        <span class="stat-label">Minimum Rating</span>
+        <strong class="stat-value">
+          {{ minimum()  }}
+        </strong>
+      </div>
+    </article>
+
+    <article class="stat-card average-card">
+      <div class="stat-icon">
+        <i class="bi bi-star-half"></i>
+      </div>
+
+      <div class="stat-content">
+        <span class="stat-label">Average Rating</span>
+        <strong class="stat-value">
+          {{ average()  }}
+        </strong>
+      </div>
+    </article>
+
+    <article class="stat-card maximum-card">
+      <div class="stat-icon">
+        <i class="bi bi-arrow-up"></i>
+      </div>
+
+      <div class="stat-content">
+        <span class="stat-label">Maximum Rating</span>
+        <strong class="stat-value">
+          {{ maximum()  }}
+        </strong>
+      </div>
+    </article>
+  </div>
+</section>

@@ -1,0 +1,56 @@
+<section class="statistics-section">
+  <header class="section-header">
+    <div class="section-icon">
+      <i class="bi bi-chat-square-text-fill"></i>
+    </div>
+
+    <div>
+      <h2>Review Statistics</h2>
+      <p>Minimum, average, and maximum application reviews</p>
+    </div>
+  </header>
+
+  <div class="statistics-grid">
+    <article class="stat-card minimum-card">
+      <div class="stat-icon">
+        <i class="bi bi-arrow-down"></i>
+      </div>
+
+      <div class="stat-content">
+        <span class="stat-label">Minimum Reviews</span>
+
+        <strong class="stat-value">
+          {{ minimum() | number:'1.0-0' }}
+        </strong>
+      </div>
+    </article>
+
+    <article class="stat-card average-card">
+      <div class="stat-icon">
+        <i class="bi bi-bar-chart-line-fill"></i>
+      </div>
+
+      <div class="stat-content">
+        <span class="stat-label">Average Reviews</span>
+
+        <strong class="stat-value">
+          {{ average() | number:'1.0-0' }}
+        </strong>
+      </div>
+    </article>
+
+    <article class="stat-card maximum-card">
+      <div class="stat-icon">
+        <i class="bi bi-arrow-up"></i>
+      </div>
+
+      <div class="stat-content">
+        <span class="stat-label">Maximum Reviews</span>
+
+        <strong class="stat-value">
+          {{ maximum() | number:'1.0-0' }}
+        </strong>
+      </div>
+    </article>
+  </div>
+</section>

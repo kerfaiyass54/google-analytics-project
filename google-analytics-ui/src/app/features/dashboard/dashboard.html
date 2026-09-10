@@ -1,0 +1,157 @@
+<div class="dashboard-page">
+
+  @if (loading()) {
+    <section class="dashboard-state loading-state">
+      <div class="state-icon">
+        <i class="bi bi-bar-chart-line-fill"></i>
+      </div>
+
+      <h2>Loading dashboard</h2>
+
+      <p>
+        Fetching Google Play Store statistics...
+      </p>
+
+      <div
+        class="spinner-border"
+        role="status"
+        aria-label="Loading"
+      ></div>
+    </section>
+  }
+
+  @else if (error()) {
+    <section class="dashboard-state error-state">
+      <div class="state-icon">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+      </div>
+
+      <h2>Unable to load dashboard</h2>
+
+      <p>
+        {{ error() }}
+      </p>
+
+      <button
+        type="button"
+        class="retry-button"
+        (click)="retry()"
+      >
+        <i class="bi bi-arrow-clockwise"></i>
+        Try Again
+      </button>
+    </section>
+  }
+
+  @else if (stats(); as statistics) {
+    <header class="dashboard-header">
+      <div>
+        <span class="dashboard-eyebrow">
+          GOOGLE PLAY STORE ANALYTICS
+        </span>
+
+        <h1>Analytics Dashboard</h1>
+
+        <p>
+          Explore application distribution, ratings, reviews,
+          size, and pricing statistics.
+        </p>
+      </div>
+    </header>
+
+    <main class="dashboard-content">
+
+      <!-- ================================================= -->
+      <!-- FREE VS PAID -->
+      <!-- ================================================= -->
+
+      <section class="dashboard-full">
+        <app-free-vs-paid
+          [freeApps]="statistics.freeApps"
+          [paidApps]="statistics.paidApps"
+        />
+      </section>
+
+
+      <!-- ================================================= -->
+      <!-- CATEGORY ANALYSIS -->
+      <!-- ================================================= -->
+
+      <section class="dashboard-grid dashboard-grid-two">
+
+        <app-application-category
+          [categories]="statistics.categories"
+        />
+
+        <app-ratings-category
+          [categories]="statistics.categories"
+        />
+
+      </section>
+
+
+      <!-- ================================================= -->
+      <!-- REVIEWS -->
+      <!-- ================================================= -->
+
+      <section class="dashboard-full">
+        <app-reviews-category
+          [categories]="statistics.categories"
+        />
+      </section>
+
+
+      <!-- ================================================= -->
+      <!-- RATING STATISTICS -->
+      <!-- ================================================= -->
+
+      <section class="dashboard-full">
+        <app-ratings-statistics
+          [minimum]="statistics.minimumRating"
+          [average]="statistics.averageRating"
+          [maximum]="statistics.maximumRating"
+        />
+      </section>
+
+
+      <!-- ================================================= -->
+      <!-- REVIEW STATISTICS -->
+      <!-- ================================================= -->
+
+      <section class="dashboard-full">
+        <app-reviews-statistics
+          [minimum]="statistics.minimumReviews"
+          [average]="statistics.averageReviews"
+          [maximum]="statistics.maximumReviews"
+        />
+      </section>
+
+
+      <!-- ================================================= -->
+      <!-- SIZE STATISTICS -->
+      <!-- ================================================= -->
+
+      <section class="dashboard-full">
+        <app-size-statistics
+          [minimum]="statistics.minimumSizeMb"
+          [average]="statistics.averageSizeMb"
+          [maximum]="statistics.maximumSizeMb"
+        />
+      </section>
+
+
+      <!-- ================================================= -->
+      <!-- PRICE STATISTICS -->
+      <!-- ================================================= -->
+
+      <section class="dashboard-full">
+        <app-price-statistics
+          [minimum]="statistics.minimumPrice"
+          [average]="statistics.averagePrice"
+          [maximum]="statistics.maximumPrice"
+        />
+      </section>
+
+    </main>
+  }
+</div>

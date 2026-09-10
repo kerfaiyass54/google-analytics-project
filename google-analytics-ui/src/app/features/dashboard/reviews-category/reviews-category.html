@@ -1,0 +1,31 @@
+<section class="chart-card">
+  <div class="chart-header">
+    <div class="chart-title-wrapper">
+      <div class="chart-icon">
+        <i class="bi bi-chat-square-text-fill"></i>
+      </div>
+
+      <div>
+        <h2>Total Reviews by Category</h2>
+        <p>Total number of reviews received across each category</p>
+      </div>
+    </div>
+  </div>
+
+  @if (categories().length > 0) {
+    <div class="chart-body">
+      <div class="chart-container">
+        <canvas #chartCanvas></canvas>
+      </div>
+    </div>
+  } @else {
+    <div class="empty-state">
+      <div class="empty-icon">
+        <i class="bi bi-chat-square-text"></i>
+      </div>
+
+      <h3>No review data</h3>
+      <p>There is no category review data available.</p>
+    </div>
+  }
+</section>
