@@ -1,1 +1,185 @@
-<p>nav-bar works!</p>
+<nav class="navbar navbar-expand-lg app-navbar">
+
+  <div class="container-fluid navbar-container">
+
+    <!-- Brand -->
+    <a
+      class="navbar-brand app-brand"
+      routerLink="/dashboard">
+
+      <div class="brand-icon">
+        <i class="bi bi-google-play"></i>
+      </div>
+
+      <div class="brand-content">
+        <span class="brand-title">PlayMetrics</span>
+        <span class="brand-subtitle">Analytics Platform</span>
+      </div>
+
+    </a>
+
+    <!-- Mobile toggle -->
+    <button
+      class="navbar-toggler navbar-menu-button"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#mainNavbar"
+      aria-controls="mainNavbar"
+      aria-expanded="false"
+      aria-label="Toggle navigation">
+
+      <i class="bi bi-list"></i>
+
+    </button>
+
+    <!-- Navigation -->
+    <div
+      class="collapse navbar-collapse"
+      id="mainNavbar">
+
+      <ul class="navbar-nav main-navigation">
+
+        @for (item of navigationItems; track item.route) {
+
+          <li class="nav-item">
+
+            <a
+              class="nav-link navigation-link"
+              [routerLink]="item.route"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' }">
+
+              <span class="navigation-icon">
+                <i [class]="'bi ' + item.icon"></i>
+              </span>
+
+              <span class="navigation-label">
+                {{ item.label }}
+              </span>
+
+              <span class="active-indicator"></span>
+
+            </a>
+
+          </li>
+
+        }
+
+      </ul>
+
+      <!-- Right section -->
+      <div class="navbar-actions">
+
+        <!-- Status -->
+        <div class="system-status">
+
+          <span class="status-dot"></span>
+
+          <span class="status-text">
+            System online
+          </span>
+
+        </div>
+
+        <!-- Divider -->
+        <div class="navbar-divider"></div>
+
+        <!-- User -->
+        <div class="dropdown user-menu">
+
+          <button
+            class="user-button dropdown-toggle"
+            type="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false">
+
+            <div class="user-avatar">
+              <i class="bi bi-person-fill"></i>
+            </div>
+
+            <div class="user-information">
+
+              <span class="user-name">
+                User
+              </span>
+
+              <span class="user-role">
+                Analyst
+              </span>
+
+            </div>
+
+          </button>
+
+          <ul class="dropdown-menu dropdown-menu-end user-dropdown">
+
+            <li class="dropdown-header">
+
+              <div class="dropdown-user-avatar">
+                <i class="bi bi-person-fill"></i>
+              </div>
+
+              <div>
+                <strong>User</strong>
+                <small>Analyst account</small>
+              </div>
+
+            </li>
+
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+
+            <li>
+              <a
+                class="dropdown-item"
+                routerLink="/settings">
+
+                <i class="bi bi-person-gear"></i>
+
+                <span>Account settings</span>
+
+              </a>
+            </li>
+
+            <li>
+              <a
+                class="dropdown-item"
+                routerLink="/profile">
+
+                <i class="bi bi-person"></i>
+
+                <span>My profile</span>
+
+              </a>
+            </li>
+
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+
+            <li>
+
+              <button
+                class="dropdown-item logout-item"
+                type="button">
+
+                <i class="bi bi-box-arrow-right"></i>
+
+                <span>Logout</span>
+
+              </button>
+
+            </li>
+
+          </ul>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</nav>
