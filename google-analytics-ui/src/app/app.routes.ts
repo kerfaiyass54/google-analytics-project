@@ -6,7 +6,13 @@ export const routes: Routes = [
   {
     path: '',
     component: HomePage,
-    children: [],
+    children: [
+      {
+        path: 'user-details',
+        loadComponent: () =>
+          import('./shared/components/user-details/user-details').then((m) => m.UserDetails),
+      }
+    ],
   },
   {
     path: 'developer-tools',
