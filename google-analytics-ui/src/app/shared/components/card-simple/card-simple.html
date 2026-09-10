@@ -1,0 +1,22 @@
+<a
+  class="simple-card"
+  [routerLink]="link()"
+  [style.--card-color]="color()"
+>
+  <div class="card-icon">
+    <i [class]="icon()"></i>
+  </div>
+
+  <div class="card-content">
+    <h3>{{ title() }}</h3>
+
+    <span class="card-link">
+      Open
+      <i class="bi bi-arrow-right"></i>
+    </span>
+  </div>
+
+  <div class="card-arrow">
+    <i class="bi bi-chevron-right"></i>
+  </div>
+</a>

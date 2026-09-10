@@ -7,3 +7,43 @@
   [pageSizeOptions]="[5, 10, 20, 50, 100]"
   (pageChange)="onPageChange($event)"
 />
+
+<div class="row g-4">
+
+  <div class="col-12 col-md-6 col-xl-3">
+    <app-card-simple
+      icon="bi bi-speedometer2"
+      title="Dashboard"
+      link="/dashboard"
+      color="#6366f1"
+    />
+  </div>
+
+  <div class="col-12 col-md-6 col-xl-3">
+    <app-card-simple
+      icon="bi bi-grid-3x3-gap-fill"
+      title="Applications"
+      link="/applications"
+      color="#0ea5e9"
+    />
+  </div>
+
+  <div class="col-12 col-md-6 col-xl-3">
+    <app-card-simple
+      icon="bi bi-bar-chart-fill"
+      title="EDA Analytics"
+      link="/eda"
+      color="#8b5cf6"
+    />
+  </div>
+
+  <div class="col-12 col-md-6 col-xl-3">
+    <app-card-simple
+      icon="bi bi-tools"
+      title="Developer Tools"
+      link="/operations"
+      color="#f59e0b"
+    />
+  </div>
+
+</div>

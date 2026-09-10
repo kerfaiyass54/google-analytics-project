@@ -6,6 +6,7 @@ import {
   PaginatedTableRequest,
   PaginatedTableResponse,
 } from '../paginated-table/paginated-table';
+import { CardSimple } from '../card-simple/card-simple';
 
 interface GooglePlayApp {
   id: number;
@@ -26,7 +27,7 @@ interface GooglePlayApp {
 @Component({
   selector: 'app-developer-tools',
   standalone: true,
-  imports: [PaginatedTable],
+  imports: [PaginatedTable, CardSimple],
   templateUrl: './developer-tools.html',
   styleUrl: './developer-tools.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
