@@ -15,6 +15,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/dashboard/dashboard').then((m) => m.Dashboard),
       },
       {
+        path: 'list',
+        loadComponent: () => import('./features/list-applications/list-applications').then((m) => m.ListApplications),
+      },
+      {
         path: 'user-details',
         loadComponent: () =>
           import('./shared/components/user-details/user-details').then((m) => m.UserDetails),

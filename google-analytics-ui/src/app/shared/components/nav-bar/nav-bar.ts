@@ -21,9 +21,9 @@ export class NavBar {
       route: '/dashboard',
     },
     {
-      label: 'Apps',
+      label: 'Applications',
       icon: 'bi-phone-fill',
-      route: '/applications',
+      route: '/list',
     },
     {
       label: 'Operations',

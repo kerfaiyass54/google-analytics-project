@@ -1,0 +1,268 @@
+<section class="applications-page">
+
+  <!-- ========================================================
+       PAGE HEADER
+       ======================================================== -->
+
+  <header class="applications-header">
+
+    <div class="header-content">
+
+      <div class="header-eyebrow">
+        <span class="eyebrow-line"></span>
+
+        <span>
+          GOOGLE PLAY STORE
+        </span>
+      </div>
+
+      <h1>
+        Applications
+      </h1>
+
+      <p>
+        Explore and inspect applications from the
+        Google Play Store dataset.
+      </p>
+
+    </div>
+
+    <div class="header-visual">
+
+      <div class="visual-orbit orbit-one"></div>
+      <div class="visual-orbit orbit-two"></div>
+      <div class="visual-orbit orbit-three"></div>
+
+      <div class="visual-core">
+        <i class="bi bi-phone-fill"></i>
+      </div>
+
+    </div>
+
+  </header>
+
+
+  <!-- ========================================================
+       ERROR
+       ======================================================== -->
+
+  @if (tableError()) {
+
+    <section class="error-panel">
+
+      <div class="error-icon">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+      </div>
+
+      <div class="error-content">
+
+        <strong>
+          Unable to load applications
+        </strong>
+
+        <span>
+          {{ tableError() }}
+        </span>
+
+      </div>
+
+      <button
+        type="button"
+        class="error-retry"
+        (click)="onPageChange({
+          page: tableResponse().page,
+          size: tableResponse().size,
+          search: ''
+        })"
+      >
+        <i class="bi bi-arrow-clockwise"></i>
+        Retry
+      </button>
+
+    </section>
+
+  }
+
+
+  <!-- ========================================================
+       APPLICATION TABLE
+       ======================================================== -->
+
+  <section
+    class="applications-table-section"
+    (click)="onTableClick($event)"
+  >
+
+
+    <div class="table-shell">
+
+      <app-paginated-table
+        title="Google Play Applications"
+        [columns]="tableColumns"
+        [response]="tableResponse()"
+        [loading]="tableLoading()"
+        searchPlaceholder="Search applications..."
+        [pageSizeOptions]="[10, 20, 50, 100]"
+        (pageChange)="onPageChange($event)"
+      />
+
+    </div>
+
+  </section>
+
+</section>
+
+
+<!-- ==========================================================
+     APPLICATION DETAILS DIALOG
+     ========================================================== -->
+
+<dialog
+  id="application-details-dialog"
+  class="details-dialog"
+  (click)="onDialogClick($event)"
+>
+
+  <div class="dialog-shell">
+
+    <!-- ======================================================
+         DIALOG HEADER
+         ====================================================== -->
+
+    <header class="dialog-header">
+
+      <div class="dialog-heading">
+
+        <div class="dialog-heading-icon">
+          <i class="bi bi-phone-fill"></i>
+        </div>
+
+        <div>
+
+          <span class="dialog-eyebrow">
+            APPLICATION DETAILS
+          </span>
+
+          <h2>
+            {{ selectedApplication()?.app ?? 'Application' }}
+          </h2>
+
+        </div>
+
+      </div>
+
+
+      <button
+        type="button"
+        class="dialog-close"
+        aria-label="Close details"
+        (click)="closeDetails()"
+      >
+        <i class="bi bi-x-lg"></i>
+      </button>
+
+    </header>
+
+
+    <!-- ======================================================
+         DIALOG BODY
+         ====================================================== -->
+
+    <div class="dialog-body">
+
+      @if (detailsLoading()) {
+
+        <div class="details-loading">
+
+          <div class="loading-orb">
+            <i class="bi bi-arrow-repeat"></i>
+          </div>
+
+          <strong>
+            Loading application
+          </strong>
+
+          <span>
+            Fetching the latest application details...
+          </span>
+
+        </div>
+
+      }
+
+      @else if (detailsError()) {
+
+        <div class="details-error">
+
+          <div class="details-error-icon">
+            <i class="bi bi-exclamation-circle-fill"></i>
+          </div>
+
+          <strong>
+            Unable to load details
+          </strong>
+
+          <span>
+            {{ detailsError() }}
+          </span>
+
+          <button
+            type="button"
+            class="dialog-action"
+            (click)="closeDetails()"
+          >
+            Close
+          </button>
+
+        </div>
+
+      }
+
+      @else if (selectedApplication()) {
+
+        <app-card-details
+          title="Application Information"
+          icon="bi bi-phone-fill"
+          [attributes]="detailAttributes"
+          [values]="detailValues"
+        />
+
+      }
+
+    </div>
+
+
+    <!-- ======================================================
+         DIALOG FOOTER
+         ====================================================== -->
+
+    @if (!detailsLoading() && selectedApplication()) {
+
+      <footer class="dialog-footer">
+
+        <div class="footer-status">
+
+          <span class="status-dot"></span>
+
+          <span>
+            Application loaded
+          </span>
+
+        </div>
+
+        <button
+          type="button"
+          class="dialog-action"
+          (click)="closeDetails()"
+        >
+          <i class="bi bi-check2"></i>
+          Done
+        </button>
+
+      </footer>
+
+    }
+
+  </div>
+
+</dialog>
