@@ -47,6 +47,7 @@
     </div>
 
   </div>
+
   <div class="card border-0 shadow-sm mt-4">
 
     <div class="card-body p-4">
@@ -61,6 +62,23 @@
       />
 
     </div>
+
+  </div>
+
+</div>
+
+<div class="card border-0 shadow-sm mt-4">
+
+  <div class="card-body p-4">
+
+    <app-doughnut-chart
+      [title]="'Applications by Category'"
+      [labels]="chartLabels()"
+      [datasets]="doughnutChartDatasets()"
+      [height]="400"
+      [showLegend]="true"
+      [showTitle]="true"
+    />
 
   </div>
 

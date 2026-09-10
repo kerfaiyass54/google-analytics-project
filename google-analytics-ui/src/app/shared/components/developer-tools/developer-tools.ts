@@ -3,15 +3,25 @@ import { BarChart } from '../charts/bar-chart/bar-chart';
 import { ChartDataset } from '../../models/chart.model';
 import { LineChart } from '../../../shared/components/charts/line-chart/line-chart';
 import { PieChart } from '../../../shared/components/charts/pie-chart/pie-chart';
+import { DoughnutChart } from '../charts/doughnut-chart/doughnut-chart';
 
 
 @Component({
   selector: 'app-developer-tools',
-  imports: [BarChart, LineChart, PieChart],
+  imports: [BarChart, LineChart, PieChart, DoughnutChart],
   templateUrl: './developer-tools.html',
   styleUrl: './developer-tools.css',
 })
 export class DeveloperTools {
+  readonly doughnutChartDatasets = signal<ChartDataset[]>([
+    {
+      label: 'Applications',
+      data: [120, 85, 65, 45, 30],
+      backgroundColor: ['#6366f1', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b'],
+      borderWidth: 3,
+      borderColor: '#ffffff',
+    },
+  ]);
   readonly pieChartDatasets = signal<ChartDataset[]>([
     {
       label: 'Applications',
