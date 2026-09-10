@@ -1,1 +1,50 @@
-<p>card-details works!</p>
+<section class="details-card">
+
+  <!-- ========================================================
+       HEADER
+       ======================================================== -->
+
+  <header class="details-header">
+
+    <div class="details-icon">
+      <i [class]="icon()"></i>
+    </div>
+
+    <div class="details-title">
+      <h2>{{ title() }}</h2>
+    </div>
+
+  </header>
+
+  <!-- ========================================================
+       DETAILS
+       ======================================================== -->
+
+  <div class="details-list">
+
+    @for (attribute of attributes(); track $index) {
+
+      <div class="detail-row">
+
+        <span class="detail-attribute">
+          {{ attribute }}
+        </span>
+
+        <span class="detail-value">
+          {{ values()[$index] ?? '—' }}
+        </span>
+
+      </div>
+
+    } @empty {
+
+      <div class="empty-details">
+        <i class="bi bi-info-circle"></i>
+        <span>No details available.</span>
+      </div>
+
+    }
+
+  </div>
+
+</section>

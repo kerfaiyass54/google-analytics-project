@@ -47,3 +47,30 @@
   </div>
 
 </div>
+
+<app-card-details
+  title="Application Details"
+  icon="bi bi-app-indicator"
+  [attributes]="[
+    'Application',
+    'Category',
+    'Rating',
+    'Reviews',
+    'Installs',
+    'Type',
+    'Price',
+    'Content Rating',
+    'Genres'
+  ]"
+  [values]="[
+    'Instagram',
+    'SOCIAL',
+    4.5,
+    66577313,
+    '1,000,000,000+',
+    'Free',
+    '$0.00',
+    'Teen',
+    'Social'
+  ]"
+/>
