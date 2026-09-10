@@ -1,132 +1,527 @@
 :host {
   display: block;
+  width: 100%;
 }
+
+
+/* ============================================================
+   CARD
+   ============================================================ */
 
 .chart-card {
   position: relative;
+
+  width: 100%;
+
   overflow: hidden;
-  border: 1px solid rgba(148, 163, 184, 0.18);
-  border-radius: 24px;
+
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 18px;
+
   background:
     linear-gradient(
       145deg,
-      rgba(255, 255, 255, 0.96),
-      rgba(248, 250, 252, 0.92)
+      rgba(255, 255, 255, 0.98),
+      rgba(248, 250, 252, 0.94)
     );
+
   box-shadow:
-    0 18px 45px rgba(15, 23, 42, 0.07),
-    0 4px 12px rgba(15, 23, 42, 0.04);
+    0 12px 30px rgba(15, 23, 42, 0.055),
+    0 3px 8px rgba(15, 23, 42, 0.025);
+
   transition:
     transform 220ms ease,
     box-shadow 220ms ease;
 }
 
 .chart-card::before {
-  content: '';
+  content: "";
+
   position: absolute;
+
   inset: 0;
+
   pointer-events: none;
+
   background:
     radial-gradient(
       circle at 100% 0%,
-      rgba(99, 102, 241, 0.08),
-      transparent 35%
+      rgba(99, 102, 241, 0.06),
+      transparent 32%
     );
 }
 
 .chart-card:hover {
-  transform: translateY(-3px);
+  transform: translateY(-2px);
+
   box-shadow:
-    0 24px 55px rgba(15, 23, 42, 0.1),
-    0 6px 16px rgba(15, 23, 42, 0.05);
+    0 18px 38px rgba(15, 23, 42, 0.075),
+    0 5px 12px rgba(15, 23, 42, 0.035);
 }
+
+
+/* ============================================================
+   HEADER
+   ============================================================ */
 
 .chart-header {
   position: relative;
-  padding: 24px 24px 12px;
+
+  padding: 17px 18px 10px;
 }
 
 .chart-title-wrapper {
   display: flex;
   align-items: center;
-  gap: 14px;
+
+  gap: 11px;
 }
 
 .chart-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+
   flex-shrink: 0;
-  border-radius: 14px;
-  background: rgba(99, 102, 241, 0.1);
+
+  width: 38px;
+  height: 38px;
+
+  border-radius: 11px;
+
+  background:
+    rgba(99, 102, 241, 0.09);
+
   color: #6366f1;
-  font-size: 1.15rem;
+
+  font-size: 0.95rem;
 }
 
-.chart-title-wrapper h2 {
+.chart-title {
+  min-width: 0;
+}
+
+.chart-title h2 {
   margin: 0;
+
   color: #0f172a;
-  font-size: 1rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
+
+  font-size: 0.88rem;
+  font-weight: 750;
+
+  letter-spacing: -0.015em;
+
+  line-height: 1.3;
 }
 
-.chart-title-wrapper p {
-  margin: 4px 0 0;
+.chart-title p {
+  margin: 3px 0 0;
+
   color: #64748b;
-  font-size: 0.8rem;
+
+  font-size: 0.69rem;
+
+  line-height: 1.4;
 }
+
+
+/* ============================================================
+   BODY
+   ============================================================ */
 
 .chart-body {
   position: relative;
-  min-height: 320px;
-  padding: 20px 24px 24px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 50px;
+
+  min-height: 245px;
+
+  padding: 15px 25px 24px;
 }
 
-.chart-placeholder {
+
+/* ============================================================
+   DONUT
+   ============================================================ */
+
+.donut-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+}
+
+.donut-chart {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 175px;
+  height: 175px;
+
+  border-radius: 50%;
+
+  box-shadow:
+    0 8px 20px rgba(15, 23, 42, 0.08);
+}
+
+.donut-chart::after {
+  content: "";
+
+  position: absolute;
+
+  width: 116px;
+  height: 116px;
+
+  border-radius: 50%;
+
+  background: #ffffff;
+
+  box-shadow:
+    inset 0 0 0 1px rgba(148, 163, 184, 0.08);
+}
+
+.donut-center {
+  position: relative;
+
+  z-index: 2;
+
   display: flex;
   flex-direction: column;
+
   align-items: center;
   justify-content: center;
-  min-height: 280px;
-  gap: 10px;
-  color: #94a3b8;
+
+  width: 116px;
+  height: 116px;
+
+  text-align: center;
 }
 
-.placeholder-icon {
+.donut-center strong {
+  color: #0f172a;
+
+  font-size: 1.15rem;
+  font-weight: 800;
+
+  letter-spacing: -0.04em;
+
+  line-height: 1.1;
+}
+
+.donut-center span {
+  margin-top: 5px;
+
+  color: #94a3b8;
+
+  font-size: 0.61rem;
+  font-weight: 700;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.08em;
+}
+
+
+/* ============================================================
+   LEGEND
+   ============================================================ */
+
+.chart-legend {
+  display: flex;
+  flex-direction: column;
+
+  width: 190px;
+
+  gap: 11px;
+}
+
+.legend-item {
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 64px;
-  height: 64px;
-  border-radius: 20px;
-  background: rgba(99, 102, 241, 0.08);
-  color: #6366f1;
-  font-size: 1.6rem;
+  justify-content: space-between;
+
+  min-height: 55px;
+
+  padding: 10px 12px;
+
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: 12px;
+
+  background:
+    rgba(248, 250, 252, 0.7);
+
+  transition:
+    background 180ms ease,
+    transform 180ms ease;
 }
 
-.chart-placeholder span {
-  font-size: 0.85rem;
-  font-weight: 600;
+.legend-item:hover {
+  background:
+    rgba(248, 250, 252, 1);
+
+  transform:
+    translateX(2px);
 }
 
-@media (max-width: 768px) {
+.legend-label {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+}
+
+.legend-dot {
+  width: 9px;
+  height: 9px;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+}
+
+.free-dot {
+  background: #6366f1;
+
+  box-shadow:
+    0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.paid-dot {
+  background: #cbd5e1;
+
+  box-shadow:
+    0 0 0 3px rgba(203, 213, 225, 0.22);
+}
+
+.legend-name {
+  color: #475569;
+
+  font-size: 0.72rem;
+  font-weight: 650;
+}
+
+.legend-value {
+  display: flex;
+  flex-direction: column;
+
+  align-items: flex-end;
+
+  gap: 1px;
+}
+
+.legend-value strong {
+  color: #0f172a;
+
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.legend-value span {
+  color: #94a3b8;
+
+  font-size: 0.59rem;
+  font-weight: 650;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 900px) {
+
+  .chart-body {
+    gap: 30px;
+
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .donut-chart {
+    width: 155px;
+    height: 155px;
+  }
+
+  .donut-chart::after {
+    width: 102px;
+    height: 102px;
+  }
+
+  .donut-center {
+    width: 102px;
+    height: 102px;
+  }
+
+  .donut-center strong {
+    font-size: 1rem;
+  }
+
+  .chart-legend {
+    width: 165px;
+  }
+}
+
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
+@media (max-width: 600px) {
+
   .chart-card {
-    border-radius: 20px;
+    border-radius: 16px;
   }
 
   .chart-header {
-    padding: 20px 20px 10px;
+    padding: 15px 16px 8px;
+  }
+
+  .chart-icon {
+    width: 34px;
+    height: 34px;
+
+    border-radius: 10px;
+
+    font-size: 0.85rem;
+  }
+
+  .chart-title h2 {
+    font-size: 0.82rem;
+  }
+
+  .chart-title p {
+    font-size: 0.64rem;
   }
 
   .chart-body {
-    min-height: 280px;
-    padding: 16px 20px 20px;
+    flex-direction: column;
+
+    gap: 18px;
+
+    min-height: auto;
+
+    padding:
+      14px
+      16px
+      20px;
   }
 
-  .chart-placeholder {
-    min-height: 240px;
+  .donut-chart {
+    width: 145px;
+    height: 145px;
+  }
+
+  .donut-chart::after {
+    width: 96px;
+    height: 96px;
+  }
+
+  .donut-center {
+    width: 96px;
+    height: 96px;
+  }
+
+  .donut-center strong {
+    font-size: 0.95rem;
+  }
+
+  .donut-center span {
+    font-size: 0.54rem;
+  }
+
+  .chart-legend {
+    width: 100%;
+
+    flex-direction: row;
+
+    gap: 8px;
+  }
+
+  .legend-item {
+    flex: 1;
+
+    min-width: 0;
+
+    padding: 8px 9px;
+  }
+
+  .legend-name {
+    font-size: 0.65rem;
+  }
+
+  .legend-value strong {
+    font-size: 0.69rem;
+  }
+
+  .legend-value span {
+    font-size: 0.54rem;
+  }
+}
+
+
+/* ============================================================
+   SMALL MOBILE
+   ============================================================ */
+
+@media (max-width: 400px) {
+
+  .chart-body {
+    gap: 15px;
+  }
+
+  .donut-chart {
+    width: 130px;
+    height: 130px;
+  }
+
+  .donut-chart::after {
+    width: 86px;
+    height: 86px;
+  }
+
+  .donut-center {
+    width: 86px;
+    height: 86px;
+  }
+
+  .donut-center strong {
+    font-size: 0.85rem;
+  }
+
+  .legend-item {
+    padding: 7px;
+  }
+
+  .legend-label {
+    gap: 6px;
+  }
+}
+
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .chart-card,
+  .legend-item {
+    transition: none;
+  }
+
+  .chart-card:hover {
+    transform: none;
+  }
+
+  .legend-item:hover {
+    transform: none;
   }
 }

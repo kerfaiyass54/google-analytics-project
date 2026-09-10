@@ -1,24 +1,132 @@
 <section class="chart-card">
+
+  <!-- ====================================================== -->
+  <!-- HEADER -->
+  <!-- ====================================================== -->
+
   <div class="chart-header">
+
     <div class="chart-title-wrapper">
+
       <div class="chart-icon">
         <i class="bi bi-pie-chart-fill"></i>
       </div>
 
-      <div>
-        <h2>Free vs Paid Applications</h2>
-        <p>Distribution of free and paid applications</p>
+      <div class="chart-title">
+
+        <h2>
+          Free vs Paid Applications
+        </h2>
+
+        <p>
+          Distribution of free and paid applications
+        </p>
+
       </div>
+
     </div>
+
   </div>
+
+
+  <!-- ====================================================== -->
+  <!-- CHART -->
+  <!-- ====================================================== -->
 
   <div class="chart-body">
-    <div class="chart-placeholder">
-      <div class="placeholder-icon">
-        <i class="bi bi-pie-chart"></i>
+
+    <div class="donut-wrapper">
+
+      <div
+        class="donut-chart"
+        [style.background]="chartBackground()"
+        role="img"
+        [attr.aria-label]="
+          'Free applications: ' +
+          freeApps() +
+          ', paid applications: ' +
+          paidApps()
+        "
+      >
+
+        <div class="donut-center">
+
+          <strong>
+            {{ totalApps().toLocaleString() }}
+          </strong>
+
+          <span>
+            Total Apps
+          </span>
+
+        </div>
+
       </div>
 
-      <span>Pie chart</span>
     </div>
+
+
+    <!-- ==================================================== -->
+    <!-- LEGEND -->
+    <!-- ==================================================== -->
+
+    <div class="chart-legend">
+
+      <div class="legend-item">
+
+        <div class="legend-label">
+
+          <span class="legend-dot free-dot"></span>
+
+          <span class="legend-name">
+            Free
+          </span>
+
+        </div>
+
+        <div class="legend-value">
+
+          <strong>
+            {{ freeApps().toLocaleString() }}
+          </strong>
+
+          <span>
+            {{ freePercentage().toFixed(1) }}%
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <div class="legend-item">
+
+        <div class="legend-label">
+
+          <span class="legend-dot paid-dot"></span>
+
+          <span class="legend-name">
+            Paid
+          </span>
+
+        </div>
+
+        <div class="legend-value">
+
+          <strong>
+            {{ paidApps().toLocaleString() }}
+          </strong>
+
+          <span>
+            {{ paidPercentage().toFixed(1) }}%
+          </span>
+
+        </div>
+
+      </div>
+
+    </div>
+
   </div>
+
 </section>
