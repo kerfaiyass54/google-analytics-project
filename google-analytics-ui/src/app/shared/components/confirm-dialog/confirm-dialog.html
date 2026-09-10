@@ -1,0 +1,78 @@
+<div
+  class="modal fade"
+  id="confirmDialog"
+  tabindex="-1"
+  aria-labelledby="confirmDialogLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content confirm-modal">
+
+      <!-- ====================================================
+           HEADER
+           ==================================================== -->
+
+      <div class="modal-header">
+
+        <div class="dialog-icon">
+          <i class="bi bi-question-lg"></i>
+        </div>
+
+        <h1
+          class="modal-title"
+          id="confirmDialogLabel"
+        >
+          {{ title() }}
+        </h1>
+
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+          (click)="onCancel()"
+        ></button>
+
+      </div>
+
+      <!-- ====================================================
+           BODY
+           ==================================================== -->
+
+      <div class="modal-body">
+        <p>
+          {{ text() }}
+        </p>
+      </div>
+
+      <!-- ====================================================
+           FOOTER
+           ==================================================== -->
+
+      <div class="modal-footer">
+
+        <button
+          type="button"
+          class="btn cancel-button"
+          data-bs-dismiss="modal"
+          (click)="onCancel()"
+        >
+          {{ noLabel() }}
+        </button>
+
+        <button
+          type="button"
+          class="btn confirm-button"
+          data-bs-dismiss="modal"
+          (click)="onConfirm()"
+        >
+          <i class="bi bi-check-lg"></i>
+
+          {{ yesLabel() }}
+        </button>
+
+      </div>
+
+    </div>
+  </div>
+</div>

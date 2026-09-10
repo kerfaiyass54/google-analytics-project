@@ -8,6 +8,7 @@ import {
 } from '../paginated-table/paginated-table';
 import { CardSimple } from '../card-simple/card-simple';
 import { CardDetails } from '../card-details/card-details';
+import { ConfirmDialog } from '../confirm-dialog/confirm-dialog';
 
 interface GooglePlayApp {
   id: number;
@@ -28,7 +29,7 @@ interface GooglePlayApp {
 @Component({
   selector: 'app-developer-tools',
   standalone: true,
-  imports: [PaginatedTable, CardSimple, CardDetails],
+  imports: [PaginatedTable, CardSimple, CardDetails, ConfirmDialog],
   templateUrl: './developer-tools.html',
   styleUrl: './developer-tools.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -453,5 +454,13 @@ export class DeveloperTools {
 
   onPageChange(request: PaginatedTableRequest): void {
     this.loadApplications(request.page, request.size, request.search);
+  }
+
+  deleteApplication(): void {
+    console.log('Delete application');
+  }
+
+  cancelDelete(): void {
+    console.log('Delete cancelled');
   }
 }
