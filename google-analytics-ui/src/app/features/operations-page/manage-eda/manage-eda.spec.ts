@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { EdaFileReview } from './eda-file-review';
+import { ManageEda } from './manage-eda';
 
-describe('EdaFileReview', () => {
-  let component: EdaFileReview;
-  let fixture: ComponentFixture<EdaFileReview>;
+describe('ManageEda', () => {
+  let component: ManageEda;
+  let fixture: ComponentFixture<ManageEda>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [EdaFileReview],
+      imports: [ManageEda],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(EdaFileReview);
+    fixture = TestBed.createComponent(ManageEda);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

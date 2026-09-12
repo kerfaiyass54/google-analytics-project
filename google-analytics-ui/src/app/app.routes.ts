@@ -23,18 +23,47 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/list-applications/list-applications').then((m) => m.ListApplications),
       },
+
+      // Operations
       {
-        path: 'operations',
+        path: 'operations/add-application',
         loadComponent: () =>
-          import('./features/operations-page/operations-page').then((m) => m.OperationsPage),
+          import('./features/operations-page/add-application/add-application').then(
+            (m) => m.AddApplication,
+          ),
       },
       {
-        path: 'eda',
+        path: 'operations/check-eda-files',
         loadComponent: () =>
-          import('./features/eda-page/eda-page').then((m) => m.EdaPage),
+          import('./features/operations-page/check-eda-files/check-eda-files').then(
+            (m) => m.CheckEdaFiles,
+          ),
+      },
+      {
+        path: 'operations/delete-applications',
+        loadComponent: () =>
+          import('./features/operations-page/delete-applications/delete-applications').then(
+            (m) => m.DeleteApplications,
+          ),
+      },
+      {
+        path: 'operations/manage-apps',
+        loadComponent: () =>
+          import('./features/operations-page/manage-apps/manage-apps').then((m) => m.ManageApps),
+      },
+      {
+        path: 'operations/manage-eda',
+        loadComponent: () =>
+          import('./features/operations-page/manage-eda/manage-eda').then((m) => m.ManageEda),
+      },
+
+      {
+        path: 'eda',
+        loadComponent: () => import('./features/eda-page/eda-page').then((m) => m.EdaPage),
       },
     ],
   },
+
   {
     path: 'developer-tools',
     component: DeveloperTools,
