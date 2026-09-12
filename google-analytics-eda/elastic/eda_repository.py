@@ -6,11 +6,11 @@ from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import NotFoundError
 
 from elastic.client import client
-from elastic.indices import EDA_EXPORTS_INDEX
-from schema.export_document import ExportDocument
+from elastic.indices import EDA_ANALYSES_INDEX
+from schema.eda_document import EdaDocument
 
 
-class ExportRepository:
+class EdaRepository:
 
     def __init__(
         self,
@@ -18,7 +18,7 @@ class ExportRepository:
     ) -> None:
 
         self.client = elasticsearch_client
-        self.index = EDA_EXPORTS_INDEX
+        self.index = EDA_ANALYSES_INDEX
 
     # ============================================================
     # SAVE
@@ -26,12 +26,12 @@ class ExportRepository:
 
     def save(
         self,
-        export: ExportDocument,
+        eda: EdaDocument,
     ) -> str:
 
         response = self.client.index(
             index=self.index,
-            document=export.model_dump(
+            document=eda.model_dump(
                 mode="json"
             ),
             refresh="wait_for",
@@ -45,21 +45,21 @@ class ExportRepository:
 
     def find_by_id(
         self,
-        export_id: str,
-    ) -> ExportDocument | None:
+        eda_id: str,
+    ) -> EdaDocument | None:
 
         try:
 
             response = self.client.get(
                 index=self.index,
-                id=export_id,
+                id=eda_id,
             )
 
             source = response["_source"]
 
-            source["export_id"] = response["_id"]
+            source["eda_id"] = response["_id"]
 
-            return ExportDocument.model_validate(
+            return EdaDocument.model_validate(
                 source
             )
 
@@ -73,9 +73,9 @@ class ExportRepository:
 
     def find_by_id_and_email(
         self,
-        export_id: str,
+        eda_id: str,
         email: str,
-    ) -> ExportDocument | None:
+    ) -> EdaDocument | None:
 
         response = self.client.search(
             index=self.index,
@@ -84,10 +84,8 @@ class ExportRepository:
                 "bool": {
                     "must": [
                         {
-                            "ids": {
-                                "values": [
-                                    export_id
-                                ]
+                            "term": {
+                                "_id": eda_id
                             }
                         },
                         {
@@ -109,19 +107,18 @@ class ExportRepository:
 
         source = hit["_source"]
 
-        source["export_id"] = hit["_id"]
+        source["eda_id"] = hit["_id"]
 
-        return ExportDocument.model_validate(
+        return EdaDocument.model_validate(
             source
         )
 
     # ============================================================
-    # FIND BY EDA ID
+    # FIND ALL
     # ============================================================
 
-    def find_by_eda_id(
+    def find_all(
         self,
-        eda_id: str,
         page: int = 0,
         size: int = 20,
     ) -> dict[str, Any]:
@@ -138,9 +135,7 @@ class ExportRepository:
                 }
             ],
             query={
-                "term": {
-                    "eda_id": eda_id
-                }
+                "match_all": {}
             },
         )
 
@@ -151,12 +146,11 @@ class ExportRepository:
         )
 
     # ============================================================
-    # FIND BY EDA ID + OWNER
+    # FIND ALL BY OWNER
     # ============================================================
 
-    def find_by_eda_id_and_email(
+    def find_all_by_email(
         self,
-        eda_id: str,
         email: str,
         page: int = 0,
         size: int = 20,
@@ -174,19 +168,8 @@ class ExportRepository:
                 }
             ],
             query={
-                "bool": {
-                    "must": [
-                        {
-                            "term": {
-                                "eda_id": eda_id
-                            }
-                        },
-                        {
-                            "term": {
-                                "email": email
-                            }
-                        },
-                    ]
+                "term": {
+                    "email": email
                 }
             },
         )
@@ -203,14 +186,14 @@ class ExportRepository:
 
     def delete(
         self,
-        export_id: str,
+        eda_id: str,
     ) -> bool:
 
         try:
 
             self.client.delete(
                 index=self.index,
-                id=export_id,
+                id=eda_id,
                 refresh="wait_for",
             )
 
@@ -219,25 +202,6 @@ class ExportRepository:
         except NotFoundError:
 
             return False
-
-    # ============================================================
-    # DELETE BY EDA
-    # ============================================================
-
-    def delete_by_eda_id(
-        self,
-        eda_id: str,
-    ) -> None:
-
-        self.client.delete_by_query(
-            index=self.index,
-            query={
-                "term": {
-                    "eda_id": eda_id
-                }
-            },
-            refresh=True,
-        )
 
     # ============================================================
     # COUNT
@@ -276,7 +240,7 @@ class ExportRepository:
         )
 
     # ============================================================
-    # BUILD PAGE RESULT
+    # PAGE RESULT
     # ============================================================
 
     @staticmethod
@@ -294,10 +258,10 @@ class ExportRepository:
 
             source = hit["_source"]
 
-            source["export_id"] = hit["_id"]
+            source["eda_id"] = hit["_id"]
 
             content.append(
-                ExportDocument.model_validate(
+                EdaDocument.model_validate(
                     source
                 )
             )

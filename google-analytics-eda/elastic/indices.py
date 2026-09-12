@@ -1,12 +1,11 @@
 """
-Elasticsearch index definitions and initialization.
+Elasticsearch index definitions.
 
-This module defines the mappings for:
-    - EDA analysis history
-    - EDA export history
+Indexes:
+    - eda_analyses
+    - eda_exports
 
-Indices are created only when they do not already exist.
-Existing indices are never deleted or recreated automatically.
+Existing indexes are never deleted or recreated automatically.
 """
 
 from __future__ import annotations
@@ -17,7 +16,7 @@ from elastic.client import client
 
 
 # ============================================================
-# Index Names
+# INDEX NAMES
 # ============================================================
 
 EDA_ANALYSES_INDEX = "eda_analyses"
@@ -37,100 +36,26 @@ EDA_ANALYSES_MAPPING = {
     "mappings": {
         "dynamic": True,
         "properties": {
-
-            # ------------------------------------------------
-            # Analysis metadata
-            # ------------------------------------------------
-
-            "analysis_date": {
-                "type": "date"
+            "email": {
+                "type": "keyword",
             },
-
-            # ------------------------------------------------
-            # EDA 01 — Ratings by Category
-            # ------------------------------------------------
-
+            "date": {
+                "type": "date",
+            },
             "ratings_by_category": {
-                "properties": {
-
-                    "statistics": {
-                        "type": "object"
-                    },
-
-                    "categories": {
-                        "type": "object"
-                    }
-                }
+                "type": "object",
             },
-
-            # ------------------------------------------------
-            # EDA 02 — Free vs Paid
-            # ------------------------------------------------
-
             "free_vs_paid": {
-                "properties": {
-
-                    "statistics": {
-                        "type": "object"
-                    },
-
-                    "distribution": {
-                        "type": "object"
-                    },
-
-                    "ratings": {
-                        "type": "object"
-                    },
-
-                    "reviews": {
-                        "type": "object"
-                    }
-                }
+                "type": "object",
             },
-
-            # ------------------------------------------------
-            # EDA 03 — Install Distribution
-            # ------------------------------------------------
-
             "install_distribution": {
-                "properties": {
-
-                    "statistics": {
-                        "type": "object"
-                    },
-
-                    "distribution": {
-                        "type": "object"
-                    },
-
-                    "categories": {
-                        "type": "object"
-                    }
-                }
+                "type": "object",
             },
-
-            # ------------------------------------------------
-            # EDA 04 — Review Counts
-            # ------------------------------------------------
-
             "review_counts": {
-                "properties": {
-
-                    "statistics": {
-                        "type": "object"
-                    },
-
-                    "categories": {
-                        "type": "object"
-                    },
-
-                    "top_applications": {
-                        "type": "object"
-                    }
-                }
-            }
-        }
-    }
+                "type": "object",
+            },
+        },
+    },
 }
 
 
@@ -146,20 +71,26 @@ EDA_EXPORTS_MAPPING = {
     "mappings": {
         "dynamic": False,
         "properties": {
-
+            "eda_id": {
+                "type": "keyword",
+            },
             "email": {
-                "type": "keyword"
+                "type": "keyword",
             },
-
             "date": {
-                "type": "date"
+                "type": "date",
             },
-
+            "file_type": {
+                "type": "keyword",
+            },
             "filename": {
-                "type": "keyword"
-            }
-        }
-    }
+                "type": "keyword",
+            },
+            "content": {
+                "type": "binary",
+            },
+        },
+    },
 }
 
 
@@ -170,47 +101,35 @@ EDA_EXPORTS_MAPPING = {
 def create_index_if_not_exists(
     elasticsearch_client: Elasticsearch,
     index_name: str,
-    index_definition: dict,
+    mapping: dict,
 ) -> None:
     """
-    Create an Elasticsearch index if it does not already exist.
+    Create an Elasticsearch index if it does not exist.
 
-    Existing indices are preserved.
-
-    Args:
-        elasticsearch_client:
-            Elasticsearch client instance.
-
-        index_name:
-            Name of the index.
-
-        index_definition:
-            Index settings and mappings.
+    Existing indexes are left untouched.
     """
 
     if elasticsearch_client.indices.exists(
-        index=index_name
+        index=index_name,
     ):
         return
 
     elasticsearch_client.indices.create(
         index=index_name,
-        settings=index_definition["settings"],
-        mappings=index_definition["mappings"],
+        settings=mapping["settings"],
+        mappings=mapping["mappings"],
     )
 
 
 # ============================================================
-# INITIALIZE INDICES
+# INITIALIZE INDEXES
 # ============================================================
 
-def initialize_indices(
+def initialize_indexes(
     elasticsearch_client: Elasticsearch = client,
 ) -> None:
     """
-    Initialize all application Elasticsearch indices.
-
-    This function is safe to call multiple times.
+    Create all required application indexes.
     """
 
     create_index_if_not_exists(
@@ -227,22 +146,22 @@ def initialize_indices(
 
 
 # ============================================================
-# INDEX HEALTH
+# CHECK INDEXES
 # ============================================================
 
-def indices_exist(
+def indexes_exist(
     elasticsearch_client: Elasticsearch = client,
 ) -> bool:
     """
-    Check whether all required application indices exist.
+    Return True when both required indexes exist.
     """
 
     return (
         elasticsearch_client.indices.exists(
-            index=EDA_ANALYSES_INDEX
+            index=EDA_ANALYSES_INDEX,
         )
         and
         elasticsearch_client.indices.exists(
-            index=EDA_EXPORTS_INDEX
+            index=EDA_EXPORTS_INDEX,
         )
     )

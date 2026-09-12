@@ -55,7 +55,7 @@ class DatabaseSettings(BaseSettings):
     )
 
     port: int = Field(
-        default=5440,
+        default=5540,
         validation_alias="POSTGRES_PORT",
     )
 

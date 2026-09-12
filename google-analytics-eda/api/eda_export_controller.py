@@ -1,221 +1,76 @@
-"""
-EDA Export API.
-
-This module exposes HTTP endpoints for:
-
-    - Generating EDA exports
-    - Listing user's export history
-    - Retrieving an export
-    - Downloading an export
-    - Deleting an export history record
-
-Authentication:
-    Keycloak JWT.
-
-Important security rule:
-    The user's email is NEVER accepted from the request body
-    or query parameters.
-
-    It is extracted from the authenticated Keycloak token.
-
-Architecture:
-
-    Angular
-       |
-       | Bearer JWT
-       v
-    FastAPI
-       |
-       v
-    EdaExportController
-       |
-       v
-    EdaExportService
-       |
-       +---- PostgreSQL
-       |
-       +---- Elasticsearch
-       |
-       +---- File system
-"""
-
 from __future__ import annotations
 
-from pathlib import Path
-from typing import Annotated, Literal
+from typing import Annotated
 
-from fastapi import (
-    APIRouter,
-    Depends,
-    HTTPException,
-    Path as FastAPIPath,
-    Query,
-    status,
-)
-from fastapi.responses import FileResponse
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 
-from elastic.export_repository import ExportRepository
-from schema.eda import ExportRecord, ExportPage
-from services.eda_export_service import (
-    EdaExportService,
+from schema.export_page import ExportPage
+from schema.export_response import ExportResponse
+
+from security.keycloak import (
+    KeycloakUser,
+    get_current_user,
 )
 
+from services.eda_export_service import EdaExportService
 
-# ============================================================
-# ROUTER
-# ============================================================
 
 router = APIRouter(
-    prefix="/api/eda/exports",
+    prefix="/api/eda",
     tags=["EDA Exports"],
 )
 
 
 # ============================================================
-# CONSTANTS
+# CURRENT USER
 # ============================================================
 
-EXPORT_DIRECTORY = Path(
-    "exports"
-)
-
-
-SUPPORTED_FORMATS = {
-    "csv",
-    "xlsx",
-    "pdf",
-}
+CurrentUser = Annotated[
+    KeycloakUser,
+    Depends(get_current_user),
+]
 
 
 # ============================================================
-# DEPENDENCIES
+# SERVICE DEPENDENCY
 # ============================================================
 
-def get_export_service() -> EdaExportService:
-    """
-    Create the EDA export service.
-
-    Keeping dependency creation in one place makes the API
-    easier to test and allows dependency overrides.
-    """
-
+def get_eda_export_service() -> EdaExportService:
     return EdaExportService()
 
 
-def get_export_repository() -> ExportRepository:
-    """
-    Create the Elasticsearch export repository.
-    """
-
-    return ExportRepository()
-
-
-# ------------------------------------------------------------
-# Replace this dependency with your Keycloak JWT dependency.
-# ------------------------------------------------------------
-
-def get_current_user_email() -> str:
-    """
-    Return the authenticated user's email.
-
-    This function is intentionally kept as a dependency
-    boundary.
-
-    It MUST be replaced by the application's real
-    Keycloak JWT validation dependency.
-
-    The dependency should:
-
-        1. Read Authorization: Bearer <token>
-        2. Validate the JWT signature
-        3. Validate issuer
-        4. Validate audience
-        5. Validate expiration
-        6. Extract the email claim
-
-    It must raise HTTP 401 when the token is invalid.
-    """
-
-    raise NotImplementedError(
-        "Configure the Keycloak JWT dependency."
-    )
-
-
-# ============================================================
-# TYPE ALIASES
-# ============================================================
-
-CurrentUserEmail = Annotated[
-    str,
-    Depends(
-        get_current_user_email
-    ),
-]
-
-
-ExportService = Annotated[
+EdaExportServiceDependency = Annotated[
     EdaExportService,
-    Depends(
-        get_export_service
-    ),
-]
-
-
-ExportRepo = Annotated[
-    ExportRepository,
-    Depends(
-        get_export_repository
-    ),
+    Depends(get_eda_export_service),
 ]
 
 
 # ============================================================
-# CREATE EXPORT
+# CREATE JSON EXPORT
 # ============================================================
 
 @router.post(
-    "/{file_format}",
-    response_model=ExportRecord,
+    "/{eda_id}/exports/json",
+    response_model=ExportResponse,
     status_code=status.HTTP_201_CREATED,
-    summary="Generate an EDA export",
-    description=(
-        "Execute the four EDAs and generate a CSV, XLSX "
-        "or PDF report."
-    ),
 )
-def create_export(
-    file_format: Literal[
-        "csv",
-        "xlsx",
-        "pdf",
-    ],
-    current_user_email: CurrentUserEmail,
-    service: ExportService,
-) -> ExportRecord:
-    """
-    Generate a complete Google Play Store EDA export.
-
-    The authenticated user's email is obtained from Keycloak.
-
-    Supported formats:
-
-        POST /api/eda/exports/csv
-        POST /api/eda/exports/xlsx
-        POST /api/eda/exports/pdf
-    """
+def export_json(
+    eda_id: str,
+    current_user: CurrentUser,
+    service: EdaExportServiceDependency,
+) -> ExportResponse:
 
     try:
 
-        return service.export(
-            email=current_user_email,
-            file_format=file_format,
-            output_directory=EXPORT_DIRECTORY,
+        return service.export_json(
+            eda_id=eda_id,
+            user=current_user,
         )
 
     except ValueError as exception:
 
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_404_NOT_FOUND,
             detail=str(exception),
         ) from exception
 
@@ -223,118 +78,129 @@ def create_export(
 
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=(
-                "The EDA export could not be generated."
-            ),
+            detail="Failed to create JSON export.",
         ) from exception
 
 
 # ============================================================
-# LIST MY EXPORTS
+# CREATE CSV EXPORT
 # ============================================================
 
-@router.get(
-    "",
-    response_model=ExportPage,
-    summary="Get my export history",
+@router.post(
+    "/{eda_id}/exports/csv",
+    response_model=ExportResponse,
+    status_code=status.HTTP_201_CREATED,
 )
-def get_my_exports(
-    current_user_email: CurrentUserEmail,
-    repository: ExportRepo,
-    page: int = Query(
-        default=0,
-        ge=0,
-        description="Zero-based page number.",
-    ),
-    size: int = Query(
-        default=20,
-        ge=1,
-        le=100,
-        description="Number of exports per page.",
-    ),
-) -> ExportPage:
-    """
-    Retrieve the authenticated user's export history.
-
-    Results are sorted by export date descending.
-    """
+def export_csv(
+    eda_id: str,
+    current_user: CurrentUser,
+    service: EdaExportServiceDependency,
+) -> ExportResponse:
 
     try:
 
-        result = (
-            repository.find_by_email(
-                email=current_user_email,
-                page=page,
-                size=size,
-            )
-        )
-
-        return ExportPage(
-            **result
+        return service.export_csv(
+            eda_id=eda_id,
+            user=current_user,
         )
 
     except ValueError as exception:
 
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_404_NOT_FOUND,
             detail=str(exception),
+        ) from exception
+
+    except Exception as exception:
+
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to create CSV export.",
         ) from exception
 
 
 # ============================================================
-# GET MY EXPORT
+# CREATE PDF EXPORT
+# ============================================================
+
+@router.post(
+    "/{eda_id}/exports/pdf",
+    response_model=ExportResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def export_pdf(
+    eda_id: str,
+    current_user: CurrentUser,
+    service: EdaExportServiceDependency,
+) -> ExportResponse:
+
+    try:
+
+        return service.export_pdf(
+            eda_id=eda_id,
+            user=current_user,
+        )
+
+    except ValueError as exception:
+
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(exception),
+        ) from exception
+
+    except Exception as exception:
+
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to create PDF export.",
+        ) from exception
+
+
+# ============================================================
+# GET EXPORT HISTORY
 # ============================================================
 
 @router.get(
-    "/{export_id}",
-    response_model=ExportRecord,
-    summary="Get an export",
+    "/{eda_id}/exports",
+    response_model=ExportPage,
 )
-def get_my_export(
-    export_id: str = FastAPIPath(
-        ...,
-        min_length=1,
+def get_exports(
+    eda_id: str,
+    current_user: CurrentUser,
+    service: EdaExportServiceDependency,
+    page: int = Query(
+        default=0,
+        ge=0,
     ),
-    current_user_email: CurrentUserEmail = None,
-    repository: ExportRepo = None,
-) -> ExportRecord:
-    """
-    Retrieve one export belonging to the authenticated user.
+    size: int = Query(
+        default=20,
+        ge=1,
+        le=100,
+    ),
+) -> ExportPage:
 
-    An export belonging to another user is intentionally
-    returned as HTTP 404 rather than HTTP 403.
+    try:
 
-    This prevents leaking the existence of another user's
-    export IDs.
-    """
-
-    record = (
-        repository.find_by_id(
-            export_id
+        return service.get_exports(
+            eda_id=eda_id,
+            user=current_user,
+            page=page,
+            size=size,
         )
-    )
 
-    if record is None:
+    except ValueError as exception:
 
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Export not found.",
-        )
+            detail=str(exception),
+        ) from exception
 
-    # --------------------------------------------------------
-    # Ownership check
-    # --------------------------------------------------------
-
-    if record.email.lower() != (
-        current_user_email.strip().lower()
-    ):
+    except Exception as exception:
 
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Export not found.",
-        )
-
-    return record
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve EDA exports.",
+        ) from exception
 
 
 # ============================================================
@@ -342,202 +208,42 @@ def get_my_export(
 # ============================================================
 
 @router.get(
-    "/{export_id}/download",
-    response_class=FileResponse,
-    summary="Download an export",
+    "/exports/{export_id}",
 )
 def download_export(
-    export_id: str = FastAPIPath(
-        ...,
-        min_length=1,
-    ),
-    current_user_email: CurrentUserEmail = None,
-    repository: ExportRepo = None,
-):
-    """
-    Download an export belonging to the authenticated user.
-
-    Security:
-
-        - Elasticsearch record must exist.
-        - Record must belong to current user.
-        - Filename is resolved inside EXPORT_DIRECTORY.
-        - Path traversal is explicitly prevented.
-    """
-
-    record = (
-        repository.find_by_id(
-            export_id
-        )
-    )
-
-    # --------------------------------------------------------
-    # Do not expose existence of another user's export.
-    # --------------------------------------------------------
-
-    if record is None:
-
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Export not found.",
-        )
-
-    if record.email.lower() != (
-        current_user_email.strip().lower()
-    ):
-
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Export not found.",
-        )
-
-    # --------------------------------------------------------
-    # Resolve filename safely
-    # --------------------------------------------------------
-
-    filename = Path(
-        record.filename
-    ).name
-
-    file_path = (
-        EXPORT_DIRECTORY / filename
-    ).resolve()
-
-    export_directory = (
-        EXPORT_DIRECTORY
-        .resolve()
-    )
-
-    # --------------------------------------------------------
-    # Path traversal protection
-    # --------------------------------------------------------
+    export_id: str,
+    current_user: CurrentUser,
+    service: EdaExportServiceDependency,
+) -> Response:
 
     try:
 
-        file_path.relative_to(
-            export_directory
+        export = service.get_export(
+            export_id=export_id,
+            user=current_user,
         )
 
-    except ValueError:
+        if export is None:
+
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=(
+                    f"Export with id "
+                    f"'{export_id}' was not found."
+                ),
+            )
+
+        return service.create_download_response(
+            export
+        )
+
+    except HTTPException:
+
+        raise
+
+    except Exception as exception:
 
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid export filename.",
-        )
-
-    # --------------------------------------------------------
-    # Check physical file
-    # --------------------------------------------------------
-
-    if not file_path.is_file():
-
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=(
-                "The export file is no longer available."
-            ),
-        )
-
-    # --------------------------------------------------------
-    # Determine media type
-    # --------------------------------------------------------
-
-    media_types = {
-        ".csv": "text/csv",
-        ".xlsx": (
-            "application/vnd.openxmlformats-"
-            "officedocument.spreadsheetml.sheet"
-        ),
-        ".pdf": "application/pdf",
-    }
-
-    media_type = (
-        media_types.get(
-            file_path.suffix.lower()
-        )
-        or "application/octet-stream"
-    )
-
-    return FileResponse(
-        path=file_path,
-        media_type=media_type,
-        filename=filename,
-    )
-
-
-# ============================================================
-# DELETE EXPORT
-# ============================================================
-
-@router.delete(
-    "/{export_id}",
-    status_code=status.HTTP_204_NO_CONTENT,
-    summary="Delete an export history record",
-)
-def delete_export(
-    export_id: str = FastAPIPath(
-        ...,
-        min_length=1,
-    ),
-    current_user_email: CurrentUserEmail = None,
-    repository: ExportRepo = None,
-) -> None:
-    """
-    Delete an export history record belonging to the user.
-
-    IMPORTANT:
-
-        This removes the Elasticsearch metadata.
-
-        It does NOT remove the physical file.
-
-    Physical file deletion should be handled separately
-    if/when required.
-    """
-
-    record = (
-        repository.find_by_id(
-            export_id
-        )
-    )
-
-    # --------------------------------------------------------
-    # Not found
-    # --------------------------------------------------------
-
-    if record is None:
-
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Export not found.",
-        )
-
-    # --------------------------------------------------------
-    # Ownership
-    # --------------------------------------------------------
-
-    if record.email.lower() != (
-        current_user_email.strip().lower()
-    ):
-
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Export not found.",
-        )
-
-    # --------------------------------------------------------
-    # Delete metadata
-    # --------------------------------------------------------
-
-    deleted = (
-        repository.delete(
-            export_id
-        )
-    )
-
-    if not deleted:
-
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Export not found.",
-        )
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to download export.",
+        ) from exception

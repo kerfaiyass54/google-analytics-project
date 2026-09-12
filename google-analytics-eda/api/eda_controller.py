@@ -1,52 +1,25 @@
-"""
-EDA Analysis API.
-
-Provides endpoints for the four Google Play Store EDAs:
-
-    1. Ratings by category
-    2. Free vs paid
-    3. Install distribution
-    4. Review counts
-
-The API returns JSON suitable for direct consumption
-by the Angular frontend.
-
-The generated complete analysis is persisted in
-Elasticsearch for analysis history.
-"""
-
 from __future__ import annotations
 
 from typing import Annotated
 
-from fastapi import (
-    APIRouter,
-    Depends,
-    HTTPException,
-    status,
-)
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 
-from schema.eda import (
-    CompleteEdaAnalysis,
-    FreeVsPaidResponse,
-    InstallDistributionResponse,
-    RatingsByCategoryResponse,
-    ReviewCountsResponse,
-)
+from schema.eda_document import EdaDocument
+from schema.eda_page import EdaPage
 
 from security.keycloak import (
     KeycloakUser,
     get_current_user,
 )
 
+from services.eda_management_service import (
+    EdaManagementService,
+)
+
 from services.eda_service import (
     EdaAnalysisService,
 )
 
-
-# ============================================================
-# ROUTER
-# ============================================================
 
 router = APIRouter(
     prefix="/api/eda",
@@ -55,7 +28,7 @@ router = APIRouter(
 
 
 # ============================================================
-# DEPENDENCY
+# CURRENT USER
 # ============================================================
 
 CurrentUser = Annotated[
@@ -65,273 +38,295 @@ CurrentUser = Annotated[
 
 
 # ============================================================
-# SERVICE
+# ANALYSIS SERVICE
 # ============================================================
 
-def get_eda_service() -> EdaAnalysisService:
-    """
-    Create the EDA service.
-
-    Keeping the service behind a dependency makes the
-    controller easy to test and allows dependency overrides.
-    """
+def get_eda_analysis_service() -> EdaAnalysisService:
 
     return EdaAnalysisService()
 
 
-EdaServiceDependency = Annotated[
+EdaAnalysisServiceDependency = Annotated[
     EdaAnalysisService,
-    Depends(get_eda_service),
+    Depends(get_eda_analysis_service),
 ]
 
 
 # ============================================================
-# COMPLETE ANALYSIS
+# MANAGEMENT SERVICE
+# ============================================================
+
+def get_eda_management_service() -> EdaManagementService:
+
+    return EdaManagementService()
+
+
+EdaManagementServiceDependency = Annotated[
+    EdaManagementService,
+    Depends(get_eda_management_service),
+]
+
+
+# ============================================================
+# RUN + SAVE COMPLETE EDA
+# ============================================================
+
+@router.post(
+    "",
+    response_model=EdaDocument,
+    status_code=status.HTTP_201_CREATED,
+)
+def run_and_save_eda(
+    current_user: CurrentUser,
+    service: EdaManagementServiceDependency,
+) -> EdaDocument:
+
+    try:
+
+        return service.run_and_save(
+            user=current_user
+        )
+
+    except Exception as exception:
+
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=(
+                "Failed to execute and "
+                "save EDA analysis."
+            ),
+        ) from exception
+
+
+# ============================================================
+# GET EDA HISTORY
 # ============================================================
 
 @router.get(
     "",
-    response_model=CompleteEdaAnalysis,
-    summary="Run complete EDA",
-    description=(
-        "Execute all four Google Play Store exploratory "
-        "data analyses."
-    ),
+    response_model=EdaPage,
 )
-def get_complete_analysis(
-    user: CurrentUser,
-    service: EdaServiceDependency,
-) -> CompleteEdaAnalysis:
-    """
-    Execute all four EDAs.
-
-    The authenticated user is used for audit/history
-    information.
-
-    The email is obtained from Keycloak and is never
-    accepted from the client.
-    """
+def get_eda_history(
+    current_user: CurrentUser,
+    service: EdaManagementServiceDependency,
+    page: int = Query(
+        default=0,
+        ge=0,
+    ),
+    size: int = Query(
+        default=20,
+        ge=1,
+        le=100,
+    ),
+) -> EdaPage:
 
     try:
 
-        return service.run_complete_analysis(
-            user_email=user.email,
+        return service.get_history(
+            user=current_user,
+            page=page,
+            size=size,
         )
-
-    except ValueError as exception:
-
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(exception),
-        ) from exception
 
     except Exception as exception:
 
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=(
-                "Unable to execute the EDA analysis."
-            ),
+            detail="Failed to retrieve EDA history.",
         ) from exception
 
 
 # ============================================================
-# EDA 01
+# RATINGS BY CATEGORY
 # ============================================================
 
 @router.get(
     "/ratings-by-category",
-    response_model=RatingsByCategoryResponse,
-    summary="Ratings by category",
 )
 def get_ratings_by_category(
-    user: CurrentUser,
-    service: EdaServiceDependency,
-) -> RatingsByCategoryResponse:
-    """
-    Execute EDA 01.
-
-    Analyzes:
-
-        - application count
-        - rated application count
-        - average rating
-        - minimum rating
-        - maximum rating
-        - median rating
-        - rating standard deviation
-
-    grouped by category.
-    """
+    current_user: CurrentUser,
+    service: EdaAnalysisServiceDependency,
+):
 
     try:
 
-        return service.run_ratings_by_category(
-            user_email=user.email,
-        )
-
-    except ValueError as exception:
-
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(exception),
-        ) from exception
+        return service.run_ratings_by_category()
 
     except Exception as exception:
 
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=(
-                "Unable to calculate ratings by category."
+                "Failed to execute "
+                "ratings-by-category analysis."
             ),
         ) from exception
 
 
 # ============================================================
-# EDA 02
+# FREE VS PAID
 # ============================================================
 
 @router.get(
     "/free-vs-paid",
-    response_model=FreeVsPaidResponse,
-    summary="Free versus paid applications",
 )
 def get_free_vs_paid(
-    user: CurrentUser,
-    service: EdaServiceDependency,
-) -> FreeVsPaidResponse:
-    """
-    Execute EDA 02.
-
-    Compares FREE and PAID applications using:
-
-        - application count
-        - percentages
-        - ratings
-        - reviews
-        - prices
-    """
+    current_user: CurrentUser,
+    service: EdaAnalysisServiceDependency,
+):
 
     try:
 
-        return service.run_free_vs_paid(
-            user_email=user.email,
-        )
-
-    except ValueError as exception:
-
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(exception),
-        ) from exception
+        return service.run_free_vs_paid()
 
     except Exception as exception:
 
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=(
-                "Unable to calculate free versus paid "
-                "statistics."
+                "Failed to execute "
+                "free-vs-paid analysis."
             ),
         ) from exception
 
 
 # ============================================================
-# EDA 03
+# INSTALL DISTRIBUTION
 # ============================================================
 
 @router.get(
     "/install-distribution",
-    response_model=InstallDistributionResponse,
-    summary="Install distribution",
 )
 def get_install_distribution(
-    user: CurrentUser,
-    service: EdaServiceDependency,
-) -> InstallDistributionResponse:
-    """
-    Execute EDA 03.
-
-    Analyzes:
-
-        - install distribution
-        - average installs
-        - median installs
-        - total installs
-        - category install statistics
-        - top installed applications
-    """
+    current_user: CurrentUser,
+    service: EdaAnalysisServiceDependency,
+):
 
     try:
 
-        return service.run_install_distribution(
-            user_email=user.email,
-        )
-
-    except ValueError as exception:
-
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(exception),
-        ) from exception
+        return service.run_install_distribution()
 
     except Exception as exception:
 
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=(
-                "Unable to calculate install distribution."
+                "Failed to execute "
+                "install-distribution analysis."
             ),
         ) from exception
 
 
 # ============================================================
-# EDA 04
+# REVIEW COUNTS
 # ============================================================
 
 @router.get(
     "/review-counts",
-    response_model=ReviewCountsResponse,
-    summary="Review counts",
 )
 def get_review_counts(
-    user: CurrentUser,
-    service: EdaServiceDependency,
-) -> ReviewCountsResponse:
-    """
-    Execute EDA 04.
-
-    Analyzes:
-
-        - total reviews
-        - average reviews
-        - median reviews
-        - minimum reviews
-        - maximum reviews
-        - review standard deviation
-        - reviews by category
-        - top reviewed applications
-        - reviews versus installs
-    """
+    current_user: CurrentUser,
+    service: EdaAnalysisServiceDependency,
+):
 
     try:
 
-        return service.run_review_counts(
-            user_email=user.email,
-        )
-
-    except ValueError as exception:
-
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(exception),
-        ) from exception
+        return service.run_review_counts()
 
     except Exception as exception:
 
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=(
-                "Unable to calculate review counts."
+                "Failed to execute "
+                "review-counts analysis."
             ),
+        ) from exception
+
+
+# ============================================================
+# GET EDA BY ID
+# ============================================================
+
+@router.get(
+    "/{eda_id}",
+    response_model=EdaDocument,
+)
+def get_eda_by_id(
+    eda_id: str,
+    current_user: CurrentUser,
+    service: EdaManagementServiceDependency,
+) -> EdaDocument:
+
+    try:
+
+        eda = service.get_by_id(
+            eda_id=eda_id,
+            user=current_user,
+        )
+
+        if eda is None:
+
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=(
+                    f"EDA with id "
+                    f"'{eda_id}' was not found."
+                ),
+            )
+
+        return eda
+
+    except HTTPException:
+
+        raise
+
+    except Exception as exception:
+
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve EDA.",
+        ) from exception
+
+
+# ============================================================
+# DELETE EDA
+# ============================================================
+
+@router.delete(
+    "/{eda_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def delete_eda(
+    eda_id: str,
+    current_user: CurrentUser,
+    service: EdaManagementServiceDependency,
+) -> None:
+
+    try:
+
+        deleted = service.delete(
+            eda_id=eda_id,
+            user=current_user,
+        )
+
+        if not deleted:
+
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=(
+                    f"EDA with id "
+                    f"'{eda_id}' was not found."
+                ),
+            )
+
+    except HTTPException:
+
+        raise
+
+    except Exception as exception:
+
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to delete EDA.",
         ) from exception

@@ -1,108 +1,183 @@
-"""
-EDA 02 — Free vs Paid Applications.
-
-This module analyzes differences between free and paid
-Google Play applications.
-
-Responsibilities:
-    - Retrieve free/paid statistics from PostgreSQL
-    - Build a Pandas DataFrame
-    - Calculate comparison statistics
-    - Prepare visualization-ready data
-    - Return a validated API response
-
-Visualization generation is intentionally handled by
-the export/visualization layer.
-"""
-
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Any
 
 import pandas as pd
 from sqlalchemy import text
 
-from database import engine
-from queries import GET_FREE_PAID_DISTRIBUTION
-from schema.eda import (
-    FreePaidStatistics,
-    FreeVsPaidResponse,
-)
+from database.connection import engine
 
 
 class FreeVsPaidAnalysis:
     """
-    Performs EDA 02: comparison between free and paid
-    applications.
+    EDA: Comparison between free and paid applications.
+
+    Provides:
+        - number of free applications
+        - number of paid applications
+        - percentage distribution
+        - average rating
+        - average reviews
+        - total reviews
+        - average price
+        - visualization-ready DataFrame
     """
 
-    # ========================================================
-    # PUBLIC API
-    # ========================================================
+    QUERY = """
+        SELECT
+            type,
+            COUNT(*) AS app_count,
+            AVG(rating) AS average_rating,
+            AVG(reviews) AS average_reviews,
+            SUM(reviews) AS total_reviews,
+            AVG(price) AS average_price,
+            MIN(price) AS minimum_price,
+            MAX(price) AS maximum_price
+        FROM google_play_apps
+        GROUP BY type
+        ORDER BY type
+    """
 
-    def run(self) -> FreeVsPaidResponse:
-        """
-        Execute the complete free-vs-paid analysis.
-
-        Returns:
-            Validated FreeVsPaidResponse.
-        """
-
+    def run(self) -> dict:
         dataframe = self._load_data()
 
-        return self._build_response(dataframe)
+        if dataframe.empty:
+            return {
+                "analyzed_at": self._timestamp(),
+                "free_applications": 0,
+                "paid_applications": 0,
+                "free_percentage": 0.0,
+                "paid_percentage": 0.0,
+                "applications": [],
+            }
 
-    # ========================================================
-    # DATA LOADING
-    # ========================================================
+        dataframe = self._prepare_data(dataframe)
 
-    def _load_data(self) -> pd.DataFrame:
-        """
-        Load free/paid statistics from PostgreSQL.
+        total = int(dataframe["app_count"].sum())
 
-        Returns:
-            DataFrame containing free/paid statistics.
-        """
-
-        with engine.connect() as connection:
-
-            dataframe = pd.read_sql(
-                text(GET_FREE_PAID_DISTRIBUTION),
-                connection,
-            )
-
-        return self._prepare_dataframe(
-            dataframe
+        free_count = self._get_count(
+            dataframe,
+            "FREE",
         )
 
-    # ========================================================
-    # DATA PREPARATION
-    # ========================================================
+        paid_count = self._get_count(
+            dataframe,
+            "PAID",
+        )
 
-    @staticmethod
-    def _prepare_dataframe(
-        dataframe: pd.DataFrame,
-    ) -> pd.DataFrame:
-        """
-        Normalize the DataFrame returned by PostgreSQL.
+        free_percentage = (
+            free_count / total * 100
+            if total > 0
+            else 0.0
+        )
 
-        Args:
-            dataframe:
-                Raw PostgreSQL result.
+        paid_percentage = (
+            paid_count / total * 100
+            if total > 0
+            else 0.0
+        )
 
-        Returns:
-            Clean analysis DataFrame.
-        """
+        applications = []
+
+        for _, row in dataframe.iterrows():
+
+            applications.append(
+                {
+                    "type": row["type"],
+                    "app_count": int(
+                        row["app_count"]
+                    ),
+                    "percentage": round(
+                        (
+                            row["app_count"]
+                            / total
+                            * 100
+                        )
+                        if total > 0
+                        else 0.0,
+                        2,
+                    ),
+                    "average_rating": self._safe_float(
+                        row["average_rating"]
+                    ),
+                    "average_reviews": self._safe_float(
+                        row["average_reviews"]
+                    ),
+                    "total_reviews": int(
+                        row["total_reviews"]
+                    ),
+                    "average_price": self._safe_float(
+                        row["average_price"]
+                    ),
+                    "minimum_price": self._safe_float(
+                        row["minimum_price"]
+                    ),
+                    "maximum_price": self._safe_float(
+                        row["maximum_price"]
+                    ),
+                }
+            )
+
+        return {
+            "analyzed_at": self._timestamp(),
+            "free_applications": free_count,
+            "paid_applications": paid_count,
+            "free_percentage": round(
+                free_percentage,
+                2,
+            ),
+            "paid_percentage": round(
+                paid_percentage,
+                2,
+            ),
+            "applications": applications,
+        }
+
+    def get_visualization_dataframe(self) -> pd.DataFrame:
+        dataframe = self._load_data()
 
         if dataframe.empty:
             return dataframe
 
-        dataframe = dataframe.copy()
+        dataframe = self._prepare_data(dataframe)
 
-        # ----------------------------------------------------
-        # Normalize type
-        # ----------------------------------------------------
+        total = dataframe["app_count"].sum()
+
+        dataframe["percentage"] = (
+            dataframe["app_count"]
+            / total
+            * 100
+            if total > 0
+            else 0
+        )
+
+        return dataframe[
+            [
+                "type",
+                "app_count",
+                "percentage",
+                "average_rating",
+                "average_reviews",
+                "total_reviews",
+                "average_price",
+                "minimum_price",
+                "maximum_price",
+            ]
+        ].copy()
+
+    def _load_data(self) -> pd.DataFrame:
+        with engine.connect() as connection:
+            return pd.read_sql(
+                text(self.QUERY),
+                connection,
+            )
+
+    @staticmethod
+    def _prepare_data(
+        dataframe: pd.DataFrame,
+    ) -> pd.DataFrame:
+
+        dataframe = dataframe.copy()
 
         dataframe["type"] = (
             dataframe["type"]
@@ -111,17 +186,10 @@ class FreeVsPaidAnalysis:
             .str.upper()
         )
 
-        # ----------------------------------------------------
-        # Numeric columns
-        # ----------------------------------------------------
-
         numeric_columns = [
             "app_count",
-            "rated_app_count",
             "average_rating",
-            "median_rating",
             "average_reviews",
-            "median_reviews",
             "total_reviews",
             "average_price",
             "minimum_price",
@@ -129,232 +197,24 @@ class FreeVsPaidAnalysis:
         ]
 
         for column in numeric_columns:
-
-            if column in dataframe.columns:
-
-                dataframe[column] = pd.to_numeric(
-                    dataframe[column],
-                    errors="coerce",
-                )
-
-        # ----------------------------------------------------
-        # Remove invalid application types
-        # ----------------------------------------------------
+            dataframe[column] = pd.to_numeric(
+                dataframe[column],
+                errors="coerce",
+            )
 
         dataframe = dataframe[
             dataframe["type"].isin(
-                {"FREE", "PAID"}
+                ["FREE", "PAID"]
             )
         ]
 
-        # ----------------------------------------------------
-        # Ensure predictable ordering
-        # ----------------------------------------------------
-
-        type_order = {
-            "FREE": 0,
-            "PAID": 1,
-        }
-
-        dataframe["_type_order"] = (
-            dataframe["type"]
-            .map(type_order)
-        )
-
-        dataframe = dataframe.sort_values(
-            "_type_order"
-        )
-
-        dataframe = dataframe.drop(
-            columns="_type_order"
-        )
-
-        dataframe = dataframe.reset_index(
-            drop=True
-        )
-
-        return dataframe
-
-    # ========================================================
-    # RESPONSE
-    # ========================================================
-
-    def _build_response(
-        self,
-        dataframe: pd.DataFrame,
-    ) -> FreeVsPaidResponse:
-        """
-        Build the validated API response.
-        """
-
-        analyzed_at = datetime.now(
-            timezone.utc
-        )
-
-        # ----------------------------------------------------
-        # Empty dataset
-        # ----------------------------------------------------
-
-        if dataframe.empty:
-
-            return FreeVsPaidResponse(
-                analyzed_at=analyzed_at,
-                free_applications=0,
-                paid_applications=0,
-                free_percentage=0.0,
-                paid_percentage=0.0,
-                average_rating_difference=None,
-                average_reviews_difference=None,
-                applications=[],
-            )
-
-        # ----------------------------------------------------
-        # Application counts
-        # ----------------------------------------------------
-
-        free_applications = self._get_count(
-            dataframe,
-            "FREE",
-        )
-
-        paid_applications = self._get_count(
-            dataframe,
-            "PAID",
-        )
-
-        total_applications = (
-            free_applications
-            + paid_applications
-        )
-
-        # ----------------------------------------------------
-        # Percentages
-        # ----------------------------------------------------
-
-        if total_applications > 0:
-
-            free_percentage = (
-                free_applications
-                / total_applications
-                * 100
-            )
-
-            paid_percentage = (
-                paid_applications
-                / total_applications
-                * 100
-            )
-
-        else:
-
-            free_percentage = 0.0
-            paid_percentage = 0.0
-
-        # ----------------------------------------------------
-        # Average rating difference
-        # ----------------------------------------------------
-
-        free_rating = self._get_value(
-            dataframe,
-            "FREE",
-            "average_rating",
-        )
-
-        paid_rating = self._get_value(
-            dataframe,
-            "PAID",
-            "average_rating",
-        )
-
-        average_rating_difference = (
-            self._difference(
-                free_rating,
-                paid_rating,
-            )
-        )
-
-        # ----------------------------------------------------
-        # Average reviews difference
-        # ----------------------------------------------------
-
-        free_reviews = self._get_value(
-            dataframe,
-            "FREE",
-            "average_reviews",
-        )
-
-        paid_reviews = self._get_value(
-            dataframe,
-            "PAID",
-            "average_reviews",
-        )
-
-        average_reviews_difference = (
-            self._difference(
-                free_reviews,
-                paid_reviews,
-            )
-        )
-
-        # ----------------------------------------------------
-        # Detailed statistics
-        # ----------------------------------------------------
-
-        applications = [
-            self._to_statistics(row)
-            for _, row in dataframe.iterrows()
-        ]
-
-        return FreeVsPaidResponse(
-            analyzed_at=analyzed_at,
-
-            free_applications=(
-                free_applications
-            ),
-
-            paid_applications=(
-                paid_applications
-            ),
-
-            free_percentage=(
-                self._round(
-                    free_percentage
-                )
-            ),
-
-            paid_percentage=(
-                self._round(
-                    paid_percentage
-                )
-            ),
-
-            average_rating_difference=(
-                self._round_optional(
-                    average_rating_difference
-                )
-            ),
-
-            average_reviews_difference=(
-                self._round_optional(
-                    average_reviews_difference
-                )
-            ),
-
-            applications=applications,
-        )
-
-    # ========================================================
-    # STATISTICS
-    # ========================================================
+        return dataframe.reset_index(drop=True)
 
     @staticmethod
     def _get_count(
         dataframe: pd.DataFrame,
         application_type: str,
     ) -> int:
-        """
-        Retrieve the number of applications of a type.
-        """
 
         rows = dataframe[
             dataframe["type"]
@@ -364,288 +224,29 @@ class FreeVsPaidAnalysis:
         if rows.empty:
             return 0
 
-        value = rows.iloc[0]["app_count"]
-
-        if pd.isna(value):
-            return 0
-
-        return int(value)
-
-    @staticmethod
-    def _get_value(
-        dataframe: pd.DataFrame,
-        application_type: str,
-        column: str,
-    ) -> float | None:
-        """
-        Retrieve a numerical value for an application type.
-        """
-
-        rows = dataframe[
-            dataframe["type"]
-            == application_type
-        ]
-
-        if rows.empty:
-            return None
-
-        value = rows.iloc[0][column]
-
-        if pd.isna(value):
-            return None
-
-        return float(value)
-
-    @staticmethod
-    def _difference(
-        first: float | None,
-        second: float | None,
-    ) -> float | None:
-        """
-        Calculate second - first.
-
-        For example:
-
-            paid average rating
-            -
-            free average rating
-        """
-
-        if first is None or second is None:
-            return None
-
-        return second - first
-
-    # ========================================================
-    # DATA MAPPING
-    # ========================================================
-
-    @staticmethod
-    def _to_statistics(
-        row: pd.Series,
-    ) -> FreePaidStatistics:
-        """
-        Convert one DataFrame row into a Pydantic model.
-        """
-
-        return FreePaidStatistics(
-            type=str(
-                row["type"]
-            ),
-
-            app_count=int(
-                row["app_count"]
-            ),
-
-            rated_app_count=int(
-                row["rated_app_count"]
-            ),
-
-            average_rating=(
-                FreeVsPaidAnalysis._safe_float(
-                    row["average_rating"]
-                )
-            ),
-
-            median_rating=(
-                FreeVsPaidAnalysis._safe_float(
-                    row["median_rating"]
-                )
-            ),
-
-            average_reviews=(
-                FreeVsPaidAnalysis._safe_float(
-                    row["average_reviews"]
-                )
-            ),
-
-            median_reviews=(
-                FreeVsPaidAnalysis._safe_float(
-                    row["median_reviews"]
-                )
-            ),
-
-            total_reviews=int(
-                row["total_reviews"]
-            ),
-
-            average_price=(
-                FreeVsPaidAnalysis._safe_float(
-                    row["average_price"]
-                )
-            ),
-
-            minimum_price=(
-                FreeVsPaidAnalysis._safe_float(
-                    row["minimum_price"]
-                )
-            ),
-
-            maximum_price=(
-                FreeVsPaidAnalysis._safe_float(
-                    row["maximum_price"]
-                )
-            ),
+        return int(
+            rows.iloc[0]["app_count"]
         )
-
-    # ========================================================
-    # VISUALIZATION DATA
-    # ========================================================
-
-    def get_visualization_dataframe(
-        self,
-    ) -> pd.DataFrame:
-        """
-        Return visualization-ready data.
-
-        This DataFrame is intended for the export layer.
-
-        Example visualizations:
-
-            - Free vs Paid count
-            - Free vs Paid percentage
-            - Average rating comparison
-            - Average review comparison
-            - Paid application price distribution
-        """
-
-        dataframe = self._load_data()
-
-        if dataframe.empty:
-            return dataframe
-
-        visualization_dataframe = dataframe[
-            [
-                "type",
-                "app_count",
-                "rated_app_count",
-                "average_rating",
-                "median_rating",
-                "average_reviews",
-                "median_reviews",
-                "total_reviews",
-                "average_price",
-                "minimum_price",
-                "maximum_price",
-            ]
-        ].copy()
-
-        # ----------------------------------------------------
-        # Percentage
-        # ----------------------------------------------------
-
-        total = (
-            visualization_dataframe[
-                "app_count"
-            ].sum()
-        )
-
-        if total > 0:
-
-            visualization_dataframe[
-                "percentage"
-            ] = (
-                visualization_dataframe[
-                    "app_count"
-                ]
-                / total
-                * 100
-            )
-
-        else:
-
-            visualization_dataframe[
-                "percentage"
-            ] = 0.0
-
-        # ----------------------------------------------------
-        # Difference columns
-        # ----------------------------------------------------
-
-        visualization_dataframe[
-            "rating_difference_from_free"
-        ] = (
-            visualization_dataframe[
-                "average_rating"
-            ]
-            -
-            visualization_dataframe.loc[
-                visualization_dataframe["type"]
-                == "FREE",
-                "average_rating",
-            ].iloc[0]
-            if (
-                "FREE"
-                in visualization_dataframe[
-                    "type"
-                ].values
-            )
-            else None
-        )
-
-        return visualization_dataframe.reset_index(
-            drop=True
-        )
-
-    # ========================================================
-    # HELPERS
-    # ========================================================
 
     @staticmethod
     def _safe_float(
-        value: Any,
+        value,
     ) -> float | None:
-        """
-        Safely convert a value to float.
-
-        NaN values become None.
-        """
 
         if value is None:
             return None
 
         try:
+            value = float(value)
 
-            converted = float(value)
-
-            if pd.isna(converted):
+            if pd.isna(value):
                 return None
 
-            return converted
+            return round(value, 4)
 
-        except (
-            TypeError,
-            ValueError,
-        ):
+        except (TypeError, ValueError):
             return None
 
     @staticmethod
-    def _round(
-        value: float,
-        digits: int = 2,
-    ) -> float:
-        """
-        Round a numerical result.
-        """
-
-        return round(
-            float(value),
-            digits,
-        )
-
-    @staticmethod
-    def _round_optional(
-        value: float | None,
-        digits: int = 2,
-    ) -> float | None:
-        """
-        Round an optional numerical result.
-        """
-
-        if value is None:
-            return None
-
-        return round(
-            float(value),
-            digits,
-        )
+    def _timestamp() -> datetime:
+        return datetime.now(timezone.utc)
