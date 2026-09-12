@@ -1,1 +1,702 @@
-<p>manage-apps works!</p>
+<section class="manage-apps">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <span class="eyebrow">APPLICATION MANAGEMENT</span>
+
+      <h1>Manage Applications</h1>
+
+      <p>
+        View and update Google Play Store application data.
+      </p>
+    </div>
+
+    <div class="header-stat">
+      <span class="stat-label">Total Applications</span>
+      <strong>
+        {{ tableResponse().totalElements }}
+      </strong>
+    </div>
+  </div>
+
+
+  <!-- Messages -->
+  @if (errorMessage() && !dialogVisible()) {
+    <div class="alert alert-danger page-alert">
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      <span>{{ errorMessage() }}</span>
+    </div>
+  }
+
+
+  <!-- Table -->
+  <div class="table-card">
+
+    <app-paginated-table
+      title="Google Play Applications"
+      [columns]="columns"
+      [response]="tableResponse()"
+      [loading]="loading()"
+      searchPlaceholder="Search applications..."
+      [pageSizeOptions]="[10, 20, 50]"
+      (pageChange)="onPageChange($event)"
+    />
+
+    <div class="table-hint">
+      <i class="bi bi-info-circle"></i>
+      Click an application to edit its information.
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ============================================================
+     UPDATE MODAL
+     ============================================================ -->
+
+@if (dialogVisible()) {
+
+  <div
+    class="modal-backdrop-custom"
+    (click)="closeDialog()"
+  ></div>
+
+  <div
+    class="modal-wrapper"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="update-app-title"
+  >
+
+    <div class="modal-card">
+
+      <!-- Modal Header -->
+      <div class="modal-header-custom">
+
+        <div class="modal-title-wrapper">
+
+          <div class="modal-icon">
+            <i class="bi bi-pencil-square"></i>
+          </div>
+
+          <div>
+            <span class="modal-eyebrow">
+              APPLICATION
+            </span>
+
+            <h2 id="update-app-title">
+              Update Application
+            </h2>
+          </div>
+
+        </div>
+
+        <button
+          type="button"
+          class="close-button"
+          aria-label="Close"
+          (click)="closeDialog()"
+          [disabled]="saving()"
+        >
+          <i class="bi bi-x-lg"></i>
+        </button>
+
+      </div>
+
+
+      <!-- Modal Body -->
+      <div class="modal-body-custom">
+
+        @if (errorMessage()) {
+          <div class="alert alert-danger modal-alert">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <span>{{ errorMessage() }}</span>
+          </div>
+        }
+
+        @if (successMessage()) {
+          <div class="alert alert-success modal-alert">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>{{ successMessage() }}</span>
+          </div>
+        }
+
+
+        <form
+          [formGroup]="form"
+          (ngSubmit)="updateApp()"
+          novalidate
+        >
+
+          <!-- Basic Information -->
+          <div class="form-section">
+
+            <div class="section-heading">
+              <div class="section-icon">
+                <i class="bi bi-grid"></i>
+              </div>
+
+              <div>
+                <h3>Basic Information</h3>
+                <p>Application identification and classification.</p>
+              </div>
+            </div>
+
+
+            <div class="form-grid">
+
+              <!-- App -->
+              <div class="form-field full-width">
+
+                <label for="app">
+                  Application Name
+                  <span>*</span>
+                </label>
+
+                <input
+                  id="app"
+                  type="text"
+                  class="form-control"
+                  formControlName="app"
+                  placeholder="Application name"
+                  maxlength="255"
+                  [class.is-invalid]="hasError('app', 'required') || hasError('app', 'maxlength')"
+                />
+
+                @if (hasError('app', 'required')) {
+                  <div class="invalid-feedback">
+                    Application name is required.
+                  </div>
+                }
+
+                @if (hasError('app', 'maxlength')) {
+                  <div class="invalid-feedback">
+                    Maximum length is 255 characters.
+                  </div>
+                }
+
+              </div>
+
+
+              <!-- Category -->
+              <div class="form-field">
+
+                <label for="category">
+                  Category
+                  <span>*</span>
+                </label>
+
+                <input
+                  id="category"
+                  type="text"
+                  class="form-control"
+                  formControlName="category"
+                  placeholder="e.g. GAME"
+                  maxlength="100"
+                  [class.is-invalid]="hasError('category', 'required') || hasError('category', 'maxlength')"
+                />
+
+                @if (hasError('category', 'required')) {
+                  <div class="invalid-feedback">
+                    Category is required.
+                  </div>
+                }
+
+                @if (hasError('category', 'maxlength')) {
+                  <div class="invalid-feedback">
+                    Maximum length is 100 characters.
+                  </div>
+                }
+
+              </div>
+
+
+              <!-- Type -->
+              <div class="form-field">
+
+                <label for="type">
+                  Type
+                  <span>*</span>
+                </label>
+
+                <select
+                  id="type"
+                  class="form-select"
+                  formControlName="type"
+                >
+                  <option [ngValue]="AppType.FREE">
+                    FREE
+                  </option>
+
+                  <option [ngValue]="AppType.PAID">
+                    PAID
+                  </option>
+                </select>
+
+              </div>
+
+
+              <!-- Genres -->
+              <div class="form-field full-width">
+
+                <label for="genres">
+                  Genres
+                  <span>*</span>
+                </label>
+
+                <input
+                  id="genres"
+                  type="text"
+                  class="form-control"
+                  formControlName="genres"
+                  placeholder="e.g. Action;Adventure"
+                  maxlength="255"
+                  [class.is-invalid]="hasError('genres', 'required') || hasError('genres', 'maxlength')"
+                />
+
+                @if (hasError('genres', 'required')) {
+                  <div class="invalid-feedback">
+                    Genres are required.
+                  </div>
+                }
+
+                @if (hasError('genres', 'maxlength')) {
+                  <div class="invalid-feedback">
+                    Maximum length is 255 characters.
+                  </div>
+                }
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <!-- Statistics -->
+          <div class="form-section">
+
+            <div class="section-heading">
+              <div class="section-icon">
+                <i class="bi bi-bar-chart"></i>
+              </div>
+
+              <div>
+                <h3>Statistics</h3>
+                <p>Ratings, reviews, installations and size.</p>
+              </div>
+            </div>
+
+
+            <div class="form-grid">
+
+              <!-- Rating -->
+              <div class="form-field">
+
+                <label for="rating">
+                  Rating
+                  <span>*</span>
+                </label>
+
+                <input
+                  id="rating"
+                  type="number"
+                  class="form-control"
+                  formControlName="rating"
+                  min="0"
+                  max="5"
+                  step="0.1"
+                  [class.is-invalid]="
+                    hasError('rating', 'required') ||
+                    hasError('rating', 'min') ||
+                    hasError('rating', 'max')
+                  "
+                />
+
+                @if (hasError('rating', 'required')) {
+                  <div class="invalid-feedback">
+                    Rating is required.
+                  </div>
+                }
+
+                @if (hasError('rating', 'min') || hasError('rating', 'max')) {
+                  <div class="invalid-feedback">
+                    Rating must be between 0 and 5.
+                  </div>
+                }
+
+              </div>
+
+
+              <!-- Reviews -->
+              <div class="form-field">
+
+                <label for="reviews">
+                  Reviews
+                  <span>*</span>
+                </label>
+
+                <input
+                  id="reviews"
+                  type="number"
+                  class="form-control"
+                  formControlName="reviews"
+                  min="0"
+                  step="1"
+                  [class.is-invalid]="
+                    hasError('reviews', 'required') ||
+                    hasError('reviews', 'min')
+                  "
+                />
+
+                @if (hasError('reviews', 'required')) {
+                  <div class="invalid-feedback">
+                    Reviews are required.
+                  </div>
+                }
+
+                @if (hasError('reviews', 'min')) {
+                  <div class="invalid-feedback">
+                    Reviews cannot be negative.
+                  </div>
+                }
+
+              </div>
+
+
+              <!-- Size -->
+              <div class="form-field">
+
+                <label for="sizeMb">
+                  Size (MB)
+                  <span>*</span>
+                </label>
+
+                <input
+                  id="sizeMb"
+                  type="number"
+                  class="form-control"
+                  formControlName="sizeMb"
+                  min="0"
+                  step="0.01"
+                  [class.is-invalid]="
+                    hasError('sizeMb', 'required') ||
+                    hasError('sizeMb', 'min')
+                  "
+                />
+
+                @if (hasError('sizeMb', 'required')) {
+                  <div class="invalid-feedback">
+                    Size is required.
+                  </div>
+                }
+
+                @if (hasError('sizeMb', 'min')) {
+                  <div class="invalid-feedback">
+                    Size cannot be negative.
+                  </div>
+                }
+
+              </div>
+
+
+              <!-- Installs -->
+              <div class="form-field">
+
+                <label for="installs">
+                  Installs
+                  <span>*</span>
+                </label>
+
+                <input
+                  id="installs"
+                  type="text"
+                  class="form-control"
+                  formControlName="installs"
+                  placeholder="e.g. 1,000,000+"
+                  maxlength="50"
+                  [class.is-invalid]="
+                    hasError('installs', 'required') ||
+                    hasError('installs', 'maxlength')
+                  "
+                />
+
+                @if (hasError('installs', 'required')) {
+                  <div class="invalid-feedback">
+                    Installs are required.
+                  </div>
+                }
+
+                @if (hasError('installs', 'maxlength')) {
+                  <div class="invalid-feedback">
+                    Maximum length is 50 characters.
+                  </div>
+                }
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <!-- Pricing & Content -->
+          <div class="form-section">
+
+            <div class="section-heading">
+              <div class="section-icon">
+                <i class="bi bi-tags"></i>
+              </div>
+
+              <div>
+                <h3>Pricing & Content</h3>
+                <p>Price and content rating information.</p>
+              </div>
+            </div>
+
+
+            <div class="form-grid">
+
+              <!-- Price -->
+              <div class="form-field">
+
+                <label for="price">
+                  Price
+                  <span>*</span>
+                </label>
+
+                <div class="input-with-prefix">
+                  <span>$</span>
+
+                  <input
+                    id="price"
+                    type="number"
+                    class="form-control"
+                    formControlName="price"
+                    min="0"
+                    step="0.01"
+                    [class.is-invalid]="
+                      hasError('price', 'required') ||
+                      hasError('price', 'min')
+                    "
+                  />
+                </div>
+
+                @if (hasError('price', 'required')) {
+                  <div class="invalid-feedback">
+                    Price is required.
+                  </div>
+                }
+
+                @if (hasError('price', 'min')) {
+                  <div class="invalid-feedback">
+                    Price cannot be negative.
+                  </div>
+                }
+
+              </div>
+
+
+              <!-- Content Rating -->
+              <div class="form-field">
+
+                <label for="contentRating">
+                  Content Rating
+                  <span>*</span>
+                </label>
+
+                <input
+                  id="contentRating"
+                  type="text"
+                  class="form-control"
+                  formControlName="contentRating"
+                  placeholder="e.g. Everyone"
+                  maxlength="50"
+                  [class.is-invalid]="
+                    hasError('contentRating', 'required') ||
+                    hasError('contentRating', 'maxlength')
+                  "
+                />
+
+                @if (hasError('contentRating', 'required')) {
+                  <div class="invalid-feedback">
+                    Content rating is required.
+                  </div>
+                }
+
+                @if (hasError('contentRating', 'maxlength')) {
+                  <div class="invalid-feedback">
+                    Maximum length is 50 characters.
+                  </div>
+                }
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <!-- Version Information -->
+          <div class="form-section">
+
+            <div class="section-heading">
+              <div class="section-icon">
+                <i class="bi bi-phone"></i>
+              </div>
+
+              <div>
+                <h3>Version Information</h3>
+                <p>Release and Android compatibility information.</p>
+              </div>
+            </div>
+
+
+            <div class="form-grid">
+
+              <!-- Last Updated -->
+              <div class="form-field">
+
+                <label for="lastUpdated">
+                  Last Updated
+                  <span>*</span>
+                </label>
+
+                <input
+                  id="lastUpdated"
+                  type="date"
+                  class="form-control"
+                  formControlName="lastUpdated"
+                  [class.is-invalid]="hasError('lastUpdated', 'required')"
+                />
+
+                @if (hasError('lastUpdated', 'required')) {
+                  <div class="invalid-feedback">
+                    Last updated date is required.
+                  </div>
+                }
+
+              </div>
+
+
+              <!-- Current Version -->
+              <div class="form-field">
+
+                <label for="currentVersion">
+                  Current Version
+                  <span>*</span>
+                </label>
+
+                <input
+                  id="currentVersion"
+                  type="text"
+                  class="form-control"
+                  formControlName="currentVersion"
+                  placeholder="e.g. 1.2.3"
+                  maxlength="100"
+                  [class.is-invalid]="
+                    hasError('currentVersion', 'required') ||
+                    hasError('currentVersion', 'maxlength')
+                  "
+                />
+
+                @if (hasError('currentVersion', 'required')) {
+                  <div class="invalid-feedback">
+                    Current version is required.
+                  </div>
+                }
+
+                @if (hasError('currentVersion', 'maxlength')) {
+                  <div class="invalid-feedback">
+                    Maximum length is 100 characters.
+                  </div>
+                }
+
+              </div>
+
+
+              <!-- Android Version -->
+              <div class="form-field full-width">
+
+                <label for="androidVersion">
+                  Android Version
+                  <span>*</span>
+                </label>
+
+                <input
+                  id="androidVersion"
+                  type="text"
+                  class="form-control"
+                  formControlName="androidVersion"
+                  placeholder="e.g. 4.1 and up"
+                  maxlength="100"
+                  [class.is-invalid]="
+                    hasError('androidVersion', 'required') ||
+                    hasError('androidVersion', 'maxlength')
+                  "
+                />
+
+                @if (hasError('androidVersion', 'required')) {
+                  <div class="invalid-feedback">
+                    Android version is required.
+                  </div>
+                }
+
+                @if (hasError('androidVersion', 'maxlength')) {
+                  <div class="invalid-feedback">
+                    Maximum length is 100 characters.
+                  </div>
+                }
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <!-- Modal Footer -->
+          <div class="modal-footer-custom">
+
+            <button
+              type="button"
+              class="btn btn-secondary-custom"
+              (click)="closeDialog()"
+              [disabled]="saving()"
+            >
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              class="btn btn-primary-custom"
+              [disabled]="saving()"
+            >
+
+              @if (saving()) {
+                <span
+                  class="spinner-border spinner-border-sm"
+                  aria-hidden="true"
+                ></span>
+
+                Updating...
+              } @else {
+                <i class="bi bi-check2-circle"></i>
+                Update Application
+              }
+
+            </button>
+
+          </div>
+
+        </form>
+
+      </div>
+
+    </div>
+
+  </div>
+}
