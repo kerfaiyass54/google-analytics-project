@@ -52,13 +52,23 @@ export class EdaExportService {
   }
 
   // ============================================================
-  // GET EXPORT HISTORY
+  // GET EXPORT HISTORY FOR ONE EDA
   // ============================================================
 
   getExports(edaId: string, page = 0, size = 20): Observable<ExportPage> {
     const params = new HttpParams().set('page', page).set('size', size);
 
     return this.http.get<ExportPage>(`${this.apiUrl}/${edaId}/exports`, { params });
+  }
+
+  // ============================================================
+  // GET CURRENT USER EXPORTS
+  // ============================================================
+
+  getMyExports(page = 0, size = 20): Observable<ExportPage> {
+    const params = new HttpParams().set('page', page).set('size', size);
+
+    return this.http.get<ExportPage>(`${this.apiUrl}/exports/my`, { params });
   }
 
   // ============================================================

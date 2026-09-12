@@ -1,1 +1,81 @@
-<p>check-eda-files works!</p>
+<div class="files-page">
+
+  <div class="files-container">
+
+    <!-- Header -->
+    <header class="page-header">
+
+      <button
+        type="button"
+        class="back-button"
+        (click)="goBack()"
+      >
+        <i class="bi bi-arrow-left"></i>
+        <span>Back</span>
+      </button>
+
+      <div class="header-content">
+
+        <span class="eyebrow">
+          <i class="bi bi-folder2-open"></i>
+          EDA EXPORTS
+        </span>
+
+        <h1>Exported files</h1>
+
+        <p>
+          View and download all files you have generated from EDA analyses.
+        </p>
+
+      </div>
+
+    </header>
+
+    <!-- User information -->
+    <div class="eda-info">
+
+      <div class="info-icon">
+        <i class="bi bi-folder2-open"></i>
+      </div>
+
+      <div class="info-content">
+        <span>Your exports</span>
+        <strong>Export history</strong>
+      </div>
+
+    </div>
+
+    <!-- Table -->
+    <section class="table-section">
+
+      <app-paginated-table
+        title="Export history"
+        [columns]="columns"
+        [response]="response()"
+        [loading]="loading()"
+        searchPlaceholder="Search exported files..."
+        [pageSizeOptions]="[5, 10, 20]"
+        (pageChange)="onPageChange($event)"
+      />
+
+      @if (!loading() && response().totalElements === 0) {
+        <div class="empty-state">
+
+          <div class="empty-icon">
+            <i class="bi bi-file-earmark-x"></i>
+          </div>
+
+          <h3>No exported files</h3>
+
+          <p>
+            You have not exported any EDA files yet.
+          </p>
+
+        </div>
+      }
+
+    </section>
+
+  </div>
+
+</div>
