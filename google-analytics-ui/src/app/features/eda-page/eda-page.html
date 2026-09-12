@@ -1,1 +1,962 @@
-<p>eda-page works!</p>
+<div class="eda-page">
+
+  <!-- ==========================================================
+       SIDEBAR
+       ========================================================== -->
+
+  <app-sidebar-page
+    [items]="sidebarItems"
+  />
+
+
+  <!-- ==========================================================
+       PAGE HEADER
+       ========================================================== -->
+
+  <header class="page-header">
+
+    <div class="header-content">
+
+      <div class="header-icon">
+        <i class="bi bi-bar-chart-line"></i>
+      </div>
+
+      <div>
+        <span class="eyebrow">
+          Exploratory Data Analysis
+        </span>
+
+        <h1>
+          Google Play Store Insights
+        </h1>
+
+        <p>
+          Explore ratings, monetization, installations,
+          and review behaviour across the application dataset.
+        </p>
+      </div>
+
+    </div>
+
+    <div class="header-badge">
+      <i class="bi bi-database-check"></i>
+      Live analysis
+    </div>
+
+  </header>
+
+
+  <!-- ==========================================================
+       LOADING
+       ========================================================== -->
+
+  @if (loading()) {
+
+    <section class="loading-state">
+
+      <div class="loading-spinner">
+        <i class="bi bi-arrow-repeat"></i>
+      </div>
+
+      <h3>
+        Running EDA analyses
+      </h3>
+
+      <p>
+        Fetching the latest analytical results from FastAPI.
+      </p>
+
+    </section>
+
+  }
+
+
+  <!-- ==========================================================
+       ERROR
+       ========================================================== -->
+
+  @if (error()) {
+
+    <section class="error-state">
+
+      <div class="error-icon">
+        <i class="bi bi-exclamation-triangle"></i>
+      </div>
+
+      <div>
+        <strong>
+          Analysis unavailable
+        </strong>
+
+        <p>
+          {{ error() }}
+        </p>
+      </div>
+
+    </section>
+
+  }
+
+
+  @if (!loading() && !error()) {
+
+    <main class="eda-content">
+
+
+      <!-- ======================================================
+           EDA 01 — RATINGS BY CATEGORY
+           ====================================================== -->
+
+      <section
+        id="eda-ratings"
+        class="eda-section"
+      >
+
+        <div class="section-heading">
+
+          <div class="section-number">
+            01
+          </div>
+
+          <div>
+            <span class="section-kicker">
+              EDA 01
+            </span>
+
+            <h2>
+              Ratings by Category
+            </h2>
+
+            <p>
+              Understand how application ratings vary across
+              Google Play categories.
+            </p>
+          </div>
+
+        </div>
+
+
+        @if (ratings(); as data) {
+
+          <div class="stat-grid">
+
+            <article class="stat-card">
+              <div class="stat-icon purple">
+                <i class="bi bi-grid-3x3-gap"></i>
+              </div>
+
+              <div>
+                <span>Categories</span>
+                <strong>
+                  {{ formatNumber(data.total_categories) }}
+                </strong>
+              </div>
+            </article>
+
+
+            <article class="stat-card">
+              <div class="stat-icon blue">
+                <i class="bi bi-phone"></i>
+              </div>
+
+              <div>
+                <span>Rated applications</span>
+                <strong>
+                  {{ formatNumber(data.total_rated_applications) }}
+                </strong>
+              </div>
+            </article>
+
+
+            <article class="stat-card">
+              <div class="stat-icon amber">
+                <i class="bi bi-star-fill"></i>
+              </div>
+
+              <div>
+                <span>Overall average</span>
+                <strong>
+                  {{ formatRating(data.overall_average_rating) }}
+                  <small>/ 5</small>
+                </strong>
+              </div>
+            </article>
+
+          </div>
+
+
+          <div class="chart-card full-width">
+
+            <div class="chart-header">
+
+              <div>
+                <span class="chart-kicker">
+                  Category comparison
+                </span>
+
+                <h3>
+                  Average Rating by Category
+                </h3>
+              </div>
+
+              <span class="chart-badge">
+                0 — 5
+              </span>
+
+            </div>
+
+            <div class="chart-wrapper tall">
+
+              <app-bar-chart
+                [labels]="ratingsLabels()"
+                [datasets]="ratingsDataset()"
+                [options]="categoryBarOptions"
+                [height]="620"
+                [showTitle]="false"
+                [showGrid]="true"
+              />
+
+            </div>
+
+          </div>
+
+        }
+
+      </section>
+
+
+      <!-- ======================================================
+           EDA 02 — FREE VS PAID
+           ====================================================== -->
+
+      <section
+        id="eda-free-paid"
+        class="eda-section"
+      >
+
+        <div class="section-heading">
+
+          <div class="section-number">
+            02
+          </div>
+
+          <div>
+            <span class="section-kicker">
+              EDA 02
+            </span>
+
+            <h2>
+              Free vs Paid
+            </h2>
+
+            <p>
+              Compare application volume, ratings, reviews,
+              and pricing behaviour between free and paid apps.
+            </p>
+          </div>
+
+        </div>
+
+
+        @if (freeVsPaid(); as data) {
+
+          <div class="stat-grid">
+
+            <article class="stat-card">
+              <div class="stat-icon blue">
+                <i class="bi bi-unlock"></i>
+              </div>
+
+              <div>
+                <span>Free applications</span>
+                <strong>
+                  {{ formatNumber(data.free_applications) }}
+                </strong>
+
+                <small>
+                  {{ formatRating(data.free_percentage) }}%
+                </small>
+              </div>
+            </article>
+
+
+            <article class="stat-card">
+              <div class="stat-icon purple">
+                <i class="bi bi-lock"></i>
+              </div>
+
+              <div>
+                <span>Paid applications</span>
+                <strong>
+                  {{ formatNumber(data.paid_applications) }}
+                </strong>
+
+                <small>
+                  {{ formatRating(data.paid_percentage) }}%
+                </small>
+              </div>
+            </article>
+
+
+            <article class="stat-card">
+              <div class="stat-icon green">
+                <i class="bi bi-star"></i>
+              </div>
+
+              <div>
+                <span>Rating difference</span>
+                <strong>
+                  {{ formatRating(data.average_rating_difference) }}
+                </strong>
+              </div>
+            </article>
+
+
+            <article class="stat-card">
+              <div class="stat-icon orange">
+                <i class="bi bi-chat-square-text"></i>
+              </div>
+
+              <div>
+                <span>Review difference</span>
+                <strong>
+                  {{ formatNumber(data.average_reviews_difference) }}
+                </strong>
+              </div>
+            </article>
+
+          </div>
+
+
+          <div class="chart-grid two-columns">
+
+            <article class="chart-card">
+
+              <div class="chart-header">
+
+                <div>
+                  <span class="chart-kicker">
+                    Application mix
+                  </span>
+
+                  <h3>
+                    Free vs Paid Distribution
+                  </h3>
+                </div>
+
+              </div>
+
+              <div class="chart-wrapper medium">
+
+                <app-pie-chart
+                  [labels]="freePaidLabels()"
+                  [datasets]="freePaidDataset()"
+                  [options]="pieOptions"
+                  [height]="360"
+                  [showTitle]="false"
+                />
+
+              </div>
+
+            </article>
+
+
+            <article class="chart-card">
+
+              <div class="chart-header">
+
+                <div>
+                  <span class="chart-kicker">
+                    Quality comparison
+                  </span>
+
+                  <h3>
+                    Average Rating
+                  </h3>
+                </div>
+
+              </div>
+
+              <div class="chart-wrapper medium">
+
+                <app-bar-chart
+                  [labels]="freePaidRatingLabels()"
+                  [datasets]="freePaidRatingDataset()"
+                  [options]="categoryBarOptions"
+                  [height]="360"
+                  [showTitle]="false"
+                />
+
+              </div>
+
+            </article>
+
+          </div>
+
+
+          <div class="comparison-grid">
+
+            @for (
+              application of data.applications;
+              track application.type
+              ) {
+
+              <article class="comparison-card">
+
+                <div class="comparison-title">
+
+                  <span
+                    class="type-icon"
+                    [class.paid]="application.type === 'PAID'"
+                  >
+                    <i
+                      [class]="
+                        application.type === 'PAID'
+                          ? 'bi bi-lock'
+                          : 'bi bi-unlock'
+                      "
+                    ></i>
+                  </span>
+
+                  <div>
+                    <strong>
+                      {{ application.type }}
+                    </strong>
+
+                    <span>
+                      {{ formatNumber(application.app_count) }}
+                      applications
+                    </span>
+                  </div>
+
+                </div>
+
+
+                <div class="comparison-metrics">
+
+                  <div>
+                    <span>Rating</span>
+                    <strong>
+                      {{ formatRating(application.average_rating) }}
+                    </strong>
+                  </div>
+
+                  <div>
+                    <span>Reviews</span>
+                    <strong>
+                      {{ formatNumber(application.average_reviews) }}
+                    </strong>
+                  </div>
+
+                  <div>
+                    <span>Average price</span>
+                    <strong>
+                      {{ formatNumber(application.average_price) }}
+                    </strong>
+                  </div>
+
+                </div>
+
+              </article>
+
+            }
+
+          </div>
+
+        }
+
+      </section>
+
+
+      <!-- ======================================================
+           EDA 03 — INSTALL DISTRIBUTION
+           ====================================================== -->
+
+      <section
+        id="eda-installs"
+        class="eda-section"
+      >
+
+        <div class="section-heading">
+
+          <div class="section-number">
+            03
+          </div>
+
+          <div>
+            <span class="section-kicker">
+              EDA 03
+            </span>
+
+            <h2>
+              Install Distribution
+            </h2>
+
+            <p>
+              Explore installation scale, category performance,
+              and the most installed applications.
+            </p>
+          </div>
+
+        </div>
+
+
+        @if (installs(); as data) {
+
+          <div class="stat-grid">
+
+            <article class="stat-card">
+              <div class="stat-icon blue">
+                <i class="bi bi-phone"></i>
+              </div>
+
+              <div>
+                <span>Applications</span>
+                <strong>
+                  {{ formatNumber(data.total_applications) }}
+                </strong>
+              </div>
+            </article>
+
+
+            <article class="stat-card">
+              <div class="stat-icon green">
+                <i class="bi bi-download"></i>
+              </div>
+
+              <div>
+                <span>Total installs</span>
+                <strong>
+                  {{ formatNumber(data.total_installs) }}
+                </strong>
+              </div>
+            </article>
+
+
+            <article class="stat-card">
+              <div class="stat-icon purple">
+                <i class="bi bi-graph-up"></i>
+              </div>
+
+              <div>
+                <span>Average installs</span>
+                <strong>
+                  {{ formatNumber(data.average_installs) }}
+                </strong>
+              </div>
+            </article>
+
+
+            <article class="stat-card">
+              <div class="stat-icon orange">
+                <i class="bi bi-bar-chart"></i>
+              </div>
+
+              <div>
+                <span>Median installs</span>
+                <strong>
+                  {{ formatNumber(data.median_installs) }}
+                </strong>
+              </div>
+            </article>
+
+          </div>
+
+
+          <div class="chart-grid two-columns">
+
+            <article class="chart-card">
+
+              <div class="chart-header">
+
+                <div>
+                  <span class="chart-kicker">
+                    Distribution
+                  </span>
+
+                  <h3>
+                    Applications by Install Bucket
+                  </h3>
+                </div>
+
+              </div>
+
+              <div class="chart-wrapper medium">
+
+                <app-line-chart
+                  [labels]="installDistributionLabels()"
+                  [datasets]="installDistributionDataset()"
+                  [options]="installDistributionOptions"
+                  [height]="380"
+                  [showTitle]="false"
+                />
+
+              </div>
+
+            </article>
+
+
+            <article class="chart-card">
+
+              <div class="chart-header">
+
+                <div>
+                  <span class="chart-kicker">
+                    Category performance
+                  </span>
+
+                  <h3>
+                    Average Installs by Category
+                  </h3>
+                </div>
+
+                <span class="chart-badge">
+                  Top 15
+                </span>
+
+              </div>
+
+              <div class="chart-wrapper medium">
+
+                <app-bar-chart
+                  [labels]="installCategoryLabels()"
+                  [datasets]="installCategoryDataset()"
+                  [options]="comparisonBarOptions"
+                  [height]="380"
+                  [showTitle]="false"
+                />
+
+              </div>
+
+            </article>
+
+          </div>
+
+
+          <article class="ranking-card">
+
+            <div class="ranking-header">
+
+              <div>
+                <span class="chart-kicker">
+                  Leaderboard
+                </span>
+
+                <h3>
+                  Top Installed Applications
+                </h3>
+              </div>
+
+              <span class="chart-badge">
+                Top 10
+              </span>
+
+            </div>
+
+
+            <div class="ranking-list">
+
+              @for (
+                application of data.top_applications;
+                track application.app;
+                let index = $index
+                ) {
+
+                <div class="ranking-row">
+
+                  <div class="rank">
+                    {{ index + 1 }}
+                  </div>
+
+                  <div class="app-info">
+
+                    <strong>
+                      {{ application.app }}
+                    </strong>
+
+                    <span>
+                      {{ application.category }}
+                    </span>
+
+                  </div>
+
+                  <div class="app-rating">
+                    <i class="bi bi-star-fill"></i>
+                    {{ formatRating(application.rating) }}
+                  </div>
+
+                  <div class="install-value">
+                    {{ application.installs }}
+                  </div>
+
+                </div>
+
+              }
+
+            </div>
+
+          </article>
+
+        }
+
+      </section>
+
+
+      <!-- ======================================================
+           EDA 04 — REVIEW COUNTS
+           ====================================================== -->
+
+      <section
+        id="eda-reviews"
+        class="eda-section"
+      >
+
+        <div class="section-heading">
+
+          <div class="section-number">
+            04
+          </div>
+
+          <div>
+            <span class="section-kicker">
+              EDA 04
+            </span>
+
+            <h2>
+              Review Counts
+            </h2>
+
+            <p>
+              Analyze review volume, category engagement,
+              and applications receiving the most feedback.
+            </p>
+          </div>
+
+        </div>
+
+
+        @if (reviews(); as data) {
+
+          <div class="stat-grid">
+
+            <article class="stat-card">
+              <div class="stat-icon blue">
+                <i class="bi bi-chat-left-text"></i>
+              </div>
+
+              <div>
+                <span>Total reviews</span>
+                <strong>
+                  {{ formatNumber(data.statistics.total_reviews) }}
+                </strong>
+              </div>
+            </article>
+
+
+            <article class="stat-card">
+              <div class="stat-icon purple">
+                <i class="bi bi-graph-up"></i>
+              </div>
+
+              <div>
+                <span>Average reviews</span>
+                <strong>
+                  {{ formatNumber(data.statistics.average_reviews) }}
+                </strong>
+              </div>
+            </article>
+
+
+            <article class="stat-card">
+              <div class="stat-icon orange">
+                <i class="bi bi-bar-chart"></i>
+              </div>
+
+              <div>
+                <span>Median reviews</span>
+                <strong>
+                  {{ formatNumber(data.statistics.median_reviews) }}
+                </strong>
+              </div>
+            </article>
+
+
+            <article class="stat-card">
+              <div class="stat-icon red">
+                <i class="bi bi-trophy"></i>
+              </div>
+
+              <div>
+                <span>Maximum reviews</span>
+                <strong>
+                  {{ formatNumber(data.statistics.maximum_reviews) }}
+                </strong>
+              </div>
+            </article>
+
+          </div>
+
+
+          <div class="chart-grid two-columns">
+
+            <article class="chart-card">
+
+              <div class="chart-header">
+
+                <div>
+                  <span class="chart-kicker">
+                    Category engagement
+                  </span>
+
+                  <h3>
+                    Total Reviews by Category
+                  </h3>
+                </div>
+
+                <span class="chart-badge">
+                  Top 15
+                </span>
+
+              </div>
+
+              <div class="chart-wrapper medium">
+
+                <app-bar-chart
+                  [labels]="reviewCategoryLabels()"
+                  [datasets]="reviewCategoryDataset()"
+                  [options]="comparisonBarOptions"
+                  [height]="400"
+                  [showTitle]="false"
+                />
+
+              </div>
+
+            </article>
+
+
+            <article class="chart-card">
+
+              <div class="chart-header">
+
+                <div>
+                  <span class="chart-kicker">
+                    Application leaderboard
+                  </span>
+
+                  <h3>
+                    Top Reviewed Applications
+                  </h3>
+                </div>
+
+              </div>
+
+              <div class="chart-wrapper medium">
+
+                <app-bar-chart
+                  [labels]="topReviewedLabels()"
+                  [datasets]="topReviewedDataset()"
+                  [options]="comparisonBarOptions"
+                  [height]="400"
+                  [showTitle]="false"
+                />
+
+              </div>
+
+            </article>
+
+          </div>
+
+
+          <article class="data-card">
+
+            <div class="data-card-header">
+
+              <div>
+                <span class="chart-kicker">
+                  Relationship dataset
+                </span>
+
+                <h3>
+                  Reviews vs Installations
+                </h3>
+              </div>
+
+              <span class="chart-badge">
+                {{ data.reviews_vs_installs.length }}
+                observations
+              </span>
+
+            </div>
+
+
+            <div class="mini-table">
+
+              <div class="mini-row mini-head">
+                <span>Application</span>
+                <span>Category</span>
+                <span>Reviews</span>
+                <span>Installs</span>
+              </div>
+
+
+              @for (
+                item of data.reviews_vs_installs.slice(0, 10);
+                track item.app
+                ) {
+
+                <div class="mini-row">
+
+                  <span class="application-name">
+                    {{ item.app }}
+                  </span>
+
+                  <span>
+                    {{ item.category }}
+                  </span>
+
+                  <strong>
+                    {{ formatNumber(item.reviews) }}
+                  </strong>
+
+                  <span class="install-pill">
+                    {{ item.installs }}
+                  </span>
+
+                </div>
+
+              }
+
+            </div>
+
+          </article>
+
+        }
+
+      </section>
+
+
+      <!-- ======================================================
+           FOOTER
+           ====================================================== -->
+
+      <footer class="eda-footer">
+
+        <div>
+          <i class="bi bi-bar-chart-line"></i>
+
+          <strong>
+            Google Play Store EDA
+          </strong>
+        </div>
+
+        <span>
+          Four analytical perspectives · PostgreSQL · FastAPI
+        </span>
+
+      </footer>
+
+    </main>
+
+  }
+
+</div>

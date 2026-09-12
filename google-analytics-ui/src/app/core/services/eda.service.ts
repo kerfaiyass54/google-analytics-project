@@ -6,10 +6,10 @@ export interface EdaDocument {
   eda_id: string | null;
   email: string;
   date: string;
-  ratings_by_category: Record<string, unknown>;
-  free_vs_paid: Record<string, unknown>;
-  install_distribution: Record<string, unknown>;
-  review_counts: Record<string, unknown>;
+  ratings_by_category: any;
+  free_vs_paid: any;
+  install_distribution: any;
+  review_counts: any;
 }
 
 export interface EdaPage {
@@ -66,31 +66,31 @@ export class EdaService {
   // RATINGS BY CATEGORY
   // ============================================================
 
-  getRatingsByCategory(): Observable<Record<string, unknown>> {
-    return this.http.get<Record<string, unknown>>(`${this.apiUrl}/ratings-by-category`);
+  getRatingsByCategory(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/ratings-by-category`);
   }
 
   // ============================================================
   // FREE VS PAID
   // ============================================================
 
-  getFreeVsPaid(): Observable<Record<string, unknown>> {
-    return this.http.get<Record<string, unknown>>(`${this.apiUrl}/free-vs-paid`);
+  getFreeVsPaid(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/free-vs-paid`);
   }
 
   // ============================================================
   // INSTALL DISTRIBUTION
   // ============================================================
 
-  getInstallDistribution(): Observable<Record<string, unknown>> {
-    return this.http.get<Record<string, unknown>>(`${this.apiUrl}/install-distribution`);
+  getInstallDistribution(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/install-distribution`);
   }
 
   // ============================================================
   // REVIEW COUNTS
   // ============================================================
 
-  getReviewCounts(): Observable<Record<string, unknown>> {
-    return this.http.get<Record<string, unknown>>(`${this.apiUrl}/review-counts`);
+  getReviewCounts(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/review-counts`);
   }
 }
