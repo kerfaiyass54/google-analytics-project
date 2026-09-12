@@ -25,7 +25,7 @@ from sqlalchemy import text
 
 from database import engine
 from queries import GET_RATINGS_BY_CATEGORY
-from schemas.eda import (
+from schema.eda import (
     RatingCategoryStatistics,
     RatingsByCategoryResponse,
 )

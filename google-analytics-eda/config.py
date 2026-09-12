@@ -55,7 +55,7 @@ class DatabaseSettings(BaseSettings):
     )
 
     port: int = Field(
-        default=5432,
+        default=5440,
         validation_alias="POSTGRES_PORT",
     )
 
@@ -96,7 +96,7 @@ class DatabaseSettings(BaseSettings):
 class ElasticsearchSettings(BaseSettings):
 
     url: str = Field(
-        default="http://localhost:9200",
+        default="http://localhost:9290",
         validation_alias="ELASTICSEARCH_URL",
     )
 

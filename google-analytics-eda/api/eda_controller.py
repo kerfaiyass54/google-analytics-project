@@ -40,7 +40,7 @@ from security.keycloak import (
 )
 
 from services.eda_service import (
-    EdaService,
+    EdaAnalysisService,
 )
 
 
@@ -68,7 +68,7 @@ CurrentUser = Annotated[
 # SERVICE
 # ============================================================
 
-def get_eda_service() -> EdaService:
+def get_eda_service() -> EdaAnalysisService:
     """
     Create the EDA service.
 
@@ -76,11 +76,11 @@ def get_eda_service() -> EdaService:
     controller easy to test and allows dependency overrides.
     """
 
-    return EdaService()
+    return EdaAnalysisService()
 
 
 EdaServiceDependency = Annotated[
-    EdaService,
+    EdaAnalysisService,
     Depends(get_eda_service),
 ]
 
