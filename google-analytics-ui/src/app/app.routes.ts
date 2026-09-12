@@ -23,6 +23,13 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/list-applications/list-applications').then((m) => m.ListApplications),
       },
+      {
+        path: 'operations',
+        loadComponent: () =>
+          import('./features/operations-page/operations-page').then(
+            (m) => m.OperationsPage,
+          ),
+      },
 
       // Operations
       {
