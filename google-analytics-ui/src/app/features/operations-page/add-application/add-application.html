@@ -1,1 +1,971 @@
-<p>add-application works!</p>
+<section class="add-application">
+
+  <!-- ============================================================
+       HEADER
+       ============================================================ -->
+
+
+  <!-- ============================================================
+       ALERTS
+       ============================================================ -->
+
+  @if (errorMessage()) {
+
+    <div
+      class="alert alert-danger page-alert alert-enter"
+      role="alert"
+    >
+
+      <i class="bi bi-exclamation-circle-fill"></i>
+
+      <span>
+        {{ errorMessage() }}
+      </span>
+
+      <button
+        type="button"
+        class="alert-close"
+        aria-label="Close"
+        (click)="clearMessages()"
+      >
+        <i class="bi bi-x-lg"></i>
+      </button>
+
+    </div>
+
+  }
+
+
+  @if (successMessage() && currentStep() !== 4) {
+
+    <div
+      class="alert alert-success page-alert alert-enter"
+      role="alert"
+    >
+
+      <i class="bi bi-check-circle-fill"></i>
+
+      <span>
+        {{ successMessage() }}
+      </span>
+
+    </div>
+
+  }
+
+
+  <!-- ============================================================
+       STEPPER CARD
+       ============================================================ -->
+
+  <div class="stepper-card">
+
+    <!-- ==========================================================
+         STEPPER HEADER
+         ========================================================== -->
+
+    <div class="stepper-header">
+
+      <div
+        class="step-item"
+        [class.active]="isStep(1)"
+        [class.completed]="isCompleted(1)"
+        (click)="goToStep(1)"
+      >
+
+        <div class="step-circle">
+
+          @if (isCompleted(1)) {
+            <i class="bi bi-check-lg"></i>
+          } @else {
+            <span>1</span>
+          }
+
+        </div>
+
+        <div class="step-content">
+
+          <strong>
+            Basic information
+          </strong>
+
+          <span>
+            Application details
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <div
+        class="step-line"
+        [class.completed]="isCompleted(1)"
+      ></div>
+
+
+      <div
+        class="step-item"
+        [class.active]="isStep(2)"
+        [class.completed]="isCompleted(2)"
+        (click)="goToStep(2)"
+      >
+
+        <div class="step-circle">
+
+          @if (isCompleted(2)) {
+            <i class="bi bi-check-lg"></i>
+          } @else {
+            <span>2</span>
+          }
+
+        </div>
+
+        <div class="step-content">
+
+          <strong>
+            Metrics
+          </strong>
+
+          <span>
+            Performance data
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <div
+        class="step-line"
+        [class.completed]="isCompleted(2)"
+      ></div>
+
+
+      <div
+        class="step-item"
+        [class.active]="isStep(3)"
+        [class.completed]="isCompleted(3)"
+        (click)="goToStep(3)"
+      >
+
+        <div class="step-circle">
+
+          @if (isCompleted(3)) {
+            <i class="bi bi-check-lg"></i>
+          } @else {
+            <span>3</span>
+          }
+
+        </div>
+
+        <div class="step-content">
+
+          <strong>
+            Version
+          </strong>
+
+          <span>
+            Release details
+          </span>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- ==========================================================
+         PROGRESS
+         ========================================================== -->
+
+    @if (currentStep() <= 3) {
+
+      <div class="progress-container">
+
+        <div class="progress-track">
+
+          <div
+            class="progress-bar"
+            [style.width.%]="
+              ((currentStep() - 1) / 2) * 100
+            "
+          ></div>
+
+        </div>
+
+        <span class="progress-label">
+          Step {{ currentStep() }} of 3
+        </span>
+
+      </div>
+
+    }
+
+
+    <!-- ==========================================================
+         FORM
+         ========================================================== -->
+
+    <form
+      class="application-form"
+      [formGroup]="applicationForm"
+      (ngSubmit)="nextStep()"
+      novalidate
+    >
+
+
+      <!-- ========================================================
+           STEP 1
+           ======================================================== -->
+
+      @if (isStep(1)) {
+
+        <section class="step-panel step-forward">
+
+          <div class="panel-header">
+
+            <div class="panel-icon">
+              <i class="bi bi-grid-3x3-gap-fill"></i>
+            </div>
+
+            <div>
+
+              <h2>
+                Basic information
+              </h2>
+
+              <p>
+                Start by entering the main application information.
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <div class="form-grid">
+
+
+            <!-- APPLICATION -->
+
+            <div class="form-field field-wide">
+
+              <label
+                for="app"
+                class="form-label"
+              >
+                Application name
+                <span class="required">*</span>
+              </label>
+
+              <div class="input-wrapper">
+
+                <i class="bi bi-app input-icon"></i>
+
+                <input
+                  id="app"
+                  type="text"
+                  class="form-control form-control-custom has-icon"
+                  formControlName="app"
+                  placeholder="e.g. WhatsApp"
+                  maxlength="255"
+                  autocomplete="off"
+                  [class.is-invalid]="showError(app)"
+                />
+
+              </div>
+
+              @if (showError(app)) {
+                <div class="field-error">
+                  Application name is required.
+                </div>
+              }
+
+            </div>
+
+
+            <!-- CATEGORY -->
+
+            <div class="form-field">
+
+              <label
+                for="category"
+                class="form-label"
+              >
+                Category
+                <span class="required">*</span>
+              </label>
+
+              <div class="input-wrapper">
+
+                <i class="bi bi-folder input-icon"></i>
+
+                <input
+                  id="category"
+                  type="text"
+                  class="form-control form-control-custom has-icon"
+                  formControlName="category"
+                  placeholder="e.g. SOCIAL"
+                  maxlength="100"
+                  autocomplete="off"
+                  [class.is-invalid]="showError(category)"
+                />
+
+              </div>
+
+              @if (showError(category)) {
+                <div class="field-error">
+                  Category is required.
+                </div>
+              }
+
+            </div>
+
+
+            <!-- TYPE -->
+
+            <div class="form-field">
+
+              <label
+                for="type"
+                class="form-label"
+              >
+                Type
+                <span class="required">*</span>
+              </label>
+
+              <div class="input-wrapper">
+
+                <i class="bi bi-tag input-icon"></i>
+
+                <select
+                  id="type"
+                  class="form-select form-control-custom has-icon"
+                  formControlName="type"
+                >
+
+                  @for (
+                    appType of appTypes;
+                    track appType
+                    ) {
+
+                    <option [value]="appType">
+                      {{ appType }}
+                    </option>
+
+                  }
+
+                </select>
+
+              </div>
+
+            </div>
+
+
+            <!-- GENRES -->
+
+            <div class="form-field field-wide">
+
+              <label
+                for="genres"
+                class="form-label"
+              >
+                Genres
+                <span class="required">*</span>
+              </label>
+
+              <div class="input-wrapper">
+
+                <i class="bi bi-collection input-icon"></i>
+
+                <input
+                  id="genres"
+                  type="text"
+                  class="form-control form-control-custom has-icon"
+                  formControlName="genres"
+                  placeholder="e.g. Communication"
+                  maxlength="255"
+                  autocomplete="off"
+                  [class.is-invalid]="showError(genres)"
+                />
+
+              </div>
+
+              @if (showError(genres)) {
+                <div class="field-error">
+                  Genres are required.
+                </div>
+              }
+
+            </div>
+
+          </div>
+
+        </section>
+
+      }
+
+
+      <!-- ========================================================
+           STEP 2
+           ======================================================== -->
+
+      @if (isStep(2)) {
+
+        <section class="step-panel step-forward">
+
+          <div class="panel-header">
+
+            <div class="panel-icon">
+              <i class="bi bi-bar-chart-fill"></i>
+            </div>
+
+            <div>
+
+              <h2>
+                Metrics
+              </h2>
+
+              <p>
+                Add rating, review, installation and pricing information.
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <div class="form-grid">
+
+
+            <!-- RATING -->
+
+            <div class="form-field">
+
+              <label
+                for="rating"
+                class="form-label"
+              >
+                Rating
+                <span class="required">*</span>
+              </label>
+
+              <div class="input-wrapper">
+
+                <i class="bi bi-star input-icon"></i>
+
+                <input
+                  id="rating"
+                  type="number"
+                  class="form-control form-control-custom has-icon"
+                  formControlName="rating"
+                  min="0"
+                  max="5"
+                  step="0.1"
+                  placeholder="0.0"
+                  [class.is-invalid]="showError(rating)"
+                />
+
+              </div>
+
+              <span class="field-hint">
+                Value between 0 and 5.
+              </span>
+
+              @if (showError(rating)) {
+                <div class="field-error">
+                  Rating must be between 0 and 5.
+                </div>
+              }
+
+            </div>
+
+
+            <!-- REVIEWS -->
+
+            <div class="form-field">
+
+              <label
+                for="reviews"
+                class="form-label"
+              >
+                Reviews
+                <span class="required">*</span>
+              </label>
+
+              <div class="input-wrapper">
+
+                <i class="bi bi-chat-left-text input-icon"></i>
+
+                <input
+                  id="reviews"
+                  type="number"
+                  class="form-control form-control-custom has-icon"
+                  formControlName="reviews"
+                  min="0"
+                  step="1"
+                  placeholder="0"
+                  [class.is-invalid]="showError(reviews)"
+                />
+
+              </div>
+
+              @if (showError(reviews)) {
+                <div class="field-error">
+                  Reviews must be zero or greater.
+                </div>
+              }
+
+            </div>
+
+
+            <!-- SIZE -->
+
+            <div class="form-field">
+
+              <label
+                for="sizeMb"
+                class="form-label"
+              >
+                Size
+                <span class="required">*</span>
+              </label>
+
+              <div class="input-wrapper">
+
+                <i class="bi bi-hdd input-icon"></i>
+
+                <input
+                  id="sizeMb"
+                  type="number"
+                  class="form-control form-control-custom has-icon"
+                  formControlName="sizeMb"
+                  min="0"
+                  step="0.01"
+                  placeholder="0.00"
+                  [class.is-invalid]="showError(sizeMb)"
+                />
+
+              </div>
+
+              <span class="field-hint">
+                Size in MB.
+              </span>
+
+              @if (showError(sizeMb)) {
+                <div class="field-error">
+                  Size must be zero or greater.
+                </div>
+              }
+
+            </div>
+
+
+            <!-- INSTALLS -->
+
+            <div class="form-field">
+
+              <label
+                for="installs"
+                class="form-label"
+              >
+                Installs
+                <span class="required">*</span>
+              </label>
+
+              <div class="input-wrapper">
+
+                <i class="bi bi-download input-icon"></i>
+
+                <input
+                  id="installs"
+                  type="text"
+                  class="form-control form-control-custom has-icon"
+                  formControlName="installs"
+                  placeholder="e.g. 1,000,000+"
+                  maxlength="50"
+                  autocomplete="off"
+                  [class.is-invalid]="showError(installs)"
+                />
+
+              </div>
+
+              @if (showError(installs)) {
+                <div class="field-error">
+                  Install count is required.
+                </div>
+              }
+
+            </div>
+
+
+            <!-- PRICE -->
+
+            <div class="form-field">
+
+              <label
+                for="price"
+                class="form-label"
+              >
+                Price
+                <span class="required">*</span>
+              </label>
+
+              <div class="input-wrapper">
+
+                <i class="bi bi-currency-dollar input-icon"></i>
+
+                <input
+                  id="price"
+                  type="number"
+                  class="form-control form-control-custom has-icon"
+                  formControlName="price"
+                  min="0"
+                  step="0.01"
+                  placeholder="0.00"
+                  [class.is-invalid]="showError(price)"
+                />
+
+              </div>
+
+              <span class="field-hint">
+                Use 0 for free applications.
+              </span>
+
+              @if (showError(price)) {
+                <div class="field-error">
+                  Price must be zero or greater.
+                </div>
+              }
+
+            </div>
+
+
+            <!-- CONTENT RATING -->
+
+            <div class="form-field">
+
+              <label
+                for="contentRating"
+                class="form-label"
+              >
+                Content rating
+                <span class="required">*</span>
+              </label>
+
+              <div class="input-wrapper">
+
+                <i class="bi bi-shield-check input-icon"></i>
+
+                <input
+                  id="contentRating"
+                  type="text"
+                  class="form-control form-control-custom has-icon"
+                  formControlName="contentRating"
+                  placeholder="e.g. Everyone"
+                  maxlength="50"
+                  autocomplete="off"
+                  [class.is-invalid]="showError(contentRating)"
+                />
+
+              </div>
+
+              @if (showError(contentRating)) {
+                <div class="field-error">
+                  Content rating is required.
+                </div>
+              }
+
+            </div>
+
+          </div>
+
+        </section>
+
+      }
+
+
+      <!-- ========================================================
+           STEP 3
+           ======================================================== -->
+
+      @if (isStep(3)) {
+
+        <section class="step-panel step-forward">
+
+          <div class="panel-header">
+
+            <div class="panel-icon">
+              <i class="bi bi-phone-fill"></i>
+            </div>
+
+            <div>
+
+              <h2>
+                Version information
+              </h2>
+
+              <p>
+                Complete the application release and Android details.
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <div class="form-grid">
+
+
+            <!-- LAST UPDATED -->
+
+            <div class="form-field">
+
+              <label
+                for="lastUpdated"
+                class="form-label"
+              >
+                Last updated
+                <span class="required">*</span>
+              </label>
+
+              <div class="input-wrapper">
+
+                <i class="bi bi-calendar3 input-icon"></i>
+
+                <input
+                  id="lastUpdated"
+                  type="date"
+                  class="form-control form-control-custom has-icon"
+                  formControlName="lastUpdated"
+                  [class.is-invalid]="showError(lastUpdated)"
+                />
+
+              </div>
+
+              @if (showError(lastUpdated)) {
+                <div class="field-error">
+                  Last updated date is required.
+                </div>
+              }
+
+            </div>
+
+
+            <!-- CURRENT VERSION -->
+
+            <div class="form-field">
+
+              <label
+                for="currentVersion"
+                class="form-label"
+              >
+                Current version
+                <span class="required">*</span>
+              </label>
+
+              <div class="input-wrapper">
+
+                <i class="bi bi-code-square input-icon"></i>
+
+                <input
+                  id="currentVersion"
+                  type="text"
+                  class="form-control form-control-custom has-icon"
+                  formControlName="currentVersion"
+                  placeholder="e.g. 2.24.1"
+                  maxlength="100"
+                  autocomplete="off"
+                  [class.is-invalid]="showError(currentVersion)"
+                />
+
+              </div>
+
+              @if (showError(currentVersion)) {
+                <div class="field-error">
+                  Current version is required.
+                </div>
+              }
+
+            </div>
+
+
+            <!-- ANDROID VERSION -->
+
+            <div class="form-field">
+
+              <label
+                for="androidVersion"
+                class="form-label"
+              >
+                Android version
+                <span class="required">*</span>
+              </label>
+
+              <div class="input-wrapper">
+
+                <i class="bi bi-android2 input-icon"></i>
+
+                <input
+                  id="androidVersion"
+                  type="text"
+                  class="form-control form-control-custom has-icon"
+                  formControlName="androidVersion"
+                  placeholder="e.g. 5.0 and up"
+                  maxlength="100"
+                  autocomplete="off"
+                  [class.is-invalid]="showError(androidVersion)"
+                />
+
+              </div>
+
+              @if (showError(androidVersion)) {
+                <div class="field-error">
+                  Android version is required.
+                </div>
+              }
+
+            </div>
+
+          </div>
+
+        </section>
+
+      }
+
+
+      <!-- ========================================================
+           SUCCESS
+           ======================================================== -->
+
+      @if (currentStep() === 4) {
+
+        <section class="success-state">
+
+          <div class="success-animation">
+
+            <div class="success-ring">
+
+              <i class="bi bi-check-lg"></i>
+
+            </div>
+
+          </div>
+
+          <h2>
+            Application added
+          </h2>
+
+          <p>
+            The application was successfully added to the analytics dataset.
+          </p>
+
+          <button
+            type="button"
+            class="btn btn-submit"
+            (click)="resetForm()"
+          >
+
+            <i class="bi bi-plus-lg"></i>
+
+            Add another application
+
+          </button>
+
+        </section>
+
+      }
+
+
+      <!-- ========================================================
+           FOOTER
+           ======================================================== -->
+
+      @if (currentStep() <= 3) {
+
+        <footer class="form-footer">
+
+          <div class="footer-info">
+
+            <span class="required">*</span>
+
+            Required fields
+
+          </div>
+
+
+          <div class="form-actions">
+
+
+            @if (currentStep() > 1) {
+
+              <button
+                type="button"
+                class="btn btn-back"
+                [disabled]="submitting()"
+                (click)="previousStep()"
+              >
+
+                <i class="bi bi-arrow-left"></i>
+
+                Back
+
+              </button>
+
+            }
+
+
+            @if (currentStep() < 3) {
+
+              <button
+                type="submit"
+                class="btn btn-next"
+              >
+
+                Continue
+
+                <i class="bi bi-arrow-right"></i>
+
+              </button>
+
+            } @else {
+
+              <button
+                type="submit"
+                class="btn btn-submit"
+                [disabled]="submitting()"
+              >
+
+                @if (submitting()) {
+
+                  <span
+                    class="spinner-border spinner-border-sm"
+                  ></span>
+
+                  Adding...
+
+                } @else {
+
+                  <i class="bi bi-check2"></i>
+
+                  Add application
+
+                }
+
+              </button>
+
+            }
+
+          </div>
+
+        </footer>
+
+      }
+
+    </form>
+
+  </div>
+
+</section>
