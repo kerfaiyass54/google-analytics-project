@@ -1,1 +1,343 @@
-<p>manage-eda works!</p>
+<section class="manage-eda-page">
+
+  <!-- ==========================================================
+       PAGE HEADER
+       ========================================================== -->
+
+  <button
+    type="button"
+    class="back-button"
+    (click)="goBack()"
+  >
+    <i class="bi bi-arrow-left"></i>
+    <span>Return to previous</span>
+  </button>
+
+  <header class="page-header">
+
+    <div class="header-content">
+
+      <div class="header-icon">
+        <i class="bi bi-bar-chart-line-fill"></i>
+      </div>
+
+      <div>
+        <span class="eyebrow">
+          Exploratory data analysis
+        </span>
+
+        <h1>
+          EDA History
+        </h1>
+
+        <p>
+          Browse previous analyses and inspect each EDA result.
+        </p>
+      </div>
+
+    </div>
+
+    <div class="header-stat">
+
+      <span class="stat-label">
+        Analyses
+      </span>
+
+      <strong>
+        {{ historyResponse().totalElements }}
+      </strong>
+
+    </div>
+
+  </header>
+
+
+  <!-- ==========================================================
+       HISTORY TABLE
+       ========================================================== -->
+
+  <section
+    class="history-section"
+    (click)="onTableClick($event)"
+  >
+
+    <app-paginated-table
+      title="EDA history"
+      searchPlaceholder="Search EDA history..."
+      [columns]="tableColumns"
+      [response]="historyResponse()"
+      [loading]="loading()"
+      [pageSizeOptions]="[5, 10, 20, 50]"
+      (pageChange)="onPageChange($event)"
+    />
+
+  </section>
+
+
+  <!-- ==========================================================
+       MODAL
+       ========================================================== -->
+
+  @if (dialogVisible() && selectedEda(); as eda) {
+
+    <div
+      class="eda-dialog-backdrop"
+      role="presentation"
+      (click)="closeDialog()"
+    >
+
+      <section
+        class="eda-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="eda-dialog-title"
+        (click)="$event.stopPropagation()"
+      >
+
+        <!-- ====================================================
+             MODAL HEADER
+             ==================================================== -->
+
+        <header class="dialog-header">
+
+          <div class="dialog-title-area">
+
+            <div class="dialog-icon">
+              <i class="bi bi-activity"></i>
+            </div>
+
+            <div>
+
+              <span class="dialog-eyebrow">
+                Historical analysis
+              </span>
+
+              <h2 id="eda-dialog-title">
+                EDA Analysis
+              </h2>
+
+              <div class="dialog-meta">
+
+                <span>
+                  <i class="bi bi-fingerprint"></i>
+                  {{ eda.eda_id }}
+                </span>
+
+                <span>
+                  <i class="bi bi-calendar3"></i>
+                  {{ formatDate(eda.date) }}
+                </span>
+
+              </div>
+
+            </div>
+
+          </div>
+
+          <button
+            type="button"
+            class="close-button"
+            aria-label="Close EDA dialog"
+            (click)="closeDialog()"
+          >
+            <i class="bi bi-x-lg"></i>
+          </button>
+
+        </header>
+
+
+        <!-- ====================================================
+             ANALYSIS NAVIGATION
+             ==================================================== -->
+
+        <nav class="analysis-navigation">
+
+          @for (
+            button of analysisButtons;
+            track trackAnalysis($index, button)
+            ) {
+
+            <button
+              type="button"
+              class="analysis-button"
+              [class.active]="
+                selectedAnalysis() === button.key
+              "
+              (click)="selectAnalysis(button.key)"
+            >
+
+              <span class="analysis-button-icon">
+                <i [class]="button.icon"></i>
+              </span>
+
+              <span class="analysis-button-content">
+
+                <strong>
+                  {{ button.shortLabel }}
+                </strong>
+
+                <small>
+                  {{ button.label }}
+                </small>
+
+              </span>
+
+              @if (selectedAnalysis() === button.key) {
+
+                <span class="active-indicator">
+                  <i class="bi bi-arrow-right"></i>
+                </span>
+
+              }
+
+            </button>
+
+          }
+
+        </nav>
+
+
+        <!-- ====================================================
+             ACTIVE ANALYSIS
+             ==================================================== -->
+
+        <main class="analysis-content">
+
+          <div
+            class="analysis-transition"
+            [attr.data-analysis]="selectedAnalysis()"
+          >
+
+            <div class="analysis-heading">
+
+              <div>
+
+                <span class="analysis-kicker">
+                  Selected analysis
+                </span>
+
+                <h3>
+                  {{ selectedAnalysisButton.label }}
+                </h3>
+
+                <p>
+                  {{ selectedAnalysisButton.description }}
+                </p>
+
+              </div>
+
+              <div class="analysis-number">
+                <i [class]="selectedAnalysisButton.icon"></i>
+              </div>
+
+            </div>
+
+
+            <!-- ==================================================
+                 ANALYSIS DATA
+                 ================================================== -->
+
+            <div class="analysis-data">
+
+              @if (getAnalysisDataEntries().length > 0) {
+
+                @for (
+                  entry of getAnalysisDataEntries();
+                  track trackEntry($index, entry)
+                  ) {
+
+                  <article class="data-card">
+
+                    <span class="data-label">
+                      {{ entry.key }}
+                    </span>
+
+                    <strong class="data-value">
+                      {{ entry.value }}
+                    </strong>
+
+                  </article>
+
+                }
+
+              } @else {
+
+                <div class="empty-analysis">
+
+                  <div class="empty-analysis-icon">
+                    <i class="bi bi-bar-chart"></i>
+                  </div>
+
+                  <h4>
+                    No analysis data
+                  </h4>
+
+                  <p>
+                    This historical EDA does not contain
+                    data for this analysis.
+                  </p>
+
+                </div>
+
+              }
+
+            </div>
+
+          </div>
+
+        </main>
+
+
+        <!-- ====================================================
+             MODAL FOOTER
+             ==================================================== -->
+
+        <footer class="dialog-footer">
+
+          <div class="footer-info">
+
+            <span class="footer-status">
+              <span class="status-dot"></span>
+              Historical EDA
+            </span>
+
+            <span class="footer-separator"></span>
+
+            <span>
+              {{ eda.email }}
+            </span>
+
+          </div>
+
+          <div class="footer-actions">
+
+            <button
+              type="button"
+              class="secondary-button"
+              (click)="closeDialog()"
+            >
+              <i class="bi bi-x-lg"></i>
+              Close
+            </button>
+
+            <button
+              type="button"
+              class="export-button"
+              (click)="exportEda()"
+            >
+              <i class="bi bi-box-arrow-up-right"></i>
+              Export EDA
+              <i class="bi bi-arrow-right export-arrow"></i>
+            </button>
+
+          </div>
+
+        </footer>
+
+      </section>
+
+    </div>
+
+  }
+
+</section>
