@@ -1,1 +1,243 @@
-<p>delete-applications works!</p>
+<section class="delete-applications">
+
+  <!-- ============================================================
+       PAGE HEADER
+       ============================================================ -->
+
+  <header class="page-header">
+
+    <div class="header-content">
+
+      <span class="eyebrow">
+        APPLICATION MANAGEMENT
+      </span>
+
+      <h1>
+        Delete Applications
+      </h1>
+
+      <p>
+        Select applications and remove them from the Google Play dataset.
+      </p>
+
+    </div>
+
+
+    <!-- SELECTION STAT -->
+
+    <div class="selection-stat">
+
+      <span>
+        Selected
+      </span>
+
+      <strong>
+        {{ selectedCount }}
+      </strong>
+
+    </div>
+
+  </header>
+
+
+  <!-- ============================================================
+       ERROR MESSAGE
+       ============================================================ -->
+
+  @if (errorMessage()) {
+
+    <div
+      class="alert alert-danger page-alert"
+      role="alert"
+    >
+
+      <i class="bi bi-exclamation-circle-fill"></i>
+
+      <span>
+        {{ errorMessage() }}
+      </span>
+
+    </div>
+
+  }
+
+
+  <!-- ============================================================
+       SUCCESS MESSAGE
+       ============================================================ -->
+
+  @if (successMessage()) {
+
+    <div
+      class="alert alert-success page-alert"
+      role="alert"
+    >
+
+      <i class="bi bi-check-circle-fill"></i>
+
+      <span>
+        {{ successMessage() }}
+      </span>
+
+    </div>
+
+  }
+
+
+  <!-- ============================================================
+       SELECTION ACTION BAR
+       ============================================================ -->
+
+  <section class="action-bar">
+
+    <!-- SELECTION INFORMATION -->
+
+    <div class="selection-info">
+
+      <div class="selection-icon">
+
+        <i class="bi bi-check2-square"></i>
+
+      </div>
+
+
+      <div class="selection-text">
+
+        <strong>
+          {{ selectedCount }}
+          application{{ selectedCount === 1 ? '' : 's' }}
+          selected
+        </strong>
+
+        <span>
+          Select applications using the checkboxes below.
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <!-- ACTION BUTTONS -->
+
+    <div class="action-buttons">
+
+      <!-- CLEAR -->
+
+      <button
+        type="button"
+        class="btn btn-light-custom"
+        [disabled]="selectedCount === 0 || deleting()"
+        (click)="clearSelection()"
+      >
+
+        <i class="bi bi-x-lg"></i>
+
+        <span>
+          Clear
+        </span>
+
+      </button>
+
+
+      <!-- DELETE -->
+
+      <button
+        type="button"
+        class="btn btn-danger-custom"
+        [disabled]="selectedCount === 0 || deleting()"
+        (click)="openDeleteConfirmation()"
+      >
+
+        @if (deleting()) {
+
+          <span
+            class="spinner-border spinner-border-sm"
+            aria-hidden="true"
+          ></span>
+
+          <span>
+            Deleting...
+          </span>
+
+        } @else {
+
+          <i class="bi bi-trash3"></i>
+
+          <span>
+            Delete selected
+          </span>
+
+        }
+
+      </button>
+
+    </div>
+
+  </section>
+
+
+  <!-- ============================================================
+       APPLICATION TABLE
+       ============================================================ -->
+
+  <section class="table-section">
+
+    <app-paginated-table
+      title="Applications"
+      searchPlaceholder="Search applications..."
+
+      [columns]="columns"
+      [response]="tableResponse()"
+      [loading]="loading()"
+
+      [showCheckbox]="true"
+
+      [actionLabel]="'Delete'"
+      [actionIcon]="'bi-trash3'"
+
+      (selectionChange)="onSelectionChange($event)"
+      (actionClick)="onTableAction($event)"
+      (pageChange)="onPageChange($event)"
+    />
+
+  </section>
+
+
+  <!-- ============================================================
+       TABLE HINT
+       ============================================================ -->
+
+  <div class="table-hint">
+
+    <i class="bi bi-info-circle"></i>
+
+    <span>
+      Select one or more applications, then use
+      <strong>Delete</strong>
+      to remove them.
+    </span>
+
+  </div>
+
+
+  <!-- ============================================================
+       CONFIRMATION DIALOG
+       ============================================================ -->
+
+  <app-confirm-dialog
+    [title]="'Delete applications'"
+    [text]="
+      selectedCount === 1
+        ? 'Are you sure you want to delete this application?'
+        : 'Are you sure you want to delete these ' +
+          selectedCount +
+          ' applications?'
+    "
+    [yesLabel]="'Delete'"
+    [noLabel]="'Cancel'"
+    (confirmed)="confirmDelete()"
+    (cancelled)="cancelDelete()"
+  />
+
+</section>

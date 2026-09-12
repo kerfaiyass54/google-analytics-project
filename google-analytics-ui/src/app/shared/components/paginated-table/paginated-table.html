@@ -27,40 +27,92 @@
     </div>
 
 
-    <!-- SEARCH -->
+    <!-- ====================================================
+         HEADER ACTIONS
+         ==================================================== -->
 
-    <div class="search-container">
+    <div class="header-actions">
 
-      <i class="bi bi-search search-icon"></i>
-
-      <input
-        type="search"
-        class="search-input"
-        [value]="search()"
-        [placeholder]="searchPlaceholder()"
-        (input)="onSearch($any($event.target).value)"
-        (keydown)="onSearchKeydown($event)"
-        autocomplete="off"
-      />
-
-      @if (search()) {
+      @if (hasAction) {
 
         <button
           type="button"
-          class="clear-search"
-          aria-label="Clear search"
-          (click)="clearSearch()"
+          class="table-action-button"
+          [disabled]="
+            loading() ||
+            selectedCount === 0
+          "
+          (click)="onAction()"
         >
-          <i class="bi bi-x-lg"></i>
+
+          <i
+            class="bi"
+            [class]="actionIcon()"
+          ></i>
+
+          <span>
+            {{ actionLabel() }}
+          </span>
+
+          @if (selectedCount > 0) {
+
+            <span class="selected-count">
+              {{ selectedCount }}
+            </span>
+
+          }
+
         </button>
 
-      } @else {
-
-        <span class="search-shortcut">
-          /
-        </span>
-
       }
+
+
+      <!-- SEARCH -->
+
+      <div class="search-container">
+
+        <i
+          class="bi bi-search search-icon"
+        ></i>
+
+        <input
+          type="search"
+          class="search-input"
+          [value]="search()"
+          [placeholder]="searchPlaceholder()"
+          (input)="
+            onSearch(
+              $any($event.target).value
+            )
+          "
+          (keydown)="
+            onSearchKeydown($event)
+          "
+          autocomplete="off"
+        />
+
+        @if (search()) {
+
+          <button
+            type="button"
+            class="clear-search"
+            aria-label="Clear search"
+            (click)="clearSearch()"
+          >
+
+            <i class="bi bi-x-lg"></i>
+
+          </button>
+
+        } @else {
+
+          <span class="search-shortcut">
+            /
+          </span>
+
+        }
+
+      </div>
 
     </div>
 
@@ -75,11 +127,37 @@
 
     <table class="modern-table">
 
-      <!-- TABLE HEAD -->
+      <!-- ==================================================
+           TABLE HEAD
+           ================================================== -->
 
       <thead>
 
       <tr>
+
+        @if (showCheckbox()) {
+
+          <th class="checkbox-column">
+
+            <input
+              type="checkbox"
+              class="table-checkbox"
+              [checked]="allVisibleSelected"
+              [indeterminate]="
+                  someVisibleSelected
+                "
+              [disabled]="
+                  loading() ||
+                  rows.length === 0
+                "
+              (change)="toggleAllVisible()"
+              aria-label="Select all visible rows"
+            />
+
+          </th>
+
+        }
+
 
         @for (
           column of columns();
@@ -101,7 +179,9 @@
       </thead>
 
 
-      <!-- TABLE BODY -->
+      <!-- ==================================================
+           TABLE BODY
+           ================================================== -->
 
       <tbody>
 
@@ -113,6 +193,19 @@
             ) {
 
             <tr class="skeleton-row">
+
+              @if (showCheckbox()) {
+
+                <td class="checkbox-column">
+
+                  <span
+                    class="skeleton checkbox-skeleton"
+                  ></span>
+
+                </td>
+
+              }
+
 
               @for (
                 column of columns();
@@ -138,7 +231,39 @@
             track trackRow($index, row)
             ) {
 
-            <tr class="table-row">
+            <tr
+              class="table-row"
+              [class.row-selected]="
+                isSelected(row)
+              "
+            >
+
+              @if (showCheckbox()) {
+
+                <td
+                  class="checkbox-column"
+                  (click)="$event.stopPropagation()"
+                >
+
+                  <input
+                    type="checkbox"
+                    class="table-checkbox"
+                    [checked]="
+                      isSelected(row)
+                    "
+                    (change)="
+                      toggleRowSelection(row)
+                    "
+                    [attr.aria-label]="
+                      'Select row ' +
+                      ($index + 1)
+                    "
+                  />
+
+                </td>
+
+              }
+
 
               @for (
                 column of columns();
@@ -153,16 +278,28 @@
 
                     <span class="status-badge">
 
-                      <span class="badge-dot"></span>
+                      <span
+                        class="badge-dot"
+                      ></span>
 
-                      {{ getCellValue(row, column) }}
+                      {{
+                        getCellValue(
+                          row,
+                          column
+                        )
+                      }}
 
                     </span>
 
                   } @else {
 
                     <span class="cell-value">
-                      {{ getCellValue(row, column) }}
+                      {{
+                        getCellValue(
+                          row,
+                          column
+                        )
+                      }}
                     </span>
 
                   }
@@ -178,13 +315,18 @@
             <tr class="empty-row">
 
               <td
-                [attr.colspan]="columns().length"
+                [attr.colspan]="
+                  columns().length +
+                  (showCheckbox() ? 1 : 0)
+                "
               >
 
                 <div class="empty-state">
 
                   <div class="empty-icon">
-                    <i class="bi bi-search"></i>
+                    <i
+                      class="bi bi-search"
+                    ></i>
                   </div>
 
                   <strong>
@@ -210,6 +352,52 @@
     </table>
 
   </div>
+
+
+  <!-- ======================================================
+       SELECTION SUMMARY
+       ====================================================== -->
+
+  @if (
+    showCheckbox() &&
+    selectedCount > 0
+    ) {
+
+    <div class="selection-bar">
+
+      <div class="selection-summary">
+
+        <div class="selection-check">
+          <i class="bi bi-check2"></i>
+        </div>
+
+        <span>
+          <strong>
+            {{ selectedCount }}
+          </strong>
+
+          row{{
+            selectedCount === 1
+              ? ''
+              : 's'
+          }}
+          selected
+        </span>
+
+      </div>
+
+
+      <button
+        type="button"
+        class="clear-selection-button"
+        (click)="clearSelection()"
+      >
+        Clear selection
+      </button>
+
+    </div>
+
+  }
 
 
   <!-- ======================================================
@@ -261,7 +449,9 @@
         aria-label="First page"
       >
 
-        <i class="bi bi-chevron-double-left"></i>
+        <i
+          class="bi bi-chevron-double-left"
+        ></i>
 
       </button>
 
@@ -280,7 +470,9 @@
         aria-label="Previous page"
       >
 
-        <i class="bi bi-chevron-left"></i>
+        <i
+          class="bi bi-chevron-left"
+        ></i>
 
       </button>
 
@@ -309,7 +501,9 @@
             [disabled]="loading()"
             (click)="goToPage(page)"
           >
+
             {{ page + 1 }}
+
           </button>
 
         }
@@ -331,7 +525,9 @@
         aria-label="Next page"
       >
 
-        <i class="bi bi-chevron-right"></i>
+        <i
+          class="bi bi-chevron-right"
+        ></i>
 
       </button>
 
@@ -350,7 +546,9 @@
         aria-label="Last page"
       >
 
-        <i class="bi bi-chevron-double-right"></i>
+        <i
+          class="bi bi-chevron-double-right"
+        ></i>
 
       </button>
 

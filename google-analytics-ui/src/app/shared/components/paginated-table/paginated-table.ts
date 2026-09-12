@@ -40,6 +40,10 @@ export interface PaginatedTableResponse<T> {
 export class PaginatedTable<T> {
   private readonly destroyRef = inject(DestroyRef);
 
+  // ==========================================================
+  // INPUTS
+  // ==========================================================
+
   readonly title = input<string>('Data');
 
   readonly columns = input<PaginatedTableColumn[]>([]);
@@ -58,7 +62,48 @@ export class PaginatedTable<T> {
 
   readonly pageSizeOptions = input<number[]>([5, 10, 20, 50, 100]);
 
+  /**
+   * Controls whether row-selection checkboxes are displayed.
+   *
+   * Default: false
+   */
+  readonly showCheckbox = input<boolean>(false);
+
+  /**
+   * Arbitrary action button title.
+   *
+   * If empty, the action button is not displayed.
+   */
+  readonly actionLabel = input<string>('');
+
+  /**
+   * Optional Bootstrap icon for the action button.
+   *
+   * Example:
+   * "bi-trash3"
+   */
+  readonly actionIcon = input<string>('bi-lightning-charge');
+
+  // ==========================================================
+  // OUTPUTS
+  // ==========================================================
+
   readonly pageChange = output<PaginatedTableRequest>();
+
+  /**
+   * Emits whenever the selected rows change.
+   */
+  readonly selectionChange = output<T[]>();
+
+  /**
+   * Emits the currently selected rows when the action button
+   * is clicked.
+   */
+  readonly actionClick = output<T[]>();
+
+  // ==========================================================
+  // STATE
+  // ==========================================================
 
   readonly search = signal<string>('');
 
@@ -66,7 +111,16 @@ export class PaginatedTable<T> {
 
   readonly selectedPageSize = signal<number>(10);
 
+  /**
+   * Stores selected row identifiers.
+   */
+  readonly selectedIds = signal<Set<unknown>>(new Set());
+
   private searchTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  // ==========================================================
+  // GETTERS
+  // ==========================================================
 
   get rows(): T[] {
     return this.response().content;
@@ -119,6 +173,44 @@ export class PaginatedTable<T> {
     return [0, -1, current - 1, current, current + 1, -1, total - 1];
   }
 
+  get selectedRows(): T[] {
+    const ids = this.selectedIds();
+
+    return this.rows.filter((row) => ids.has(this.getRowId(row)));
+  }
+
+  get selectedCount(): number {
+    return this.selectedIds().size;
+  }
+
+  get allVisibleSelected(): boolean {
+    if (this.rows.length === 0) {
+      return false;
+    }
+
+    return this.rows.every((row) => this.selectedIds().has(this.getRowId(row)));
+  }
+
+  get someVisibleSelected(): boolean {
+    if (this.rows.length === 0) {
+      return false;
+    }
+
+    const selectedVisibleCount = this.rows.filter((row) =>
+      this.selectedIds().has(this.getRowId(row)),
+    ).length;
+
+    return selectedVisibleCount > 0 && selectedVisibleCount < this.rows.length;
+  }
+
+  get hasAction(): boolean {
+    return this.showCheckbox() && this.actionLabel().trim().length > 0;
+  }
+
+  // ==========================================================
+  // CONSTRUCTOR
+  // ==========================================================
+
   constructor() {
     effect(() => {
       const response = this.response();
@@ -130,6 +222,22 @@ export class PaginatedTable<T> {
       if (response.size !== this.selectedPageSize()) {
         this.selectedPageSize.set(response.size);
       }
+
+      /*
+       * Remove selected IDs that no longer exist
+       * in the current response.
+       */
+      const currentIds = new Set(response.content.map((row) => this.getRowId(row)));
+
+      const currentSelection = this.selectedIds();
+
+      const cleanedSelection = new Set([...currentSelection].filter((id) => currentIds.has(id)));
+
+      if (cleanedSelection.size !== currentSelection.size) {
+        this.selectedIds.set(cleanedSelection);
+
+        this.emitSelection();
+      }
     });
 
     this.destroyRef.onDestroy(() => {
@@ -138,6 +246,10 @@ export class PaginatedTable<T> {
       }
     });
   }
+
+  // ==========================================================
+  // SEARCH
+  // ==========================================================
 
   onSearch(value: string): void {
     this.search.set(value);
@@ -164,6 +276,16 @@ export class PaginatedTable<T> {
     this.requestPage(0, this.selectedPageSize(), '');
   }
 
+  onSearchKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Escape') {
+      this.clearSearch();
+    }
+  }
+
+  // ==========================================================
+  // PAGINATION
+  // ==========================================================
+
   onPageSizeChange(value: string): void {
     const size = Number(value);
 
@@ -174,6 +296,8 @@ export class PaginatedTable<T> {
     this.selectedPageSize.set(size);
     this.currentPage.set(0);
 
+    this.clearSelection();
+
     this.requestPage(0, size, this.search());
   }
 
@@ -183,6 +307,8 @@ export class PaginatedTable<T> {
     }
 
     this.currentPage.set(page);
+
+    this.clearSelection();
 
     this.requestPage(page, this.selectedPageSize(), this.search());
   }
@@ -211,19 +337,93 @@ export class PaginatedTable<T> {
     });
   }
 
+  // ==========================================================
+  // TABLE
+  // ==========================================================
+
   getCellValue(row: T, column: PaginatedTableColumn): unknown {
     return (row as Record<string, unknown>)[column.key];
   }
 
   trackRow(index: number, row: T): unknown {
-    const record = row as Record<string, unknown>;
-
-    return record['id'] ?? index;
+    return this.getRowId(row) ?? index;
   }
 
-  onSearchKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Escape') {
-      this.clearSearch();
+  private getRowId(row: T): unknown {
+    const record = row as Record<string, unknown>;
+
+    return record['id'];
+  }
+
+  // ==========================================================
+  // SELECTION
+  // ==========================================================
+
+  isSelected(row: T): boolean {
+    return this.selectedIds().has(this.getRowId(row));
+  }
+
+  toggleRowSelection(row: T): void {
+    const id = this.getRowId(row);
+
+    const selection = new Set(this.selectedIds());
+
+    if (selection.has(id)) {
+      selection.delete(id);
+    } else {
+      selection.add(id);
     }
+
+    this.selectedIds.set(selection);
+
+    this.emitSelection();
+  }
+
+  toggleAllVisible(): void {
+    const selection = new Set(this.selectedIds());
+
+    if (this.allVisibleSelected) {
+      for (const row of this.rows) {
+        selection.delete(this.getRowId(row));
+      }
+    } else {
+      for (const row of this.rows) {
+        selection.add(this.getRowId(row));
+      }
+    }
+
+    this.selectedIds.set(selection);
+
+    this.emitSelection();
+  }
+
+  clearSelection(): void {
+    if (this.selectedIds().size === 0) {
+      return;
+    }
+
+    this.selectedIds.set(new Set());
+
+    this.emitSelection();
+  }
+
+  private emitSelection(): void {
+    this.selectionChange.emit(this.selectedRows);
+  }
+
+  // ==========================================================
+  // ACTION
+  // ==========================================================
+
+  onAction(): void {
+    if (!this.hasAction) {
+      return;
+    }
+
+    if (this.selectedRows.length === 0) {
+      return;
+    }
+
+    this.actionClick.emit(this.selectedRows);
   }
 }
