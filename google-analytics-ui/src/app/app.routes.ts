@@ -26,9 +26,7 @@ export const routes: Routes = [
       {
         path: 'operations',
         loadComponent: () =>
-          import('./features/operations-page/operations-page').then(
-            (m) => m.OperationsPage,
-          ),
+          import('./features/operations-page/operations-page').then((m) => m.OperationsPage),
       },
 
       // Operations
@@ -44,6 +42,13 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/operations-page/check-eda-files/check-eda-files').then(
             (m) => m.CheckEdaFiles,
+          ),
+      },
+      {
+        path: 'operations/export-eda/:id',
+        loadComponent: () =>
+          import('./features/operations-page/manage-eda/export-eda/export-eda').then(
+            (m) => m.ExportEda,
           ),
       },
       {

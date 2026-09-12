@@ -1,1 +1,303 @@
-<p>export-eda works!</p>
+<div class="export-page">
+
+  <div class="export-container">
+
+    <!-- Header -->
+    <header class="page-header">
+      <button type="button" class="back-button" (click)="goBack()">
+        <i class="bi bi-arrow-left"></i>
+        <span>Back</span>
+      </button>
+
+      <div class="header-content">
+        <span class="eyebrow">
+          <i class="bi bi-download"></i>
+          EDA EXPORT
+        </span>
+
+        <h1>Export analysis</h1>
+
+        <p>
+          Configure your export in three simple steps.
+        </p>
+      </div>
+    </header>
+
+    <!-- Stepper -->
+    <div class="stepper">
+
+      <div
+        class="step"
+        [class.active]="currentStep() === 1"
+        [class.completed]="currentStep() > 1"
+      >
+        <div class="step-number">
+          @if (currentStep() > 1) {
+            <i class="bi bi-check"></i>
+          } @else {
+            1
+          }
+        </div>
+
+        <div class="step-info">
+          <span class="step-label">Step 1</span>
+          <strong>File name</strong>
+        </div>
+      </div>
+
+      <div class="step-line" [class.completed]="currentStep() > 1"></div>
+
+      <div
+        class="step"
+        [class.active]="currentStep() === 2"
+        [class.completed]="currentStep() > 2"
+      >
+        <div class="step-number">
+          @if (currentStep() > 2) {
+            <i class="bi bi-check"></i>
+          } @else {
+            2
+          }
+        </div>
+
+        <div class="step-info">
+          <span class="step-label">Step 2</span>
+          <strong>Type</strong>
+        </div>
+      </div>
+
+      <div class="step-line" [class.completed]="currentStep() > 2"></div>
+
+      <div
+        class="step"
+        [class.active]="currentStep() === 3"
+      >
+        <div class="step-number">
+          3
+        </div>
+
+        <div class="step-info">
+          <span class="step-label">Step 3</span>
+          <strong>Review</strong>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Card -->
+    <section class="export-card">
+
+      <!-- STEP 1 -->
+      @if (currentStep() === 1) {
+
+        <div class="step-content">
+
+          <div class="content-icon">
+            <i class="bi bi-file-earmark-text"></i>
+          </div>
+
+          <span class="content-eyebrow">STEP 1</span>
+
+          <h2>Name your file</h2>
+
+          <p class="content-description">
+            Choose a clear name for your exported EDA analysis.
+          </p>
+
+          <div class="form-group">
+
+            <label for="fileName">
+              File name
+            </label>
+
+            <div class="input-wrapper">
+
+              <i class="bi bi-file-earmark"></i>
+
+              <input
+                id="fileName"
+                type="text"
+                [ngModel]="fileName()"
+                (ngModelChange)="setFileName($event)"
+                placeholder="my-eda-analysis"
+                autocomplete="off"
+              />
+
+            </div>
+
+            <span class="input-hint">
+              The selected format extension will be added automatically.
+            </span>
+
+          </div>
+
+        </div>
+      }
+
+      <!-- STEP 2 -->
+      @if (currentStep() === 2) {
+
+        <div class="step-content">
+
+          <div class="content-icon">
+            <i class="bi bi-file-earmark-arrow-down"></i>
+          </div>
+
+          <span class="content-eyebrow">STEP 2</span>
+
+          <h2>Choose the export type</h2>
+
+          <p class="content-description">
+            Select the format you want to generate.
+          </p>
+
+          <div class="type-grid">
+
+            @for (type of fileTypes; track type.value) {
+
+              <button
+                type="button"
+                class="type-card"
+                [class.selected]="selectedType() === type.value"
+                (click)="selectType(type.value)"
+              >
+
+                <div class="type-icon">
+                  <i class="bi {{ type.icon }}"></i>
+                </div>
+
+                <div class="type-content">
+                  <strong>{{ type.label }}</strong>
+                  <span>{{ type.description }}</span>
+                </div>
+
+                <div class="type-check">
+                  @if (selectedType() === type.value) {
+                    <i class="bi bi-check-circle-fill"></i>
+                  } @else {
+                    <i class="bi bi-circle"></i>
+                  }
+                </div>
+
+              </button>
+
+            }
+
+          </div>
+
+        </div>
+      }
+
+      <!-- STEP 3 -->
+      @if (currentStep() === 3) {
+
+        <div class="step-content">
+
+          <div class="content-icon">
+            <i class="bi bi-clipboard-check"></i>
+          </div>
+
+          <span class="content-eyebrow">STEP 3</span>
+
+          <h2>Review your export</h2>
+
+          <p class="content-description">
+            Check the details before generating your file.
+          </p>
+
+          <div class="review-list">
+
+            <div class="review-row">
+              <span>
+                <i class="bi bi-file-earmark"></i>
+                File name
+              </span>
+
+              <strong>
+                {{ finalFileName }}
+              </strong>
+            </div>
+
+            <div class="review-row">
+              <span>
+                <i class="bi bi-file-earmark-code"></i>
+                Type
+              </span>
+
+              <strong>
+                {{ selectedTypeLabel }}
+              </strong>
+            </div>
+
+            <div class="review-row">
+              <span>
+                <i class="bi bi-database"></i>
+                EDA ID
+              </span>
+
+              <strong class="eda-id">
+                {{ edaId }}
+              </strong>
+            </div>
+
+          </div>
+
+          <div class="review-notice">
+            <i class="bi bi-info-circle"></i>
+
+            <span>
+              Your EDA analysis will be exported using the selected format.
+            </span>
+          </div>
+
+        </div>
+      }
+
+      <!-- Footer -->
+      <footer class="step-footer">
+
+        <button
+          type="button"
+          class="secondary-button"
+          [disabled]="currentStep() === 1"
+          (click)="previousStep()"
+        >
+          <i class="bi bi-arrow-left"></i>
+          Previous
+        </button>
+
+        @if (currentStep() < 3) {
+
+          <button
+            type="button"
+            class="primary-button"
+            [disabled]="
+              (currentStep() === 1 && !fileName().trim()) ||
+              (currentStep() === 2 && !selectedType())
+            "
+            (click)="nextStep()"
+          >
+            Continue
+            <i class="bi bi-arrow-right"></i>
+          </button>
+
+        } @else {
+
+          <button
+            type="button"
+            class="primary-button export-button"
+            (click)="export()"
+          >
+            <i class="bi bi-download"></i>
+            Export EDA
+          </button>
+
+        }
+
+      </footer>
+
+    </section>
+
+  </div>
+
+</div>

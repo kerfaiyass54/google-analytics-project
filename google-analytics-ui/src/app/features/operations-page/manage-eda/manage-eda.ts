@@ -296,9 +296,7 @@ export class ManageEda {
       return;
     }
 
-    this.closeDialog();
-
-    this.router.navigate(['/eda/export', eda.eda_id]);
+    this.router.navigate(['/operations/export-eda', eda.eda_id]);
   }
 
   trackAnalysis(_index: number, item: AnalysisButton): string {
