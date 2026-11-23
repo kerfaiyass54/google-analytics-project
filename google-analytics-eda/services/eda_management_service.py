@@ -10,6 +10,7 @@ from schema.eda_page import EdaPage
 from config import get_keycloak_config
 from security.keycloak import KeycloakUser
 from services.eda_service import EdaAnalysisService
+from services.notification_event_publisher import publish_notification_event
 
 
 class EdaManagementService:
@@ -35,6 +36,13 @@ class EdaManagementService:
             review_counts=analysis.review_counts,
         )
         eda_id = self._eda_repository.save(document)
+        publish_notification_event(
+            "EDA_CREATED",
+            entity_type="EDA",
+            entity_id=str(eda_id),
+            entity_name="EDA analysis",
+            payload={"creator": user.email},
+        )
         return document.model_copy(update={"eda_id": eda_id})
 
     def get_by_id(self, eda_id: str, user: KeycloakUser) -> EdaDocument | None:
