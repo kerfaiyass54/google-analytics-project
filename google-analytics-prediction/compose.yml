@@ -1,0 +1,38 @@
+services:
+  prediction:
+    build:
+      context: ./google-analytics-prediction
+      dockerfile: Dockerfile
+    container_name: analytics_prediction
+    restart: unless-stopped
+    environment:
+      APP_NAME: Google Play Prediction API
+      APP_VERSION: 1.0.0
+      APP_PORT: 8010
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      ELASTICSEARCH_EVALUATION_INDEX: prediction_model_evaluations
+      MODEL_ARTIFACT_DIR: /app/artifacts
+      KEYCLOAK_ISSUER: ${KEYCLOAK_ISSUER:-http://host.docker.internal:8280/realms/google-analytics}
+      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-google-analytics-api}
+      KEYCLOAK_AUDIENCE: ${KEYCLOAK_AUDIENCE:-}
+      ADMIN_ROLE: ADMIN
+    ports:
+      - "${PREDICTION_HOST_PORT:-8010}:8010"
+    volumes:
+      - prediction_artifacts:/app/artifacts
+    depends_on:
+      postgres:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - backend
+
+volumes:
+  prediction_artifacts:
+    name: prediction_artifacts

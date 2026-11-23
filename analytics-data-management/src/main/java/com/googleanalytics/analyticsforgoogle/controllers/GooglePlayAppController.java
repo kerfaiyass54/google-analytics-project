@@ -15,6 +15,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collection;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/google-play-apps")
 @RequiredArgsConstructor
@@ -22,42 +25,30 @@ public class GooglePlayAppController {
 
     private final GooglePlayAppService service;
 
-    // =========================================================
-    // CREATE
-    // =========================================================
-
     @PostMapping
     public ResponseEntity<GooglePlayAppResponse> create(
             @Valid @RequestBody GooglePlayAppRequest request,
             @AuthenticationPrincipal Jwt jwt
     ) {
-
         GooglePlayAppResponse response =
                 service.create(request, jwt.getClaimAsString("email"));
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
-
-    // =========================================================
-    // GET DETAILS
-    // =========================================================
 
     @GetMapping("/{id}")
     public ResponseEntity<GooglePlayAppResponse> getDetails(
-            @PathVariable Long id
+            @PathVariable Long id,
+            @AuthenticationPrincipal Jwt jwt
     ) {
-
-        GooglePlayAppResponse response =
-                service.getDetails(id);
+        GooglePlayAppResponse response = service.getDetails(
+                id,
+                jwt.getClaimAsString("email"),
+                isAdmin(jwt)
+        );
 
         return ResponseEntity.ok(response);
     }
-
-    // =========================================================
-    // GET ALL - PAGINATED
-    // =========================================================
 
     @GetMapping
     public ResponseEntity<Page<GooglePlayAppResponse>> findAll(
@@ -65,53 +56,47 @@ public class GooglePlayAppController {
                     size = 20,
                     sort = "app",
                     direction = Sort.Direction.ASC
-            )
-            Pageable pageable
+            ) Pageable pageable,
+            @AuthenticationPrincipal Jwt jwt
     ) {
-
-        /*
-         * Prevent clients from requesting an excessively
-         * large number of records.
-         */
         if (pageable.getPageSize() > 100) {
-
-            pageable = Pageable.ofSize(100)
-                    .withPage(pageable.getPageNumber());
+            pageable = Pageable.ofSize(100).withPage(pageable.getPageNumber());
         }
 
-        Page<GooglePlayAppResponse> response =
-                service.findAll(pageable);
+        Page<GooglePlayAppResponse> response = service.findAll(
+                pageable,
+                jwt.getClaimAsString("email"),
+                isAdmin(jwt)
+        );
 
         return ResponseEntity.ok(response);
     }
-
-    // =========================================================
-    // UPDATE
-    // =========================================================
 
     @PutMapping("/{id}")
     public ResponseEntity<GooglePlayAppResponse> update(
             @PathVariable Long id,
             @Valid @RequestBody GooglePlayAppRequest request
     ) {
-
-        GooglePlayAppResponse response =
-                service.update(id, request);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(service.update(id, request));
     }
 
-    // =========================================================
-    // DELETE
-    // =========================================================
-
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(
-            @PathVariable Long id
-    ) {
-
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
-
         return ResponseEntity.noContent().build();
+    }
+
+    private boolean isAdmin(Jwt jwt) {
+        Map<String, Object> realmAccess = jwt.getClaim("realm_access");
+        if (realmAccess == null) {
+            return false;
+        }
+
+        Object rolesClaim = realmAccess.get("roles");
+        if (!(rolesClaim instanceof Collection<?> roles)) {
+            return false;
+        }
+
+        return roles.stream().anyMatch(role -> "ADMIN".equals(role));
     }
 }
