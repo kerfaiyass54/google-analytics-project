@@ -11,9 +11,15 @@ export class NavBar {
       {label:'Applications',icon:'bi-phone-fill',route:'/list'},
       {label:'Operations',icon:'bi-sliders2-vertical',route:'/operations'},
       {label:'EDA',icon:'bi-bar-chart-fill',route:'/eda'},
-      {label:'Predictions',icon:'bi-stars',route:'/predictions'},
     ];
-    if(this.authService.isAdmin()) items.push({label:'Model control',icon:'bi-cpu-fill',route:'/admin/predictions'});
+    if(this.authService.isAdmin()){
+      items.push(
+        {label:'Model settings',icon:'bi-cpu-fill',route:'/admin/predictions'},
+        {label:'Evaluations',icon:'bi-clipboard-data-fill',route:'/admin/evaluations'},
+      );
+    } else {
+      items.push({label:'Predictions',icon:'bi-stars',route:'/predictions'});
+    }
     return items;
   }
   async logout():Promise<void>{await this.authService.logout();}
