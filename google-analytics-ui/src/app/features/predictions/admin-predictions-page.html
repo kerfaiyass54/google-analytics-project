@@ -1,12 +1,106 @@
 <main class="admin-shell">
-  <header class="admin-heading"><span class="eyebrow">MODEL QUALITY · GOVERNANCE</span><h1>Model evaluations</h1><p>Train candidate models, compare their evaluation metrics and inspect each evaluation report.</p><button class="refresh" (click)="refresh()"><i class="bi bi-arrow-clockwise"></i> Refresh evaluations</button></header>
+  <header class="admin-heading">
+    <span class="eyebrow">MODEL QUALITY · GOVERNANCE</span>
+    <h1>Model training & evaluations</h1>
+    <p>Select a prediction task and an algorithm, train a candidate model, then review its evaluation metrics and full report.</p>
+    <button class="refresh" (click)="refresh()"><i class="bi bi-arrow-clockwise"></i> Refresh evaluations</button>
+  </header>
+
   @if(message()){<div class="notice">{{message()}}</div>}
-  <section class="section training-panel reveal-card"><div class="section-head"><div><span class="eyebrow">NEW EVALUATION</span><h2>Train and evaluate a model</h2><p>Choose the prediction task and algorithm. Training creates a candidate model and evaluation report; it does not change the active model.</p></div></div>
-    <div class="training-controls"><label>Prediction task<select [ngModel]="task()" (ngModelChange)="task.set($event);algorithm.set($event==='regression'?'random_forest':'random_forest_classifier')"><option value="regression">Rating · Regression</option><option value="classification">Installs · Classification</option></select></label><label>Algorithm<select [ngModel]="algorithm()" (ngModelChange)="algorithm.set($event)">@for(option of (task()==='regression'?['random_forest','gradient_boosting','decision_tree','linear_regression','extra_trees','hist_gradient_boosting']:['random_forest_classifier','extra_trees_classifier','logistic_regression']);track option){<option [value]="option">{{option.replaceAll('_',' ')}}</option>}</select></label><label>Test dataset ratio<select [ngModel]="testSize()" (ngModelChange)="testSize.set(+$event)"><option [ngValue]="0.2">20%</option><option [ngValue]="0.25">25%</option><option [ngValue]="0.3">30%</option></select></label><button class="primary" [disabled]="!!busy()" (click)="train()">{{busy()?'Evaluating…':'Run evaluation'}} <i class="bi bi-play-fill"></i></button></div>
+
+  <section class="section training-panel reveal-card">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">TRAIN A CANDIDATE MODEL</span>
+        <h2>Choose model and evaluation settings</h2>
+        <p>The selected algorithm is trained against the dataset and evaluated on the test split. The new model is saved as inactive; it will not replace the model currently used for predictions.</p>
+      </div>
+    </div>
+    <div class="training-controls">
+      <label>Prediction task
+        <select [ngModel]="task()" (ngModelChange)="onTaskChange($event)">
+          <option value="regression">Rating · Regression</option>
+          <option value="classification">Installs · Classification</option>
+        </select>
+      </label>
+      <label>ML algorithm
+        <select [ngModel]="algorithm()" (ngModelChange)="algorithm.set($event)">
+          @for(option of (task()==='regression'?regressionAlgorithms:classificationAlgorithms);track option){
+            <option [value]="option">{{option.replaceAll('_',' ')}}</option>
+          }
+        </select>
+      </label>
+      <label>Test dataset ratio
+        <select [ngModel]="testSize()" (ngModelChange)="testSize.set(+$event)">
+          <option [ngValue]="0.2">20%</option>
+          <option [ngValue]="0.25">25%</option>
+          <option [ngValue]="0.3">30%</option>
+        </select>
+      </label>
+      <button class="primary" [disabled]="!!busy()" (click)="train()">
+        {{busy()?'Training and evaluating…':'Train model & evaluate'}}
+        <i class="bi bi-play-fill"></i>
+      </button>
+    </div>
   </section>
-  <div class="evaluation-heading"><div><span class="eyebrow">EVALUATION HISTORY</span><h2>Completed evaluations</h2></div><span>{{evaluations.length}} reports</span></div>
-  <div class="evaluation-grid">
-    @for(ev of evaluations;track ev.evaluation_id){<article class="evaluation-card reveal-card"><div class="card-top"><span class="task-tag" [class.classification]="ev.task==='classification'">{{ev.task}}</span><span class="date">{{ev.created_at|date:'mediumDate'}}</span></div><h3>{{ev.algorithm.replaceAll('_',' ')}}</h3><p class="model-id">{{ev.model_id}}</p><div class="dataset-stats"><div><strong>{{ev.dataset_rows|number}}</strong><small>Apps used</small></div><div><strong>{{ev.train_rows|number}}</strong><small>Training</small></div><div><strong>{{ev.test_rows|number}}</strong><small>Testing</small></div></div><div class="metric-row">@if(ev.task==='regression'){<span>MAE <b>{{ev.metrics?.mae|number:'1.3-3'}}</b></span><span>RMSE <b>{{ev.metrics?.rmse|number:'1.3-3'}}</b></span><span>R² <b>{{ev.metrics?.r2|number:'1.3-3'}}</b></span>}@else{<span>Accuracy <b>{{ev.metrics?.accuracy|percent:'1.1-1'}}</b></span><span>Precision <b>{{ev.metrics?.precision_weighted|number:'1.3-3'}}</b></span><span>F1 <b>{{ev.metrics?.f1_weighted|number:'1.3-3'}}</b></span>}</div><button class="details-btn" (click)="showDetails(ev)">View evaluation details <i class="bi bi-arrow-up-right"></i></button></article>}@empty{<div class="empty-state">No evaluations yet. Run your first model evaluation above.</div>}
+
+  <div class="evaluation-heading">
+    <div><span class="eyebrow">MODEL PERFORMANCE</span><h2>Evaluation reports</h2></div>
+    <span>{{evaluations.length}} reports</span>
   </div>
-  @if(selected();as ev){<div class="modal-backdrop" (click)="closeDetails()"><section class="detail-modal" (click)="$event.stopPropagation()"><button class="close" (click)="closeDetails()"><i class="bi bi-x-lg"></i></button><span class="eyebrow">EVALUATION REPORT</span><h2>{{ev.algorithm.replaceAll('_',' ')}}</h2><p class="model-id">{{ev.evaluation_id}}</p><div class="dataset-stats"><div><strong>{{ev.dataset_rows|number}}</strong><small>Total apps</small></div><div><strong>{{ev.train_rows|number}}</strong><small>Training rows</small></div><div><strong>{{ev.test_rows|number}}</strong><small>Test rows</small></div></div><h3>Metrics</h3><div class="detail-metrics">@for(metric of (ev.metrics|keyvalue);track metric.key){<div><small>{{metric.key.replaceAll('_',' ')}}</small><strong>{{metric.value}}</strong></div>}</div><p class="model-id">Model: {{ev.model_id}} · {{ev.created_at|date:'full'}}</p></section></div>}
+
+  <div class="evaluation-grid">
+    @for(ev of evaluations;track ev.evaluation_id){
+      <article class="evaluation-card reveal-card">
+        <div class="card-top">
+          <span class="task-tag" [class.classification]="ev.task==='classification'">{{ev.task}}</span>
+          <span class="date">{{ev.created_at|date:'mediumDate'}}</span>
+        </div>
+        <h3>{{ev.algorithm.replaceAll('_',' ')}}</h3>
+        <p class="model-id">{{ev.model_id}}</p>
+        <div class="dataset-stats">
+          <div><strong>{{ev.dataset_rows|number}}</strong><small>Apps used</small></div>
+          <div><strong>{{ev.train_rows|number}}</strong><small>Training</small></div>
+          <div><strong>{{ev.test_rows|number}}</strong><small>Testing</small></div>
+        </div>
+        <div class="metric-row">
+          @if(ev.task==='regression'){
+            <span>MAE <b>{{ev.metrics?.mae|number:'1.3-3'}}</b></span>
+            <span>RMSE <b>{{ev.metrics?.rmse|number:'1.3-3'}}</b></span>
+            <span>R² <b>{{ev.metrics?.r2|number:'1.3-3'}}</b></span>
+          }@else{
+            <span>Accuracy <b>{{ev.metrics?.accuracy|percent:'1.1-1'}}</b></span>
+            <span>Precision <b>{{ev.metrics?.precision_weighted|number:'1.3-3'}}</b></span>
+            <span>F1 <b>{{ev.metrics?.f1_weighted|number:'1.3-3'}}</b></span>
+          }
+        </div>
+        <button class="details-btn" (click)="showDetails(ev)">View evaluation details <i class="bi bi-arrow-up-right"></i></button>
+      </article>
+    }@empty{
+      <div class="empty-state">No evaluations yet. Choose an algorithm above and train your first candidate model.</div>
+    }
+  </div>
+
+  @if(selected();as ev){
+    <div class="modal-backdrop" (click)="closeDetails()">
+      <section class="detail-modal" (click)="$event.stopPropagation()">
+        <button class="close" (click)="closeDetails()"><i class="bi bi-x-lg"></i></button>
+        <span class="eyebrow">EVALUATION REPORT</span>
+        <h2>{{ev.algorithm.replaceAll('_',' ')}}</h2>
+        <p class="model-id">{{ev.evaluation_id}}</p>
+        <div class="dataset-stats">
+          <div><strong>{{ev.dataset_rows|number}}</strong><small>Total apps</small></div>
+          <div><strong>{{ev.train_rows|number}}</strong><small>Training rows</small></div>
+          <div><strong>{{ev.test_rows|number}}</strong><small>Test rows</small></div>
+        </div>
+        <h3>Metrics</h3>
+        <div class="detail-metrics">
+          @for(metric of (ev.metrics|keyvalue);track metric.key){
+            <div><small>{{metric.key.replaceAll('_',' ')}}</small><strong>{{metric.value}}</strong></div>
+          }
+        </div>
+        <p class="model-id">Model: {{ev.model_id}} · {{ev.created_at|date:'full'}}</p>
+      </section>
+    </div>
+  }
 </main>
