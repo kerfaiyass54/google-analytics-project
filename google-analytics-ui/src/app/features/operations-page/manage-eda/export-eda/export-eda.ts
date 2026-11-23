@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { Observable } from 'rxjs';
+import { Observable, Subscription, interval } from 'rxjs';
 import { EdaExportService } from '../../../../core/services/eda-export.service';
 
-type ExportType = 'json' | 'csv' | 'pdf';
+type ExportType = 'xlsx' | 'pdf';
 
 @Component({
   selector: 'app-export-eda',
@@ -26,6 +26,14 @@ export class ExportEda {
   readonly selectedType = signal<ExportType | null>(null);
   readonly isExporting = signal(false);
   readonly exportError = signal('');
+  readonly exportProgressStage = signal(0);
+  private progressSubscription?: Subscription;
+  readonly exportStages = [
+    { title: 'Preparing report', message: 'Collecting the EDA sections and metadata...' },
+    { title: 'Building report', message: 'Organizing tables or rendering charts...' },
+    { title: 'Formatting', message: 'Applying layout, labels, and report styling...' },
+    { title: 'Finalizing', message: 'Saving the export record and preparing your download...' },
+  ];
 
   readonly fileTypes: {
     value: ExportType;
@@ -34,22 +42,16 @@ export class ExportEda {
     description: string;
   }[] = [
     {
-      value: 'json',
-      label: 'JSON',
-      icon: 'bi-braces',
-      description: 'Machine-readable structured data',
-    },
-    {
-      value: 'csv',
-      label: 'CSV',
-      icon: 'bi-filetype-csv',
-      description: 'Tabular data for spreadsheets',
+      value: 'xlsx',
+      label: 'Excel Workbook',
+      icon: 'bi-file-earmark-excel',
+      description: 'Multiple sheets with organized tables',
     },
     {
       value: 'pdf',
-      label: 'PDF',
+      label: 'PDF Report',
       icon: 'bi-filetype-pdf',
-      description: 'Formatted document for sharing',
+      description: 'Visual report with Matplotlib charts',
     },
   ];
 
@@ -97,16 +99,21 @@ export class ExportEda {
     }
 
     this.isExporting.set(true);
+    this.exportProgressStage.set(0);
     this.exportError.set('');
+    this.progressSubscription?.unsubscribe();
+    this.progressSubscription = interval(2200).subscribe(() => {
+      this.exportProgressStage.update(stage => Math.min(stage + 1, this.exportStages.length - 1));
+    });
 
     let request$: Observable<Blob>;
 
     switch (type) {
       case 'json':
-        request$ = this.edaExportService.exportJson(edaId);
+        request$ = this.edaExportService.exportExcel(edaId);
         break;
       case 'csv':
-        request$ = this.edaExportService.exportCsv(edaId);
+        request$ = this.edaExportService.exportExcel(edaId);
         break;
       case 'pdf':
         request$ = this.edaExportService.exportPdf(edaId);
@@ -119,6 +126,7 @@ export class ExportEda {
     request$.subscribe({
       next: (response) => {
         this.downloadFile(response, this.finalFileName);
+        this.progressSubscription?.unsubscribe();
         this.isExporting.set(false);
       },
       error: (error) => {
@@ -126,6 +134,7 @@ export class ExportEda {
         this.exportError.set(
           'The export could not be generated. Please try again.'
         );
+        this.progressSubscription?.unsubscribe();
         this.isExporting.set(false);
       },
     });
