@@ -21,12 +21,12 @@ def activate_model(
         raise FileNotFoundError(
             "Model artifact is missing; cannot activate."
         )
+    was_active = model.is_active
     (
         db.query(ModelRegistry)
         .filter(ModelRegistry.task == model.task)
         .update({ModelRegistry.is_active: False})
     )
-    was_active = model.is_active
     model.is_active = True
     db.commit()
     if not was_active:
