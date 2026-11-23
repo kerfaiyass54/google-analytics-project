@@ -21,8 +21,14 @@ public interface GooglePlayAppRepository
             Long id
     );
 
-    // Ownership-aware application retrieval.
-    Page<GooglePlayApp> findAllByEmailIgnoreCase(String email, Pageable pageable);
+    // Global dataset records have no owner email (NULL). Regular users can see
+    // those shared records plus records created with their own email.
+    @Query("""
+            SELECT a
+            FROM GooglePlayApp a
+            WHERE a.email IS NULL OR LOWER(a.email) = LOWER(:email)
+            """)
+    Page<GooglePlayApp> findGlobalAndOwnedApps(String email, Pageable pageable);
 
     // =========================================================
     // GENERAL STATISTICS
