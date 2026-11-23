@@ -66,8 +66,8 @@ app.use((error, _req, res, _next) => {
 
 const port = Number(process.env.PORT || 8030);
 await initializeDatabase();
-await startConsumer();
 app.listen(port, '0.0.0.0', () => console.info(`Notification service listening on ${port}`));
+startConsumer().catch(error => console.error('Kafka consumer stopped:', error));
 
 async function shutdown() {
   await pool.end();
