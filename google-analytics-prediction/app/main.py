@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 import psycopg2
 from psycopg2 import sql
@@ -44,7 +45,19 @@ async def lifespan(app: FastAPI):
     yield
 
 app = FastAPI(title=settings.app_name, version=settings.app_version,
-    description="Google Play rating regression and install-bucket classification service.", lifespan=lifespan)
+    description="Google Play rating regression and install-bucket classification service.")
+
+# Angular development server origins. CORS middleware must wrap the API routes
+# so browser preflight requests are answered before authentication dependencies run.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:4200", "http://127.0.0.1:4200"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.router.lifespan_context = lifespan
 include_api_routers(app)
 
 @app.get("/health", tags=["System"])
