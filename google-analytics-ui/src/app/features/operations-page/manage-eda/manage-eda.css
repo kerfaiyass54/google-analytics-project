@@ -1,5 +1,145 @@
 
 /* ==========================================================
+   EDA RESULT METRIC RANGE FILTERS
+   ========================================================== */
+
+.metric-filter-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0 22px 18px;
+}
+
+.metric-filter-group {
+  overflow: hidden;
+  border: 1px solid #edf0f4;
+  border-radius: 13px;
+  background: #fff;
+  animation: analysis-enter 0.35s ease both;
+}
+
+.metric-group-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 15px;
+  border-bottom: 1px solid #f1f5f9;
+  background: #fbfcfe;
+}
+
+.metric-group-heading h3 {
+  margin: 0;
+  color: #1e293b;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.metric-group-heading p {
+  margin: 4px 0 0;
+  color: #94a3b8;
+  font-size: 10px;
+}
+
+.metric-group-heading > span {
+  flex-shrink: 0;
+  padding: 5px 8px;
+  border-radius: 20px;
+  background: #f1f5f9;
+  color: #64748b;
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.metric-range-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 13px;
+  padding: 14px;
+}
+
+.metric-range-field {
+  min-width: 0;
+}
+
+.metric-range-field > label {
+  display: block;
+  margin-bottom: 7px;
+  color: #475569;
+  font-size: 10px;
+  font-weight: 750;
+}
+
+.range-inputs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.range-inputs > div {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  height: 35px;
+  padding: 0 7px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.range-inputs > div:focus-within {
+  border-color: #64748b;
+  box-shadow: 0 0 0 2px rgba(100, 116, 139, 0.09);
+}
+
+.range-inputs span {
+  color: #94a3b8;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.range-inputs input {
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #0f172a;
+  font: inherit;
+  font-size: 10px;
+}
+
+.range-inputs input::placeholder {
+  color: #cbd5e1;
+}
+
+@media (max-width: 1000px) {
+  .metric-range-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .metric-filter-groups {
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+
+  .metric-range-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .metric-group-heading {
+    align-items: flex-start;
+  }
+}
+
+
+
+/* ==========================================================
    ADVANCED ELASTICSEARCH HISTORY SEARCH
    ========================================================== */
 
