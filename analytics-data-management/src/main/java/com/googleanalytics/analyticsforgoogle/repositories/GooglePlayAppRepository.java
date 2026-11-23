@@ -26,18 +26,21 @@ public interface GooglePlayAppRepository
     @Query("""
             SELECT AVG(a.rating)
             FROM GooglePlayApp a
+            WHERE a.rating BETWEEN 1.0 AND 5.0
             """)
     Double findAverageRating();
 
     @Query("""
             SELECT MIN(a.rating)
             FROM GooglePlayApp a
+            WHERE a.rating BETWEEN 1.0 AND 5.0
             """)
     Double findMinimumRating();
 
     @Query("""
             SELECT MAX(a.rating)
             FROM GooglePlayApp a
+            WHERE a.rating BETWEEN 1.0 AND 5.0
             """)
     Double findMaximumRating();
 
@@ -149,7 +152,10 @@ public interface GooglePlayAppRepository
             SELECT new com.googleanalytics.analyticsforgoogle.dtos.GooglePlayAppStatisticsResponse$CategoryStatistics(
                 a.category,
                 COUNT(a),
-                AVG(a.rating),
+                COALESCE(AVG(CASE
+                    WHEN a.rating BETWEEN 1.0 AND 5.0 THEN a.rating
+                    ELSE NULL
+                END), 0.0),
                 SUM(a.reviews)
             )
             FROM GooglePlayApp a
