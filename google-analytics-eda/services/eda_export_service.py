@@ -9,8 +9,8 @@ from fastapi import Response
 from elastic.eda_repository import EdaRepository
 from elastic.export_repository import ExportRepository
 
-from export.csv_exporter import CsvExporter
 from export.pdf_exporter import PdfExporter
+from export.excel_exporter import ExcelExporter
 
 from schema.eda_document import EdaDocument
 from schema.export_document import ExportDocument
@@ -40,10 +40,10 @@ class EdaExportService:
         )
 
     # ============================================================
-    # EXPORT JSON
+    # EXPORT EXCEL
     # ============================================================
 
-    def export_json(
+    def export_excel(
         self,
         eda_id: str,
         user: KeycloakUser,
@@ -54,38 +54,13 @@ class EdaExportService:
             user,
         )
 
-        content = self._create_json_content(eda)
+        content = ExcelExporter.export(eda)
 
         return self._save_export(
             eda_id=eda_id,
             email=user.email,
-            file_type="json",
-            filename=f"eda-{eda_id}.json",
-            content=content,
-        )
-
-    # ============================================================
-    # EXPORT CSV
-    # ============================================================
-
-    def export_csv(
-        self,
-        eda_id: str,
-        user: KeycloakUser,
-    ) -> Response:
-
-        eda = self._get_accessible_eda(
-            eda_id,
-            user,
-        )
-
-        content = CsvExporter.export(eda)
-
-        return self._save_export(
-            eda_id=eda_id,
-            email=user.email,
-            file_type="csv",
-            filename=f"eda-{eda_id}.csv",
+            file_type="xlsx",
+            filename=f"eda-{eda_id}.xlsx",
             content=content,
         )
 
@@ -216,8 +191,7 @@ class EdaExportService:
         )
 
         media_types = {
-            "json": "application/json",
-            "csv": "text/csv",
+            "xlsx": ("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"),
             "pdf": "application/pdf",
             "xlsx": (
                 "application/"
@@ -272,8 +246,7 @@ class EdaExportService:
         self._export_repository.save(document)
 
         media_types = {
-            "json": "application/json",
-            "csv": "text/csv",
+            "xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             "pdf": "application/pdf",
         }
 
