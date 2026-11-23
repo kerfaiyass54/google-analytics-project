@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     keycloak_client_id: str = "google-analytics-api"
     keycloak_audience: str | None = None
     admin_role: str = "ADMIN"
-    kafka_bootstrap_servers: str = "localhost:29099"
+    kafka_bootstrap_servers: str = "localhost:9092"
     kafka_prediction_topic: str = "prediction-events"
     kafka_evaluation_topic: str = "evaluation-events"
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
