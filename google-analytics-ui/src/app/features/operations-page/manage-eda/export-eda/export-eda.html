@@ -248,7 +248,7 @@
             <i class="bi bi-info-circle"></i>
 
             <span>
-              Your EDA analysis will be exported using the selected format.
+              Your EDA will be exported as a multi-sheet Excel workbook or a chart-based PDF report.
             </span>
           </div>
 
@@ -278,7 +278,6 @@
               (currentStep() === 2 && !selectedType()) ||
               isExporting()
             "
-            [disabled]="isExporting()"
             (click)="nextStep()"
           >
             Continue
@@ -321,8 +320,19 @@
     <div class="loading-overlay" role="status" aria-live="polite">
       <div class="loading-content">
         <span class="spinner-border" aria-hidden="true"></span>
-        <strong>Generating your export</strong>
-        <span>Please wait while your file is being prepared...</span>
+        <strong>{{ exportStages[exportProgressStage()].title }}</strong>
+        <span>{{ exportStages[exportProgressStage()].message }}</span>
+        <div class="progress-track" aria-hidden="true">
+          <div class="progress-fill" [style.width.%]="(exportProgressStage() + 1) * 25"></div>
+        </div>
+        <div class="progress-steps">
+          @for (stage of exportStages; track stage.title; let index = $index) {
+            <span [class.active]="exportProgressStage() === index" [class.completed]="exportProgressStage() > index">
+              @if (exportProgressStage() > index) { <i class="bi bi-check-circle-fill"></i> } @else { <i class="bi bi-circle"></i> }
+              {{ stage.title }}
+            </span>
+          }
+        </div>
       </div>
     </div>
   }
