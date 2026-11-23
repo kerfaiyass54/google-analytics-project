@@ -87,21 +87,21 @@ def export_excel(
 
 
 # ============================================================
-# CREATE PDF EXPORT
+# CREATE CHART ZIP EXPORT
 # ============================================================
 
 @router.post(
-    "/{eda_id}/exports/pdf",
+    "/{eda_id}/exports/zip",
     status_code=status.HTTP_201_CREATED,
 )
-def export_pdf(
+def export_charts_zip(
     eda_id: str,
     current_user: CurrentUser,
     service: EdaExportServiceDependency,
 ) -> Response:
 
     try:
-        return service.export_pdf(
+        return service.export_charts_zip(
             eda_id=eda_id,
             user=current_user,
         )
@@ -111,10 +111,10 @@ def export_pdf(
             detail=str(exception),
         ) from exception
     except Exception as exception:
-        logger.exception("PDF export failed for EDA %s", eda_id)
+        logger.exception("Chart ZIP export failed for EDA %s", eda_id)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to create PDF export.",
+            detail="Failed to create chart ZIP export.",
         ) from exception
 
 
