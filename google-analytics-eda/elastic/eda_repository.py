@@ -76,9 +76,44 @@ class EdaRepository:
         date_from: str | None = None,
         date_to: str | None = None,
         search: str | None = None,
+        metric_filters: dict[str, dict[str, float]] | None = None,
     ) -> dict[str, Any]:
         filters: list[dict] = []
         must: list[dict] = []
+
+        allowed_metrics = {
+            "ratings_by_category.total_categories",
+            "ratings_by_category.total_rated_applications",
+            "ratings_by_category.overall_average_rating",
+            "free_vs_paid.free_applications",
+            "free_vs_paid.paid_applications",
+            "free_vs_paid.free_percentage",
+            "free_vs_paid.paid_percentage",
+            "install_distribution.total_applications",
+            "install_distribution.total_installs",
+            "install_distribution.average_installs",
+            "install_distribution.median_installs",
+            "review_counts.statistics.app_count",
+            "review_counts.statistics.average_reviews",
+            "review_counts.statistics.median_reviews",
+            "review_counts.statistics.minimum_reviews",
+            "review_counts.statistics.maximum_reviews",
+            "review_counts.statistics.total_reviews",
+            "review_counts.correlation_reviews_installs",
+        }
+
+        for field, bounds in (metric_filters or {}).items():
+            if field not in allowed_metrics:
+                raise ValueError(f"Unsupported EDA metric filter: {field}")
+
+            range_query: dict[str, float] = {}
+            if bounds.get("min") is not None:
+                range_query["gte"] = float(bounds["min"])
+            if bounds.get("max") is not None:
+                range_query["lte"] = float(bounds["max"])
+
+            if range_query:
+                filters.append({"range": {field: range_query}})
 
         if email:
             filters.append({"term": {"email": email}})
