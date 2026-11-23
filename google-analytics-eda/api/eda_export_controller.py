@@ -2,7 +2,14 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Query,
+    Response,
+    status,
+)
 
 from schema.export_page import ExportPage
 from schema.export_response import ExportResponse
@@ -157,7 +164,45 @@ def export_pdf(
 
 
 # ============================================================
-# GET EXPORT HISTORY
+# GET CURRENT USER EXPORT HISTORY
+# ============================================================
+
+@router.get(
+    "/exports/my",
+    response_model=ExportPage,
+)
+def get_my_exports(
+    current_user: CurrentUser,
+    service: EdaExportServiceDependency,
+    page: int = Query(
+        default=0,
+        ge=0,
+    ),
+    size: int = Query(
+        default=20,
+        ge=1,
+        le=100,
+    ),
+) -> ExportPage:
+
+    try:
+
+        return service.get_exports_by_email(
+            email=current_user.email,
+            page=page,
+            size=size,
+        )
+
+    except Exception as exception:
+
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve user exports.",
+        ) from exception
+
+
+# ============================================================
+# GET EXPORT HISTORY FOR ONE EDA
 # ============================================================
 
 @router.get(
