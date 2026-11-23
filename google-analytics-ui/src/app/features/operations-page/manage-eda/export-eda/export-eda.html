@@ -323,8 +323,9 @@
         <strong>{{ exportStages[exportProgressStage()].title }}</strong>
         <span>{{ exportStages[exportProgressStage()].message }}</span>
         <div class="progress-track" aria-hidden="true">
-          <div class="progress-fill" [style.width.%]="(exportProgressStage() + 1) * 25"></div>
+          <div class="progress-fill" [style.width.%]="Math.min((exportProgressStage() + 1) * 25, 90)"></div>
         </div>
+        <small class="progress-note">Progress is an estimated stage indicator while the report is being generated.</small>
         <div class="progress-steps">
           @for (stage of exportStages; track stage.title; let index = $index) {
             <span [class.active]="exportProgressStage() === index" [class.completed]="exportProgressStage() > index">
