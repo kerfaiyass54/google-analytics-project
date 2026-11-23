@@ -96,7 +96,7 @@
         <h3>Metrics</h3>
         <div class="detail-metrics">
           @for(metric of (ev.metrics|keyvalue);track metric.key){
-            <div><small>{{metric.key.replaceAll('_',' ')}}</small><strong>{{metric.value}}</strong></div>
+            <div><small>{{formatMetricKey(metric.key)}}</small><strong>{{metric.value}}</strong></div>
           }
         </div>
         <p class="model-id">Model: {{ev.model_id}} · {{ev.created_at|date:'full'}}</p>
