@@ -52,74 +52,33 @@ EdaExportServiceDependency = Annotated[
 
 
 # ============================================================
-# CREATE JSON EXPORT
+# CREATE EXCEL EXPORT
 # ============================================================
 
 @router.post(
-    "/{eda_id}/exports/json",
+    "/{eda_id}/exports/xlsx",
     status_code=status.HTTP_201_CREATED,
 )
-def export_json(
+def export_excel(
     eda_id: str,
     current_user: CurrentUser,
     service: EdaExportServiceDependency,
 ) -> Response:
 
     try:
-
-        return service.export_json(
+        return service.export_excel(
             eda_id=eda_id,
             user=current_user,
         )
-
     except ValueError as exception:
-
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(exception),
         ) from exception
-
     except Exception as exception:
-
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to create JSON export.",
-        ) from exception
-
-
-# ============================================================
-# CREATE CSV EXPORT
-# ============================================================
-
-@router.post(
-    "/{eda_id}/exports/csv",
-    status_code=status.HTTP_201_CREATED,
-)
-def export_csv(
-    eda_id: str,
-    current_user: CurrentUser,
-    service: EdaExportServiceDependency,
-) -> Response:
-
-    try:
-
-        return service.export_csv(
-            eda_id=eda_id,
-            user=current_user,
-        )
-
-    except ValueError as exception:
-
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(exception),
-        ) from exception
-
-    except Exception as exception:
-
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to create CSV export.",
+            detail="Failed to create Excel export.",
         ) from exception
 
 
@@ -138,26 +97,25 @@ def export_pdf(
 ) -> Response:
 
     try:
-
         return service.export_pdf(
             eda_id=eda_id,
             user=current_user,
         )
-
     except ValueError as exception:
-
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(exception),
         ) from exception
-
     except Exception as exception:
-
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to create PDF export.",
         ) from exception
 
+
+# ============================================================
+# GET CURRENT USER EXPORT HISTORY
+# ============================================================
 
 # ============================================================
 # GET CURRENT USER EXPORT HISTORY
