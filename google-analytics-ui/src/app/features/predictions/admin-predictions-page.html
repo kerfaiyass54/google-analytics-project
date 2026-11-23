@@ -2,7 +2,7 @@
   <header class="admin-heading">
     <span class="eyebrow">MODEL QUALITY · GOVERNANCE</span>
     <h1>Model training & evaluations</h1>
-    <p>Select a prediction task and an algorithm, train a candidate model, then review its evaluation metrics and full report.</p>
+    <p>Choose a task-specific algorithm, train a candidate model, then review its evaluation metrics and full report.</p>
     <button class="refresh" (click)="refresh()"><i class="bi bi-arrow-clockwise"></i> Refresh evaluations</button>
   </header>
 
@@ -25,11 +25,12 @@
       </label>
       <label>ML algorithm
         <select [ngModel]="algorithm()" (ngModelChange)="algorithm.set($event)">
-          @for(option of (task()==='regression'?regressionAlgorithms:classificationAlgorithms);track option){
+          @for(option of currentAlgorithms;track option){
             <option [value]="option">{{option.replaceAll('_',' ')}}</option>
           }
         </select>
       </label>
+      <div class="algorithm-hint"><i class="bi bi-lightbulb"></i><span>{{algorithmDescription}}</span></div>
       <label>Test dataset ratio
         <select [ngModel]="testSize()" (ngModelChange)="testSize.set(+$event)">
           <option [ngValue]="0.2">20%</option>
@@ -37,7 +38,7 @@
           <option [ngValue]="0.3">30%</option>
         </select>
       </label>
-      <button class="primary" [disabled]="!!busy()" (click)="train()">
+      <button class="primary train-button" [disabled]="!!busy()" (click)="train()">
         {{busy()?'Training and evaluating…':'Train model & evaluate'}}
         <i class="bi bi-play-fill"></i>
       </button>

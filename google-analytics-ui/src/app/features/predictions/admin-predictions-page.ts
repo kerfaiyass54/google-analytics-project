@@ -50,7 +50,22 @@ export class AdminPredictionsPage implements OnInit {
 
   onTaskChange(task:'regression'|'classification'){
     this.task.set(task);
-    this.algorithm.set('random_forest');
+    this.algorithm.set(task === 'regression' ? this.regressionAlgorithms[0] : this.classificationAlgorithms[0]);
+  }
+
+  get currentAlgorithms(): string[] {
+    return this.task() === 'regression' ? this.regressionAlgorithms : this.classificationAlgorithms;
+  }
+
+  get algorithmDescription(): string {
+    const descriptions: Record<string, string> = {
+      linear_regression: 'A simple, interpretable baseline for predicting numeric ratings.',
+      logistic_regression: 'A linear classification baseline for predicting install ranges.',
+      random_forest: 'An ensemble of decision trees that captures non-linear relationships.',
+      extra_trees: 'A randomized tree ensemble for robust predictions.',
+      gradient_boosting: 'A boosted tree ensemble that learns patterns iteratively.'
+    };
+    return descriptions[this.algorithm()] ?? 'Train and evaluate this algorithm on the Google Play dataset.';
   }
 
   train(){
