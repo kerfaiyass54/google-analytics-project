@@ -2,6 +2,8 @@ package com.googleanalytics.analyticsforgoogle.repositories;
 
 import com.googleanalytics.analyticsforgoogle.entities.GooglePlayApp;
 import com.googleanalytics.analyticsforgoogle.dtos.GooglePlayAppStatisticsResponse.CategoryStatistics;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -18,6 +20,9 @@ public interface GooglePlayAppRepository
             String app,
             Long id
     );
+
+    // Ownership-aware application retrieval.
+    Page<GooglePlayApp> findAllByEmailIgnoreCase(String email, Pageable pageable);
 
     // =========================================================
     // GENERAL STATISTICS
