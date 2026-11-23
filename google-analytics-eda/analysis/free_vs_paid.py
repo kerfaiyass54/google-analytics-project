@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+import math
 
 import pandas as pd
 from sqlalchemy import text
@@ -12,22 +13,17 @@ class FreeVsPaidAnalysis:
     """
     EDA: Comparison between free and paid applications.
 
-    Provides:
-        - number of free applications
-        - number of paid applications
-        - percentage distribution
-        - average rating
-        - average reviews
-        - total reviews
-        - average price
-        - visualization-ready DataFrame
+    Invalid ratings (NULL, NaN, or values outside 1.0–5.0) are excluded
+    from rating averages, while the app counts still include all applications.
     """
 
     QUERY = """
         SELECT
             type,
             COUNT(*) AS app_count,
-            AVG(rating) AS average_rating,
+            AVG(rating) FILTER (
+                WHERE rating BETWEEN 1.0 AND 5.0
+            ) AS average_rating,
             AVG(reviews) AS average_reviews,
             SUM(reviews) AS total_reviews,
             AVG(price) AS average_price,
@@ -52,69 +48,35 @@ class FreeVsPaidAnalysis:
             }
 
         dataframe = self._prepare_data(dataframe)
-
         total = int(dataframe["app_count"].sum())
 
-        free_count = self._get_count(
-            dataframe,
-            "FREE",
-        )
+        free_count = self._get_count(dataframe, "FREE")
+        paid_count = self._get_count(dataframe, "PAID")
 
-        paid_count = self._get_count(
-            dataframe,
-            "PAID",
-        )
-
-        free_percentage = (
-            free_count / total * 100
-            if total > 0
-            else 0.0
-        )
-
-        paid_percentage = (
-            paid_count / total * 100
-            if total > 0
-            else 0.0
-        )
+        free_percentage = free_count / total * 100 if total else 0.0
+        paid_percentage = paid_count / total * 100 if total else 0.0
 
         applications = []
 
         for _, row in dataframe.iterrows():
-
             applications.append(
                 {
                     "type": row["type"],
-                    "app_count": int(
-                        row["app_count"]
-                    ),
+                    "app_count": int(row["app_count"]),
                     "percentage": round(
-                        (
-                            row["app_count"]
-                            / total
-                            * 100
-                        )
-                        if total > 0
-                        else 0.0,
+                        row["app_count"] / total * 100 if total else 0.0,
                         2,
                     ),
-                    "average_rating": self._safe_float(
-                        row["average_rating"]
+                    "average_rating": self._safe_float(row["average_rating"]),
+                    "average_reviews": self._safe_float(row["average_reviews"]),
+                    "total_reviews": (
+                        int(row["total_reviews"])
+                        if pd.notna(row["total_reviews"])
+                        else 0
                     ),
-                    "average_reviews": self._safe_float(
-                        row["average_reviews"]
-                    ),
-                    "total_reviews": int(
-                        row["total_reviews"]
-                    ),
-                    "average_price": self._safe_float(
-                        row["average_price"]
-                    ),
-                    "minimum_price": self._safe_float(
-                        row["minimum_price"]
-                    ),
-                    "maximum_price": self._safe_float(
-                        row["maximum_price"]
-                    ),
+                    "average_price": self._safe_float(row["average_price"]),
+                    "minimum_price": self._safe_float(row["minimum_price"]),
+                    "maximum_price": self._safe_float(row["maximum_price"]),
                 }
             )
 
@@ -122,14 +84,8 @@ class FreeVsPaidAnalysis:
             "analyzed_at": self._timestamp(),
             "free_applications": free_count,
             "paid_applications": paid_count,
-            "free_percentage": round(
-                free_percentage,
-                2,
-            ),
-            "paid_percentage": round(
-                paid_percentage,
-                2,
-            ),
+            "free_percentage": round(free_percentage, 2),
+            "paid_percentage": round(paid_percentage, 2),
             "applications": applications,
         }
 
@@ -140,15 +96,10 @@ class FreeVsPaidAnalysis:
             return dataframe
 
         dataframe = self._prepare_data(dataframe)
-
         total = dataframe["app_count"].sum()
 
         dataframe["percentage"] = (
-            dataframe["app_count"]
-            / total
-            * 100
-            if total > 0
-            else 0
+            dataframe["app_count"] / total * 100 if total else 0.0
         )
 
         return dataframe[
@@ -167,23 +118,14 @@ class FreeVsPaidAnalysis:
 
     def _load_data(self) -> pd.DataFrame:
         with engine.connect() as connection:
-            return pd.read_sql(
-                text(self.QUERY),
-                connection,
-            )
+            return pd.read_sql(text(self.QUERY), connection)
 
     @staticmethod
-    def _prepare_data(
-        dataframe: pd.DataFrame,
-    ) -> pd.DataFrame:
-
+    def _prepare_data(dataframe: pd.DataFrame) -> pd.DataFrame:
         dataframe = dataframe.copy()
 
         dataframe["type"] = (
-            dataframe["type"]
-            .astype(str)
-            .str.strip()
-            .str.upper()
+            dataframe["type"].astype("string").str.strip().str.upper()
         )
 
         numeric_columns = [
@@ -202,11 +144,7 @@ class FreeVsPaidAnalysis:
                 errors="coerce",
             )
 
-        dataframe = dataframe[
-            dataframe["type"].isin(
-                ["FREE", "PAID"]
-            )
-        ]
+        dataframe = dataframe[dataframe["type"].isin(["FREE", "PAID"])]
 
         return dataframe.reset_index(drop=True)
 
@@ -215,37 +153,27 @@ class FreeVsPaidAnalysis:
         dataframe: pd.DataFrame,
         application_type: str,
     ) -> int:
-
-        rows = dataframe[
-            dataframe["type"]
-            == application_type
-        ]
+        rows = dataframe[dataframe["type"] == application_type]
 
         if rows.empty:
             return 0
 
-        return int(
-            rows.iloc[0]["app_count"]
-        )
+        return int(rows.iloc[0]["app_count"])
 
     @staticmethod
-    def _safe_float(
-        value,
-    ) -> float | None:
-
+    def _safe_float(value) -> float | None:
         if value is None:
             return None
 
         try:
-            value = float(value)
-
-            if pd.isna(value):
-                return None
-
-            return round(value, 4)
-
-        except (TypeError, ValueError):
+            number = float(value)
+        except (TypeError, ValueError, OverflowError):
             return None
+
+        if not math.isfinite(number):
+            return None
+
+        return round(number, 4)
 
     @staticmethod
     def _timestamp() -> datetime:
