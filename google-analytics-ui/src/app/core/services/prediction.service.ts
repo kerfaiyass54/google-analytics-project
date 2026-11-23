@@ -19,7 +19,7 @@ export class PredictionService {
   detail(id:string){return this.http.get<PredictionRecord>(`${this.api}/predictions/${id}`);}
   models(){return this.http.get<any[]>(`${this.api}/models`);}
   activate(modelId:string){return this.http.post<any>(`${this.api}/models/${modelId}/activate`,{});}
-  evaluations(task:'regression'|'classification'){return this.http.get<any[]>(`${this.api}/evaluations/${task}`,{params:new HttpParams().set('limit','200')});}
+  evaluations(task:'regression'|'classification'){return this.http.get<any[]>(`${this.api}/evaluations/${task}`,{params:new HttpParams().set('limit','10000')});}
   train(task:'regression'|'classification',algorithm:string,test_size:number){return this.http.post<any>(`${this.api}/training/${task}`,{algorithm,test_size});}
   adminPredictions(modelId='all'){return this.http.get<PredictionRecord[]>(`${this.api}/admin/predictions`,{params:new HttpParams().set('model_id',modelId)});}
   summary(){return this.http.get<any>(`${this.events}/summary`);}
