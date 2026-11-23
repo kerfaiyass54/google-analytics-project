@@ -1,4 +1,5 @@
-from app.ml import install_bucket, validate_rating
+from app.ml.install_bucket import install_bucket
+from app.ml.validate_rating import validate_rating
 
 def test_install_bucket_boundaries():
     assert install_bucket(0) == "<1K"

@@ -4,8 +4,8 @@ from sqlalchemy import text
 from app.config import get_settings
 from app.database import Base, engine
 from app import models  # noqa: F401
-from app.elasticsearch import ensure_evaluation_index, client
-from app.api import router
+from app.elastic import ensure_evaluation_index, client
+from app.api import include_api_routers
 
 settings = get_settings()
 
@@ -23,7 +23,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title=settings.app_name, version=settings.app_version,
               description="Google Play rating regression and install-bucket classification service.",
               lifespan=lifespan)
-app.include_router(router)
+include_api_routers(app)
 
 @app.get("/health", tags=["System"])
 def health():
