@@ -9,7 +9,7 @@ from fastapi import Response
 from elastic.eda_repository import EdaRepository
 from elastic.export_repository import ExportRepository
 
-from export.pdf_exporter import PdfExporter
+from export.pdf_exporter import ChartZipExporter
 from export.excel_exporter import ExcelExporter
 
 from schema.eda_document import EdaDocument
@@ -65,10 +65,10 @@ class EdaExportService:
         )
 
     # ============================================================
-    # EXPORT PDF
+    # EXPORT CHART ZIP
     # ============================================================
 
-    def export_pdf(
+    def export_charts_zip(
         self,
         eda_id: str,
         user: KeycloakUser,
@@ -79,13 +79,13 @@ class EdaExportService:
             user,
         )
 
-        content = PdfExporter.export(eda)
+        content = ChartZipExporter.export(eda)
 
         return self._save_export(
             eda_id=eda_id,
             email=user.email,
-            file_type="pdf",
-            filename=f"eda-{eda_id}.pdf",
+            file_type="zip",
+            filename=f"eda-charts-{eda_id}.zip",
             content=content,
         )
 
@@ -192,7 +192,7 @@ class EdaExportService:
 
         media_types = {
             "xlsx": ("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"),
-            "pdf": "application/pdf",
+            "zip": "application/zip",
             "xlsx": (
                 "application/"
                 "vnd.openxmlformats-officedocument."
@@ -247,7 +247,7 @@ class EdaExportService:
 
         media_types = {
             "xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            "pdf": "application/pdf",
+            "zip": "application/zip",
         }
 
         return Response(

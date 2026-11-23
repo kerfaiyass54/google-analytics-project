@@ -1,6 +1,8 @@
 from datetime import datetime, timezone
+from io import BytesIO
+from zipfile import ZipFile
 
-from export.pdf_exporter import PdfExporter
+from export.pdf_exporter import ChartZipExporter
 from schema.eda_document import EdaDocument
 
 
@@ -25,21 +27,28 @@ def _eda_with_edge_cases() -> EdaDocument:
     )
 
 
-def test_pdf_export_handles_zero_and_invalid_log_chart_values():
-    pdf = PdfExporter.export(_eda_with_edge_cases())
+EXPECTED_CHARTS = {
+    "ratings_by_category.png",
+    "free_vs_paid_apps.png",
+    "average_installs_by_category.png",
+    "reviews_analysis.png",
+}
 
-    assert pdf.startswith(b"%PDF")
-    assert len(pdf) > 1000
+
+def test_chart_zip_export_handles_zero_and_invalid_values():
+    content = ChartZipExporter.export(_eda_with_edge_cases())
+    with ZipFile(BytesIO(content)) as archive:
+        assert set(archive.namelist()) == EXPECTED_CHARTS
+        assert all(archive.read(name).startswith(b"\x89PNG") for name in EXPECTED_CHARTS)
 
 
-def test_pdf_export_handles_empty_analysis_sections():
+def test_chart_zip_export_handles_empty_analysis_sections():
     eda = _eda_with_edge_cases()
     eda.ratings_by_category = {}
     eda.free_vs_paid = {}
     eda.install_distribution = {}
     eda.review_counts = {}
-
-    pdf = PdfExporter.export(eda)
-
-    assert pdf.startswith(b"%PDF")
-    assert len(pdf) > 1000
+    content = ChartZipExporter.export(eda)
+    with ZipFile(BytesIO(content)) as archive:
+        assert set(archive.namelist()) == EXPECTED_CHARTS
+        assert all(len(archive.read(name)) > 100 for name in EXPECTED_CHARTS)

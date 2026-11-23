@@ -40,12 +40,12 @@ export class EdaExportService {
   }
 
   // ============================================================
-  // CREATE PDF EXPORT
+  // CREATE CHART ZIP EXPORT
   // ============================================================
 
-  exportPdf(edaId: string): Observable<Blob> {
+  exportChartsZip(edaId: string): Observable<Blob> {
     return this.http.post(
-      `${this.apiUrl}/${edaId}/exports/pdf`,
+      `${this.apiUrl}/${edaId}/exports/zip`,
       {},
       { responseType: 'blob' },
     );
