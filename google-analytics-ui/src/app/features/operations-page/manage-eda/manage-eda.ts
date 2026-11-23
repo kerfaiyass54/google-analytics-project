@@ -28,6 +28,18 @@ interface AnalysisButton {
   description: string;
 }
 
+interface MetricFilterDefinition {
+  key: string;
+  label: string;
+  step: number;
+}
+
+interface MetricFilterGroup {
+  title: string;
+  description: string;
+  metrics: MetricFilterDefinition[];
+}
+
 @Component({
   selector: 'app-manage-eda',
   standalone: true,
@@ -49,6 +61,52 @@ export class ManageEda {
   readonly dateFromFilter = signal('');
   readonly dateToFilter = signal('');
   readonly filterError = signal('');
+  readonly metricRanges = signal<Record<string, { min: string; max: string }>>({});
+
+  readonly metricFilterGroups: MetricFilterGroup[] = [
+    {
+      title: 'Ratings by Category',
+      description: 'Filter by category count and overall application ratings.',
+      metrics: [
+        { key: 'ratings_by_category.total_categories', label: 'Total categories', step: 1 },
+        { key: 'ratings_by_category.total_rated_applications', label: 'Rated applications', step: 1 },
+        { key: 'ratings_by_category.overall_average_rating', label: 'Overall average rating', step: 0.01 },
+      ],
+    },
+    {
+      title: 'Free vs Paid',
+      description: 'Filter by free/paid application counts and percentages.',
+      metrics: [
+        { key: 'free_vs_paid.free_applications', label: 'Free applications', step: 1 },
+        { key: 'free_vs_paid.paid_applications', label: 'Paid applications', step: 1 },
+        { key: 'free_vs_paid.free_percentage', label: 'Free percentage', step: 0.01 },
+        { key: 'free_vs_paid.paid_percentage', label: 'Paid percentage', step: 0.01 },
+      ],
+    },
+    {
+      title: 'Install Distribution',
+      description: 'Filter by total, average and median install statistics.',
+      metrics: [
+        { key: 'install_distribution.total_applications', label: 'Total applications', step: 1 },
+        { key: 'install_distribution.total_installs', label: 'Total installs', step: 1 },
+        { key: 'install_distribution.average_installs', label: 'Average installs', step: 1 },
+        { key: 'install_distribution.median_installs', label: 'Median installs', step: 1 },
+      ],
+    },
+    {
+      title: 'Review Counts',
+      description: 'Filter by review statistics and reviews/installs correlation.',
+      metrics: [
+        { key: 'review_counts.statistics.app_count', label: 'Applications counted', step: 1 },
+        { key: 'review_counts.statistics.average_reviews', label: 'Average reviews', step: 1 },
+        { key: 'review_counts.statistics.median_reviews', label: 'Median reviews', step: 1 },
+        { key: 'review_counts.statistics.minimum_reviews', label: 'Minimum reviews', step: 1 },
+        { key: 'review_counts.statistics.maximum_reviews', label: 'Maximum reviews', step: 1 },
+        { key: 'review_counts.statistics.total_reviews', label: 'Total reviews', step: 1 },
+        { key: 'review_counts.correlation_reviews_installs', label: 'Reviews / installs correlation', step: 0.01 },
+      ],
+    },
+  ];
 
   private activeFilters: EdaHistoryFilters = {};
 
@@ -136,6 +194,13 @@ export class ManageEda {
     });
   }
 
+  updateMetricRange(key: string, bound: 'min' | 'max', value: string): void {
+    this.metricRanges.update((current) => ({
+      ...current,
+      [key]: { min: current[key]?.min ?? '', max: current[key]?.max ?? '', [bound]: value },
+    }));
+  }
+
   applyFilters(): void {
     this.filterError.set('');
 
@@ -145,11 +210,33 @@ export class ManageEda {
       return;
     }
 
+    const metricFilters: Record<string, { min?: number; max?: number }> = {};
+    for (const group of this.metricFilterGroups) {
+      for (const metric of group.metrics) {
+        const range = this.metricRanges()[metric.key];
+        const min = range?.min.trim() ? Number(range.min) : undefined;
+        const max = range?.max.trim() ? Number(range.max) : undefined;
+
+        if (min !== undefined && !Number.isFinite(min) || max !== undefined && !Number.isFinite(max)) {
+          this.filterError.set(`Enter valid numeric bounds for ${metric.label}.`);
+          return;
+        }
+        if (min !== undefined && max !== undefined && min > max) {
+          this.filterError.set(`Minimum cannot exceed maximum for ${metric.label}.`);
+          return;
+        }
+        if (min !== undefined || max !== undefined) {
+          metricFilters[metric.key] = { min, max };
+        }
+      }
+    }
+
     this.activeFilters = {
       edaId: this.edaIdFilter().trim() || undefined,
       creatorEmail: this.creatorEmailFilter().trim() || undefined,
       dateFrom: this.dateFromFilter() ? `${this.dateFromFilter()}T00:00:00` : undefined,
       dateTo: this.dateToFilter() ? `${this.dateToFilter()}T23:59:59.999` : undefined,
+      metricFilters,
     };
 
     this.loadHistory(0, this.historyResponse().size || 10);
@@ -160,6 +247,7 @@ export class ManageEda {
     this.creatorEmailFilter.set('');
     this.dateFromFilter.set('');
     this.dateToFilter.set('');
+    this.metricRanges.set({});
     this.filterError.set('');
     this.activeFilters = {};
     this.loadHistory(0, this.historyResponse().size || 10);
