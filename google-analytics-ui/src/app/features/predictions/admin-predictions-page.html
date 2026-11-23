@@ -38,6 +38,57 @@
           {{busy()==='training'?'Training model…':'Train candidate model'}} <i class="bi bi-cpu"></i>
         </button>
       </div>
+
+      @if(busy()==='training' || trainingResult()){
+        <section class="training-progress" aria-live="polite">
+          <div class="progress-heading">
+            <div>
+              <span class="eyebrow">TRAINING PIPELINE</span>
+              <h3>{{trainingResult()?'Training completed':'Training in progress'}}</h3>
+              <p>{{trainingResult()?'The model was tested and its evaluation was saved.':'The API is processing the selected algorithm. Please keep this page open.'}}</p>
+            </div>
+            <strong class="progress-percent">{{progressPercent()}}%</strong>
+          </div>
+          <div class="progress-track">
+            <span [style.width.%]="progressPercent()" [class.complete]="!!trainingResult()"></span>
+          </div>
+          <ol class="training-steps">
+            @for(step of trainingSteps;track step;let i=$index){
+              <li [class.done]="!!trainingResult() || i<progressStage()"
+                  [class.current]="!trainingResult() && i===progressStage()">
+                <span class="step-indicator">
+                  @if(trainingResult() || i<progressStage()){<i class="bi bi-check-lg"></i>}
+                  @else if(i===progressStage()){<i class="bi bi-arrow-repeat"></i>}
+                  @else{<i class="bi bi-circle"></i>}
+                </span>
+                <span>{{step}}</span>
+                @if(!trainingResult() && i===progressStage()){<small>In progress</small>}
+              </li>
+            }
+          </ol>
+          @if(trainingResult();as result){
+            <div class="training-result">
+              <div class="result-title">
+                <div><span class="eyebrow">TEST SET RESULTS</span><h3>Evaluation summary</h3></div>
+                <span class="result-status"><i class="bi bi-check-circle-fill"></i> Saved</span>
+              </div>
+              <div class="result-overview">
+                <div><strong>{{result.dataset_rows|number}}</strong><small>Dataset rows</small></div>
+                <div><strong>{{result.train_rows|number}}</strong><small>Training rows</small></div>
+                <div><strong>{{result.test_rows|number}}</strong><small>Test rows</small></div>
+                <div><strong>v{{result.version}}</strong><small>Candidate version</small></div>
+              </div>
+              <div class="result-metrics">
+                @for(metric of resultMetricEntries();track metric.key){
+                  <article><small>{{metric.key.replaceAll('_',' ')}}</small><strong>{{formatResultValue(metric.value)}}</strong></article>
+                }
+              </div>
+              <p class="evaluation-reference">Evaluation ID: {{result.evaluation_id}}</p>
+              <p class="candidate-note"><i class="bi bi-info-circle"></i> This candidate is saved but not active. Activate it from the model registry when you are ready.</p>
+            </div>
+          }
+        </section>
+      }
     </section>
 
     <section class="workspace-card registry-panel">
