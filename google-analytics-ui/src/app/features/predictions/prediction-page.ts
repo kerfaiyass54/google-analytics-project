@@ -24,7 +24,7 @@ export class PredictionPage {
     this.api.predict(this.task(),{...this.form}).subscribe({next:r=>{this.result.set(r);this.loading.set(false);this.loadHistory();},error:e=>{this.error.set(e?.error?.detail||'Prediction failed. Check that a model is trained and activated.');this.loading.set(false);}});
   }
   loadHistory(){this.api.mine().subscribe({next:r=>this.records.set(r),error:()=>this.error.set('Unable to load your prediction history.')});}
-  openDetails(item:PredictionRecord){this.api.detail(item.id).subscribe({next:r=>this.selected.set(r),error:()=>this.selected.set(item)});}
+  openDetails(item:PredictionRecord){this.api.detail(item.id ?? item.prediction_id ?? '').subscribe({next:r=>this.selected.set(r),error:()=>this.selected.set(item)});}
   closeDetails(){this.selected.set(null);}
   showHistory(){this.tab.set('history');this.loadHistory();}
   newPrediction(){this.result.set(null);this.step.set(0);this.tab.set('create');}
