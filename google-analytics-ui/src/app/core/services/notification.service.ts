@@ -37,9 +37,9 @@ export class NotificationService {
     });
   }
 
-  refresh(): void {
+  refresh(limit = 8): void {
     this.loading.set(true);
-    this.http.get<AppNotification[]>(this.api, { params: { limit: '8' } }).pipe(
+    this.http.get<AppNotification[]>(this.api, { params: { limit: String(limit) } }).pipe(
       catchError(() => { this.error.set('Could not load notifications.'); return of([]); })
     ).subscribe(items => {
       this.notifications.set(items);
@@ -55,11 +55,12 @@ export class NotificationService {
   }
 
   markAsRead(id: string): void {
+    const wasUnread = this.notifications().some(item => item.id === id && !item.read_at);
     this.http.patch(`${this.api}/${id}/read`, {}).subscribe(() => {
       this.notifications.update(items => items.map(item =>
-        item.id === id ? { ...item, read_at: new Date().toISOString() } : item
+        item.id === id ? { ...item, read_at: item.read_at ?? new Date().toISOString() } : item
       ));
-      this.unreadCount.update(count => Math.max(0, count - 1));
+      if (wasUnread) this.unreadCount.update(count => Math.max(0, count - 1));
     });
   }
 
