@@ -14,7 +14,7 @@ export class NotificationsPage implements OnInit {
   readonly filters = ['ALL', 'UNREAD'] as const;
   filter: 'ALL' | 'UNREAD' = 'ALL';
 
-  ngOnInit(): void { this.service.refresh(); }
+  ngOnInit(): void { this.service.refresh(100); }
 
   get visibleNotifications() {
     const items = this.service.notifications();
