@@ -3,6 +3,7 @@ from app.api.training_controller import router as training_router
 from app.api.model_controller import router as model_router
 from app.api.evaluation_controller import router as evaluation_router
 from app.api.user_prediction_controller import router as user_prediction_router
+from app.api.admin_prediction_controller import router as admin_prediction_router
 
 def include_api_routers(app) -> None:
     app.include_router(prediction_router)
@@ -10,3 +11,4 @@ def include_api_routers(app) -> None:
     app.include_router(model_router)
     app.include_router(evaluation_router)
     app.include_router(user_prediction_router)
+    app.include_router(admin_prediction_router)
