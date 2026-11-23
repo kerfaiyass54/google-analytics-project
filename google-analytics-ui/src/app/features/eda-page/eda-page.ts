@@ -5,7 +5,6 @@ import {
   signal,
 } from '@angular/core';
 import { ChartOptions } from 'chart.js';
-import { forkJoin } from 'rxjs';
 
 import { EdaService } from '../../core/services/eda.service';
 
@@ -396,27 +395,22 @@ export class EdaPage implements OnInit {
     this.loading.set(true);
     this.error.set(null);
 
-    forkJoin({
-      ratings: this.edaService.getRatingsByCategory(),
-      freeVsPaid: this.edaService.getFreeVsPaid(),
-      installs: this.edaService.getInstallDistribution(),
-      reviews: this.edaService.getReviewCounts(),
-    }).subscribe({
+    this.edaService.runAndSave().subscribe({
       next: (response) => {
         this.ratings.set(
-          response.ratings as RatingsByCategoryResponse
+          response.ratings_by_category as RatingsByCategoryResponse
         );
 
         this.freeVsPaid.set(
-          response.freeVsPaid as FreeVsPaidResponse
+          response.free_vs_paid as FreeVsPaidResponse
         );
 
         this.installs.set(
-          response.installs as InstallDistributionResponse
+          response.install_distribution as InstallDistributionResponse
         );
 
         this.reviews.set(
-          response.reviews as ReviewCountsResponse
+          response.review_counts as ReviewCountsResponse
         );
 
         this.prepareCharts();
@@ -426,7 +420,7 @@ export class EdaPage implements OnInit {
 
       error: () => {
         this.error.set(
-          'Unable to load the EDA analyses. Please check that the FastAPI backend is running.'
+          'Unable to load and save the EDA analyses. Please check that the FastAPI backend and Elasticsearch are running.'
         );
 
         this.loading.set(false);
