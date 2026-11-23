@@ -34,7 +34,6 @@ class ExportRepository:
             document=export.model_dump(
                 mode="json"
             ),
-            refresh="wait_for",
         )
 
         return response["_id"]

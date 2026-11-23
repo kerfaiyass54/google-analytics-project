@@ -31,24 +31,24 @@ export class EdaExportService {
   // CREATE JSON EXPORT
   // ============================================================
 
-  exportJson(edaId: string): Observable<ExportResponse> {
-    return this.http.post<ExportResponse>(`${this.apiUrl}/${edaId}/exports/json`, {});
+  exportJson(edaId: string): Observable<Blob> {
+    return this.http.post(`${this.apiUrl}/${edaId}/exports/json`, {}, { responseType: 'blob' });
   }
 
   // ============================================================
   // CREATE CSV EXPORT
   // ============================================================
 
-  exportCsv(edaId: string): Observable<ExportResponse> {
-    return this.http.post<ExportResponse>(`${this.apiUrl}/${edaId}/exports/csv`, {});
+  exportCsv(edaId: string): Observable<Blob> {
+    return this.http.post(`${this.apiUrl}/${edaId}/exports/csv`, {}, { responseType: 'blob' });
   }
 
   // ============================================================
   // CREATE PDF EXPORT
   // ============================================================
 
-  exportPdf(edaId: string): Observable<ExportResponse> {
-    return this.http.post<ExportResponse>(`${this.apiUrl}/${edaId}/exports/pdf`, {});
+  exportPdf(edaId: string): Observable<Blob> {
+    return this.http.post(`${this.apiUrl}/${edaId}/exports/pdf`, {}, { responseType: 'blob' });
   }
 
   // ============================================================

@@ -4,7 +4,7 @@
 
     <!-- Header -->
     <header class="page-header">
-      <button type="button" class="back-button" (click)="goBack()">
+      <button type="button" class="back-button" [disabled]="isExporting()" (click)="goBack()">
         <i class="bi bi-arrow-left"></i>
         <span>Back</span>
       </button>
@@ -121,6 +121,7 @@
                 (ngModelChange)="setFileName($event)"
                 placeholder="my-eda-analysis"
                 autocomplete="off"
+                [disabled]="isExporting()"
               />
 
             </div>
@@ -159,6 +160,7 @@
                 type="button"
                 class="type-card"
                 [class.selected]="selectedType() === type.value"
+                [disabled]="isExporting()"
                 (click)="selectType(type.value)"
               >
 
@@ -259,7 +261,7 @@
         <button
           type="button"
           class="secondary-button"
-          [disabled]="currentStep() === 1"
+          [disabled]="currentStep() === 1 || isExporting()"
           (click)="previousStep()"
         >
           <i class="bi bi-arrow-left"></i>
@@ -273,8 +275,10 @@
             class="primary-button"
             [disabled]="
               (currentStep() === 1 && !fileName().trim()) ||
-              (currentStep() === 2 && !selectedType())
+              (currentStep() === 2 && !selectedType()) ||
+              isExporting()
             "
+            [disabled]="isExporting()"
             (click)="nextStep()"
           >
             Continue
@@ -286,10 +290,16 @@
           <button
             type="button"
             class="primary-button export-button"
+            [disabled]="isExporting()"
             (click)="export()"
           >
-            <i class="bi bi-download"></i>
-            Export EDA
+            @if (isExporting()) {
+              <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              Exporting...
+            } @else {
+              <i class="bi bi-download"></i>
+              Export EDA
+            }
           </button>
 
         }
@@ -298,6 +308,23 @@
 
     </section>
 
+    @if (exportError()) {
+      <div class="export-error" role="alert">
+        <i class="bi bi-exclamation-circle"></i>
+        {{ exportError() }}
+      </div>
+    }
+
   </div>
+
+  @if (isExporting()) {
+    <div class="loading-overlay" role="status" aria-live="polite">
+      <div class="loading-content">
+        <span class="spinner-border" aria-hidden="true"></span>
+        <strong>Generating your export</strong>
+        <span>Please wait while your file is being prepared...</span>
+      </div>
+    </div>
+  }
 
 </div>

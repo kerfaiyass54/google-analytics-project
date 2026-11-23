@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { Observable } from 'rxjs';
 import { EdaExportService } from '../../../../core/services/eda-export.service';
 
 type ExportType = 'json' | 'csv' | 'pdf';
@@ -23,6 +24,8 @@ export class ExportEda {
   readonly currentStep = signal(1);
   readonly fileName = signal('');
   readonly selectedType = signal<ExportType | null>(null);
+  readonly isExporting = signal(false);
+  readonly exportError = signal('');
 
   readonly fileTypes: {
     value: ExportType;
@@ -89,50 +92,46 @@ export class ExportEda {
     const fileName = this.fileName().trim();
     const type = this.selectedType();
 
-    if (!edaId || !fileName || !type) {
+    if (!edaId || !fileName || !type || this.isExporting()) {
       return;
     }
 
-    let request$;
+    this.isExporting.set(true);
+    this.exportError.set('');
+
+    let request$: Observable<Blob>;
 
     switch (type) {
       case 'json':
         request$ = this.edaExportService.exportJson(edaId);
         break;
-
       case 'csv':
         request$ = this.edaExportService.exportCsv(edaId);
         break;
-
       case 'pdf':
         request$ = this.edaExportService.exportPdf(edaId);
         break;
-
       default:
+        this.isExporting.set(false);
         return;
     }
 
     request$.subscribe({
       next: (response) => {
         this.downloadFile(response, this.finalFileName);
+        this.isExporting.set(false);
       },
       error: (error) => {
         console.error('EDA export failed:', error);
+        this.exportError.set(
+          'The export could not be generated. Please try again.'
+        );
+        this.isExporting.set(false);
       },
     });
   }
 
-  private downloadFile(response: unknown, fileName: string): void {
-    let blob: Blob;
-
-    if (response instanceof Blob) {
-      blob = response;
-    } else {
-      blob = new Blob([response as BlobPart], {
-        type: this.getMimeType(),
-      });
-    }
-
+  private downloadFile(blob: Blob, fileName: string): void {
     const url = URL.createObjectURL(blob);
 
     const anchor = document.createElement('a');
@@ -140,23 +139,7 @@ export class ExportEda {
     anchor.download = fileName;
     anchor.click();
 
-    URL.revokeObjectURL(url);
-  }
-
-  private getMimeType(): string {
-    switch (this.selectedType()) {
-      case 'json':
-        return 'application/json';
-
-      case 'csv':
-        return 'text/csv';
-
-      case 'pdf':
-        return 'application/pdf';
-
-      default:
-        return 'application/octet-stream';
-    }
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
   get selectedTypeLabel(): string {
