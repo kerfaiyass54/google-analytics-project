@@ -11,6 +11,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -26,11 +28,12 @@ public class GooglePlayAppController {
 
     @PostMapping
     public ResponseEntity<GooglePlayAppResponse> create(
-            @Valid @RequestBody GooglePlayAppRequest request
+            @Valid @RequestBody GooglePlayAppRequest request,
+            @AuthenticationPrincipal Jwt jwt
     ) {
 
         GooglePlayAppResponse response =
-                service.create(request);
+                service.create(request, jwt.getClaimAsString("email"));
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
