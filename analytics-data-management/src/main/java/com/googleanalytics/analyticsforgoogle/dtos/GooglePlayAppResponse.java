@@ -34,6 +34,8 @@ public record GooglePlayAppResponse(
 
         String currentVersion,
 
-        String androidVersion
+        String androidVersion,
+
+        String email
 ) {
 }
