@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Annotated
 import json
+import math
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
@@ -79,14 +80,40 @@ def get_eda_history(
                     detail="metric_filters must be a JSON object.",
                 )
 
+            allowed_metrics = {
+                "ratings_by_category.total_categories",
+                "ratings_by_category.total_rated_applications",
+                "ratings_by_category.overall_average_rating",
+                "free_vs_paid.free_applications",
+                "free_vs_paid.paid_applications",
+                "free_vs_paid.free_percentage",
+                "free_vs_paid.paid_percentage",
+                "install_distribution.total_applications",
+                "install_distribution.total_installs",
+                "install_distribution.average_installs",
+                "install_distribution.median_installs",
+                "review_counts.statistics.app_count",
+                "review_counts.statistics.average_reviews",
+                "review_counts.statistics.median_reviews",
+                "review_counts.statistics.minimum_reviews",
+                "review_counts.statistics.maximum_reviews",
+                "review_counts.statistics.total_reviews",
+                "review_counts.correlation_reviews_installs",
+            }
+            if set(parsed_metric_filters) - allowed_metrics:
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    detail="One or more EDA metric fields are not supported.",
+                )
+
             for bounds in parsed_metric_filters.values():
-                if not isinstance(bounds, dict) or set(bounds) - {"min", "max"}:
+                if not isinstance(bounds, dict) or not bounds or set(bounds) - {"min", "max"}:
                     raise HTTPException(
                         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                         detail="Each metric filter must contain only min and/or max.",
                     )
                 for bound in bounds.values():
-                    if isinstance(bound, bool) or not isinstance(bound, (int, float)):
+                    if isinstance(bound, bool) or not isinstance(bound, (int, float)) or not math.isfinite(bound):
                         raise HTTPException(
                             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                             detail="Metric range bounds must be numeric.",
@@ -108,6 +135,8 @@ def get_eda_history(
             search=search,
             metric_filters=parsed_metric_filters,
         )
+    except HTTPException:
+        raise
     except Exception as exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
