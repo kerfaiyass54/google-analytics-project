@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Annotated
+import json
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
@@ -59,8 +60,43 @@ def get_eda_history(
     date_from: str | None = Query(default=None),
     date_to: str | None = Query(default=None),
     search: str | None = Query(default=None, max_length=320),
+    metric_filters: str | None = Query(default=None, max_length=12000),
 ) -> EdaPage:
     try:
+        parsed_metric_filters = None
+        if metric_filters:
+            try:
+                parsed_metric_filters = json.loads(metric_filters)
+            except json.JSONDecodeError as exception:
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    detail="metric_filters must be valid JSON.",
+                ) from exception
+
+            if not isinstance(parsed_metric_filters, dict):
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    detail="metric_filters must be a JSON object.",
+                )
+
+            for bounds in parsed_metric_filters.values():
+                if not isinstance(bounds, dict) or set(bounds) - {"min", "max"}:
+                    raise HTTPException(
+                        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                        detail="Each metric filter must contain only min and/or max.",
+                    )
+                for bound in bounds.values():
+                    if isinstance(bound, bool) or not isinstance(bound, (int, float)):
+                        raise HTTPException(
+                            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                            detail="Metric range bounds must be numeric.",
+                        )
+                if "min" in bounds and "max" in bounds and bounds["min"] > bounds["max"]:
+                    raise HTTPException(
+                        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                        detail="A metric minimum cannot exceed its maximum.",
+                    )
+
         return service.get_history(
             user=current_user,
             page=page,
@@ -70,6 +106,7 @@ def get_eda_history(
             date_from=date_from,
             date_to=date_to,
             search=search,
+            metric_filters=parsed_metric_filters,
         )
     except Exception as exception:
         raise HTTPException(
