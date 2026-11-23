@@ -1,6 +1,5 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
 
 export interface AppFeatures {
   app: string; category: string; reviews: number; size_mb: number; type: 'FREE'|'PAID'; price: number;
@@ -8,21 +7,20 @@ export interface AppFeatures {
 }
 export interface PredictionRecord {
   id?: string; prediction_id?: string; task: 'regression'|'classification'; app_name: string;
-  input_data?: AppFeatures; prediction: number|string; model_id: string; created_at: string;
+  input_data?: AppFeatures; prediction: number|string; model_id: string; created_at: string; user_id?: string;
 }
 @Injectable({providedIn:'root'})
 export class PredictionService {
-  private readonly http = inject(HttpClient);
-  private readonly api = 'http://localhost:8010/api/v1';
-  private readonly events = 'http://localhost:8020/api/dashboard';
-  predict(task:'rating'|'installs', payload:AppFeatures) {
-    return this.http.post<PredictionRecord>(`${this.api}/predictions/${task}`, payload);
-  }
-  mine(task='all') { return this.http.get<PredictionRecord[]>(`${this.api}/predictions/mine`, {params:new HttpParams().set('task',task)}); }
-  detail(id:string) { return this.http.get<PredictionRecord>(`${this.api}/predictions/${id}`); }
-  models() { return this.http.get<any[]>(`${this.api}/models`); }
-  evaluations(task:'regression'|'classification') { return this.http.get<any[]>(`${this.api}/evaluations/${task}`); }
-  activate(modelId:string) { return this.http.post<any>(`${this.api}/models/${modelId}/activate`, {}); }
-  summary() { return this.http.get<any>(`${this.events}/summary`); }
-  recent() { return this.http.get<any[]>(`${this.events}/recent`); }
+  private readonly http=inject(HttpClient);
+  private readonly api='http://localhost:8010/api/v1';
+  private readonly events='http://localhost:8020/api/dashboard';
+  predict(task:'rating'|'installs',payload:AppFeatures){return this.http.post<PredictionRecord>(`${this.api}/predictions/${task}`,payload);}
+  mine(task='all'){return this.http.get<PredictionRecord[]>(`${this.api}/predictions/mine`,{params:new HttpParams().set('task',task)});}
+  detail(id:string){return this.http.get<PredictionRecord>(`${this.api}/predictions/${id}`);}
+  models(){return this.http.get<any[]>(`${this.api}/models`);}
+  evaluations(task:'regression'|'classification'){return this.http.get<any[]>(`${this.api}/evaluations/${task}`);}
+  activate(modelId:string){return this.http.post<any>(`${this.api}/models/${modelId}/activate`,{});}
+  adminPredictions(modelId='all'){return this.http.get<PredictionRecord[]>(`${this.api}/admin/predictions`,{params:new HttpParams().set('model_id',modelId)});}
+  summary(){return this.http.get<any>(`${this.events}/summary`);}
+  recent(){return this.http.get<any[]>(`${this.events}/recent`);}
 }
