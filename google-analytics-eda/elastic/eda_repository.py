@@ -84,10 +84,7 @@ class EdaRepository:
             filters.append({"term": {"email": email}})
 
         if eda_id:
-            must.append({"wildcard": {"_id": {
-                "value": f"*{eda_id.strip()}*",
-                "case_insensitive": True,
-            }}})
+            must.append({"term": {"_id": eda_id.strip()}})
 
         if search and search.strip():
             term = search.strip()
