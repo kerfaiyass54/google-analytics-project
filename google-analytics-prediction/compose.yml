@@ -17,6 +17,9 @@ services:
       ELASTICSEARCH_URL: http://elasticsearch:9200
       ELASTICSEARCH_EVALUATION_INDEX: prediction_model_evaluations
       MODEL_ARTIFACT_DIR: /app/artifacts
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      KAFKA_PREDICTION_TOPIC: prediction-events
+      KAFKA_EVALUATION_TOPIC: evaluation-events
       KEYCLOAK_ISSUER: ${KEYCLOAK_ISSUER:-http://host.docker.internal:8280/realms/google-analytics}
       KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-google-analytics-api}
       KEYCLOAK_AUDIENCE: ${KEYCLOAK_AUDIENCE:-}
@@ -30,6 +33,8 @@ services:
         condition: service_healthy
       elasticsearch:
         condition: service_healthy
+      kafka:
+        condition: service_started
     networks:
       - backend
 
