@@ -58,7 +58,7 @@ def prediction_metadata(claims: dict = Depends(require_user)):
             "category": {"type": "string", "required": True},
             "reviews": {"type": "integer", "minimum": 0},
             "size_mb": {"type": "number", "exclusiveMinimum": 0},
-            "type": {"type": "enum", "values": ["Free", "Paid"]},
+            "type": {"type": "enum", "values": ["FREE", "PAID"]},
             "price": {"type": "number", "minimum": 0, "free_must_be_zero": True},
             "content_rating": {"type": "string"},
             "genres": {"type": "string"},
