@@ -15,6 +15,7 @@ public class GooglePlayAppMapper {
 
         return GooglePlayApp.builder()
                 .app(request.app().trim())
+                .email(null)
                 .category(request.category().trim())
                 .rating(request.rating())
                 .reviews(request.reviews())
@@ -48,7 +49,8 @@ public class GooglePlayAppMapper {
                 entity.getGenres(),
                 entity.getLastUpdated(),
                 entity.getCurrentVersion(),
-                entity.getAndroidVersion()
+                entity.getAndroidVersion(),
+                entity.getEmail()
         );
     }
 
