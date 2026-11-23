@@ -109,10 +109,7 @@ export class ExportEda {
     let request$: Observable<Blob>;
 
     switch (type) {
-      case 'json':
-        request$ = this.edaExportService.exportExcel(edaId);
-        break;
-      case 'csv':
+      case 'xlsx':
         request$ = this.edaExportService.exportExcel(edaId);
         break;
       case 'pdf':
@@ -120,6 +117,7 @@ export class ExportEda {
         break;
       default:
         this.isExporting.set(false);
+        this.progressSubscription?.unsubscribe();
         return;
     }
 
