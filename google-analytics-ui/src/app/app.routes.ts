@@ -20,6 +20,7 @@ export const routes: Routes = [
     { path: 'operations/delete-applications', canActivate: [adminGuard], loadComponent: () => import('./features/operations-page/delete-applications/delete-applications').then(m => m.DeleteApplications) },
     { path: 'operations/manage-apps', loadComponent: () => import('./features/operations-page/manage-apps/manage-apps').then(m => m.ManageApps) },
     { path: 'operations/manage-eda', loadComponent: () => import('./features/operations-page/manage-eda/manage-eda').then(m => m.ManageEda) },
+    { path: 'notifications', loadComponent: () => import('./features/notifications/notifications-page').then(m => m.NotificationsPage) },
     { path: 'eda', loadComponent: () => import('./features/eda-page/eda-page').then(m => m.EdaPage) },
   ]},
   { path: 'developer-tools', component: DeveloperTools, children: [] },
