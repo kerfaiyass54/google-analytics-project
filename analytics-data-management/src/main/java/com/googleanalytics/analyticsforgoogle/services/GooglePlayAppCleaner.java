@@ -68,6 +68,8 @@ public class GooglePlayAppCleaner {
 
             LocalDate cleanedDate = parseDate(lastUpdated);
 
+            String cleanedInstalls = parseInstalls(installs);
+
             /*
              * Any invalid value causes the complete row
              * to be rejected.
@@ -77,7 +79,8 @@ public class GooglePlayAppCleaner {
                     || cleanedSize == null
                     || cleanedType == null
                     || cleanedPrice == null
-                    || cleanedDate == null) {
+                    || cleanedDate == null
+                    || cleanedInstalls == null) {
 
                 return null;
             }
@@ -88,7 +91,7 @@ public class GooglePlayAppCleaner {
                     .rating(cleanedRating)
                     .reviews(cleanedReviews)
                     .sizeMb(cleanedSize)
-                    .installs(installs.trim())
+                    .installs(cleanedInstalls)
                     .type(cleanedType)
                     .price(cleanedPrice)
                     .contentRating(contentRating.trim())
@@ -115,7 +118,7 @@ public class GooglePlayAppCleaner {
         /*
          * Google Play ratings must logically be between 0 and 5.
          */
-        if (rating < 0 || rating > 5) {
+        if (!Double.isFinite(rating) || rating < 0 || rating > 5) {
             return null;
         }
 
@@ -124,7 +127,13 @@ public class GooglePlayAppCleaner {
 
     private Long parseReviews(String value) {
 
-        return Long.parseLong(value.trim());
+        long reviews = Long.parseLong(value.trim());
+
+        if (reviews < 0) {
+            return null;
+        }
+
+        return reviews;
     }
 
     private Double parseSize(String value) {
@@ -146,7 +155,13 @@ public class GooglePlayAppCleaner {
             String numericPart =
                     normalized.substring(0, normalized.length() - 1);
 
-            return Double.parseDouble(numericPart);
+            double size = Double.parseDouble(numericPart);
+
+            if (!Double.isFinite(size) || size <= 0) {
+                return null;
+            }
+
+            return size;
         }
 
         if (normalized.endsWith("K")) {
@@ -154,7 +169,13 @@ public class GooglePlayAppCleaner {
             String numericPart =
                     normalized.substring(0, normalized.length() - 1);
 
-            return Double.parseDouble(numericPart) / 1024.0;
+            double size = Double.parseDouble(numericPart) / 1024.0;
+
+            if (!Double.isFinite(size) || size <= 0) {
+                return null;
+            }
+
+            return size;
         }
 
         return null;
@@ -179,12 +200,49 @@ public class GooglePlayAppCleaner {
                 .replace("$", "");
 
         BigDecimal price = new BigDecimal(normalized);
+        BigDecimal maximumPrice =
+                new BigDecimal("99999999.99");
 
-        if (price.compareTo(BigDecimal.ZERO) < 0) {
+        if (price.compareTo(BigDecimal.ZERO) < 0
+                || price.compareTo(maximumPrice) > 0
+                || price.scale() > 2) {
             return null;
         }
 
         return price;
+    }
+
+    private String parseInstalls(String value) {
+
+        String normalized = value
+                .trim()
+                .replace(",", "");
+
+        if (normalized.endsWith("+")) {
+            normalized = normalized.substring(
+                    0,
+                    normalized.length() - 1
+            );
+        }
+
+        if (normalized.isEmpty()) {
+            return null;
+        }
+
+        try {
+
+            long installs = Long.parseLong(normalized);
+
+            if (installs < 0) {
+                return null;
+            }
+
+        } catch (NumberFormatException exception) {
+
+            return null;
+        }
+
+        return value.trim();
     }
 
     private LocalDate parseDate(String value) {

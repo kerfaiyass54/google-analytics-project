@@ -39,6 +39,24 @@ class ExportRepository:
 
         return response["_id"]
 
+    def save_with_id(
+        self,
+        export_id: str,
+        export: ExportDocument,
+    ) -> None:
+
+        self.client.index(
+            index=self.index,
+            id=export_id,
+            document=export.model_dump(
+                mode="json",
+                exclude={
+                    "export_id"
+                },
+            ),
+            refresh="wait_for",
+        )
+
     # ============================================================
     # FIND BY ID
     # ============================================================
@@ -318,3 +336,34 @@ class ExportRepository:
                 else 0
             ),
         }
+
+    def find_by_email(
+            self,
+            email: str,
+            page: int = 0,
+            size: int = 20,
+    ) -> dict:
+
+        response = self.client.search(
+            index=self.index,
+            from_=page * size,
+            size=size,
+            query={
+                "term": {
+                    "email": email,
+                }
+            },
+            sort=[
+                {
+                    "date": {
+                        "order": "desc",
+                    }
+                }
+            ],
+        )
+
+        return self._build_page_result(
+            response,
+            page,
+            size,
+        )

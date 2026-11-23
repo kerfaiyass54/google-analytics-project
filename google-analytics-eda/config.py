@@ -5,7 +5,9 @@ Central application configuration.
 from __future__ import annotations
 
 from functools import lru_cache
+from pathlib import Path
 
+import yaml
 from pydantic import Field
 from pydantic_settings import (
     BaseSettings,
@@ -132,19 +134,53 @@ class ElasticsearchSettings(BaseSettings):
     )
 
 
+def _load_application_yml() -> dict:
+    config_path = Path(__file__).resolve().parent / "application.yml"
+    if not config_path.exists():
+        return {}
+    with config_path.open("r", encoding="utf-8") as config_file:
+        loaded = yaml.safe_load(config_file)
+    return loaded if isinstance(loaded, dict) else {}
+
+
+APPLICATION_CONFIG = _load_application_yml()
+
+
 class KeycloakSettings(BaseSettings):
 
     issuer: str = Field(
+        default=APPLICATION_CONFIG.get("keycloak", {}).get(
+            "issuer",
+            "http://localhost:8280/realms/google-analytics",
+        ),
         validation_alias="KEYCLOAK_ISSUER",
     )
 
     client_id: str = Field(
+        default=APPLICATION_CONFIG.get("keycloak", {}).get(
+            "client_id",
+            "google-analytics-api",
+        ),
         validation_alias="KEYCLOAK_CLIENT_ID",
     )
 
     audience: str | None = Field(
-        default=None,
+        default=APPLICATION_CONFIG.get("keycloak", {}).get("audience"),
         validation_alias="KEYCLOAK_AUDIENCE",
+    )
+
+    admin_role: str = Field(
+        default=APPLICATION_CONFIG.get("keycloak", {}).get(
+            "admin_role",
+            "ADMIN",
+        ),
+    )
+
+    admin_role_source: str = Field(
+        default=APPLICATION_CONFIG.get("keycloak", {}).get(
+            "admin_role_source",
+            "client",
+        ),
     )
 
     model_config = SettingsConfigDict(

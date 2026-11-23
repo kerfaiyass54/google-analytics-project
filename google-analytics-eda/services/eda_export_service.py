@@ -17,6 +17,7 @@ from schema.export_document import ExportDocument
 from schema.export_page import ExportPage
 from schema.export_response import ExportResponse
 
+from config import get_keycloak_config
 from security.keycloak import KeycloakUser
 
 
@@ -53,9 +54,7 @@ class EdaExportService:
             user,
         )
 
-        content = self._create_json_content(
-            eda
-        )
+        content = self._create_json_content(eda)
 
         return self._save_export(
             eda_id=eda_id,
@@ -80,9 +79,7 @@ class EdaExportService:
             user,
         )
 
-        content = CsvExporter.export(
-            eda
-        )
+        content = CsvExporter.export(eda)
 
         return self._save_export(
             eda_id=eda_id,
@@ -107,9 +104,7 @@ class EdaExportService:
             user,
         )
 
-        content = PdfExporter.export(
-            eda
-        )
+        content = PdfExporter.export(eda)
 
         return self._save_export(
             eda_id=eda_id,
@@ -120,7 +115,7 @@ class EdaExportService:
         )
 
     # ============================================================
-    # GET EXPORT HISTORY
+    # GET EXPORT HISTORY FOR ONE EDA
     # ============================================================
 
     def get_exports(
@@ -131,19 +126,10 @@ class EdaExportService:
         size: int = 20,
     ) -> ExportPage:
 
-        # --------------------------------------------------------
-        # Verify that the user can access the EDA
-        # --------------------------------------------------------
-
         self._get_accessible_eda(
             eda_id,
             user,
         )
-
-        # --------------------------------------------------------
-        # Admin → all exports for the EDA
-        # User  → only own exports
-        # --------------------------------------------------------
 
         if self._is_admin(user):
 
@@ -167,29 +153,28 @@ class EdaExportService:
                 )
             )
 
-        metadata = [
-            ExportResponse(
-                export_id=export.export_id,
-                eda_id=export.eda_id,
-                email=export.email,
-                date=export.date,
-                file_type=export.file_type,
-                filename=export.filename,
-            )
-            for export in result["content"]
-        ]
+        return self._to_export_page(result)
 
-        return ExportPage(
-            content=metadata,
-            page=result["page"],
-            size=result["size"],
-            total_elements=result[
-                "total_elements"
-            ],
-            total_pages=result[
-                "total_pages"
-            ],
+    # ============================================================
+    # GET CURRENT USER EXPORT HISTORY
+    # ============================================================
+
+    def get_exports_by_email(
+        self,
+        email: str,
+        page: int = 0,
+        size: int = 20,
+    ) -> ExportPage:
+
+        result = (
+            self._export_repository.find_by_email(
+                email=email,
+                page=page,
+                size=size,
+            )
         )
+
+        return self._to_export_page(result)
 
     # ============================================================
     # GET EXPORT
@@ -201,10 +186,6 @@ class EdaExportService:
         user: KeycloakUser,
     ) -> ExportDocument | None:
 
-        # --------------------------------------------------------
-        # ADMIN
-        # --------------------------------------------------------
-
         if self._is_admin(user):
 
             return (
@@ -212,10 +193,6 @@ class EdaExportService:
                     export_id
                 )
             )
-
-        # --------------------------------------------------------
-        # USER
-        # --------------------------------------------------------
 
         return (
             self._export_repository
@@ -279,26 +256,21 @@ class EdaExportService:
     ) -> ExportResponse:
 
         encoded_content = (
-            base64.b64encode(
-                content
-            ).decode("ascii")
+            base64.b64encode(content)
+            .decode("ascii")
         )
 
         document = ExportDocument(
             eda_id=eda_id,
             email=email,
-            date=datetime.now(
-                timezone.utc
-            ),
+            date=datetime.now(timezone.utc),
             file_type=file_type,
             filename=filename,
             content=encoded_content,
         )
 
         export_id = (
-            self._export_repository.save(
-                document
-            )
+            self._export_repository.save(document)
         )
 
         return ExportResponse(
@@ -356,7 +328,46 @@ class EdaExportService:
         user: KeycloakUser,
     ) -> bool:
 
-        return "ADMIN" in user.roles
+        config = get_keycloak_config()
+        role_source = config.admin_role_source.lower()
+
+        if role_source == "realm":
+            return config.admin_role in user.realm_roles
+        if role_source == "both":
+            return (
+                config.admin_role in user.realm_roles
+                or config.admin_role in user.client_roles
+            )
+        return config.admin_role in user.client_roles
+
+    # ============================================================
+    # CONVERT REPOSITORY RESULT TO PAGE
+    # ============================================================
+
+    @staticmethod
+    def _to_export_page(
+        result: dict,
+    ) -> ExportPage:
+
+        metadata = [
+            ExportResponse(
+                export_id=export.export_id,
+                eda_id=export.eda_id,
+                email=export.email,
+                date=export.date,
+                file_type=export.file_type,
+                filename=export.filename,
+            )
+            for export in result["content"]
+        ]
+
+        return ExportPage(
+            content=metadata,
+            page=result["page"],
+            size=result["size"],
+            total_elements=result["total_elements"],
+            total_pages=result["total_pages"],
+        )
 
     # ============================================================
     # JSON CONTENT
@@ -367,14 +378,9 @@ class EdaExportService:
         eda: EdaDocument,
     ) -> bytes:
 
-        data = eda.model_dump(
-            mode="json"
-        )
+        data = eda.model_dump(mode="json")
 
-        data.pop(
-            "eda_id",
-            None,
-        )
+        data.pop("eda_id", None)
 
         return json.dumps(
             data,

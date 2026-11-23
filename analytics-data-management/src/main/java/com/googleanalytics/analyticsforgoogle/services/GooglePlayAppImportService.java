@@ -104,22 +104,6 @@ public class GooglePlayAppImportService {
 
                 try {
 
-                    String app =
-                            record.get("App").trim();
-
-                    /*
-                     * Remove duplicate applications.
-                     */
-                    String duplicateKey =
-                            app.toLowerCase(Locale.ENGLISH);
-
-                    if (!existingApps.add(duplicateKey)) {
-
-                        duplicateRows++;
-
-                        continue;
-                    }
-
                     GooglePlayApp cleanedApp =
                             cleaner.clean(
                                     record.get("App"),
@@ -151,6 +135,22 @@ public class GooglePlayAppImportService {
                     if (cleanedApp == null) {
 
                         invalidRows++;
+
+                        continue;
+                    }
+
+                    /*
+                     * Remove duplicate applications only after the row
+                     * has been successfully cleaned and validated.
+                     */
+                    String duplicateKey =
+                            cleanedApp.getApp()
+                                    .trim()
+                                    .toLowerCase(Locale.ENGLISH);
+
+                    if (!existingApps.add(duplicateKey)) {
+
+                        duplicateRows++;
 
                         continue;
                     }
