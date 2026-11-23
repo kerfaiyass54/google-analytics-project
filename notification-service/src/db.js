@@ -42,7 +42,13 @@ export async function initializeDatabase() {
     );
     CREATE INDEX IF NOT EXISTS idx_notifications_role_created
       ON notifications (recipient_role, created_at DESC);
-    CREATE INDEX IF NOT EXISTS idx_notifications_unread
-      ON notifications (recipient_role, created_at DESC) WHERE read_at IS NULL;
+    CREATE TABLE IF NOT EXISTS notification_reads (
+      notification_id UUID NOT NULL REFERENCES notifications(id) ON DELETE CASCADE,
+      user_id VARCHAR(160) NOT NULL,
+      read_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      PRIMARY KEY (notification_id, user_id)
+    );
+    CREATE INDEX IF NOT EXISTS idx_notification_reads_user
+      ON notification_reads (user_id, read_at);
   `);
 }
