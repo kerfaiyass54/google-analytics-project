@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Observable, Subscription, interval } from 'rxjs';
 import { EdaExportService } from '../../../../core/services/eda-export.service';
 
-type ExportType = 'xlsx' | 'pdf';
+type ExportType = 'xlsx' | 'zip';
 
 @Component({
   selector: 'app-export-eda',
@@ -48,10 +48,10 @@ export class ExportEda {
       description: 'Multiple sheets with organized tables',
     },
     {
-      value: 'pdf',
-      label: 'PDF Report',
-      icon: 'bi-filetype-pdf',
-      description: 'Visual report with Matplotlib charts',
+      value: 'zip',
+      label: 'Charts ZIP Archive',
+      icon: 'bi-file-earmark-zip',
+      description: 'PNG charts generated with Matplotlib',
     },
   ];
 
@@ -112,8 +112,8 @@ export class ExportEda {
       case 'xlsx':
         request$ = this.edaExportService.exportExcel(edaId);
         break;
-      case 'pdf':
-        request$ = this.edaExportService.exportPdf(edaId);
+      case 'zip':
+        request$ = this.edaExportService.exportChartsZip(edaId);
         break;
       default:
         this.isExporting.set(false);
