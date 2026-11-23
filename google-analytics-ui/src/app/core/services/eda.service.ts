@@ -20,75 +20,58 @@ export interface EdaPage {
   total_pages: number;
 }
 
+export interface EdaHistoryFilters {
+  edaId?: string;
+  creatorEmail?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  search?: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class EdaService {
   private readonly http = inject(HttpClient);
-
   private readonly apiUrl = 'http://localhost:8000/api/eda';
-
-  // ============================================================
-  // RUN + SAVE COMPLETE EDA
-  // ============================================================
 
   runAndSave(): Observable<EdaDocument> {
     return this.http.post<EdaDocument>(this.apiUrl, {});
   }
 
-  // ============================================================
-  // GET EDA HISTORY
-  // ============================================================
+  getHistory(page = 0, size = 20, filters: EdaHistoryFilters = {}): Observable<EdaPage> {
+    let params = new HttpParams().set('page', page).set('size', size);
 
-  getHistory(page = 0, size = 20): Observable<EdaPage> {
-    const params = new HttpParams().set('page', page).set('size', size);
+    if (filters.edaId?.trim()) params = params.set('eda_id', filters.edaId.trim());
+    if (filters.creatorEmail?.trim()) {
+      params = params.set('creator_email', filters.creatorEmail.trim());
+    }
+    if (filters.dateFrom) params = params.set('date_from', filters.dateFrom);
+    if (filters.dateTo) params = params.set('date_to', filters.dateTo);
+    if (filters.search?.trim()) params = params.set('search', filters.search.trim());
 
     return this.http.get<EdaPage>(this.apiUrl, { params });
   }
-
-  // ============================================================
-  // GET EDA BY ID
-  // ============================================================
 
   getById(edaId: string): Observable<EdaDocument> {
     return this.http.get<EdaDocument>(`${this.apiUrl}/${edaId}`);
   }
 
-  // ============================================================
-  // DELETE EDA
-  // ============================================================
-
   delete(edaId: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${edaId}`);
   }
-
-  // ============================================================
-  // RATINGS BY CATEGORY
-  // ============================================================
 
   getRatingsByCategory(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/ratings-by-category`);
   }
 
-  // ============================================================
-  // FREE VS PAID
-  // ============================================================
-
   getFreeVsPaid(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/free-vs-paid`);
   }
 
-  // ============================================================
-  // INSTALL DISTRIBUTION
-  // ============================================================
-
   getInstallDistribution(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/install-distribution`);
   }
-
-  // ============================================================
-  // REVIEW COUNTS
-  // ============================================================
 
   getReviewCounts(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/review-counts`);
