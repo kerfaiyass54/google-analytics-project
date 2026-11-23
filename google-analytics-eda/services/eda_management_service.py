@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from elastic.eda_repository import EdaRepository
 from elastic.export_repository import ExportRepository
 from schema.eda_document import EdaDocument
+from schema.export_document import ExportDocument
 from schema.eda_page import EdaPage
 from config import get_keycloak_config
 from security.keycloak import KeycloakUser
@@ -177,21 +178,92 @@ class EdaManagementService:
 
             return False
 
-        # --------------------------------------------------------
-        # Delete all exports belonging to the EDA
-        # --------------------------------------------------------
-
-        self._export_repository.delete_by_eda_id(
+        exports_snapshot = self._load_all_exports(
             eda_id
         )
 
-        # --------------------------------------------------------
-        # Delete EDA
-        # --------------------------------------------------------
-
-        return self._eda_repository.delete(
+        deleted = self._eda_repository.delete(
             eda_id
         )
+
+        if not deleted:
+
+            return False
+
+        try:
+
+            self._export_repository.delete_by_eda_id(
+                eda_id
+            )
+
+            return True
+
+        except Exception as exception:
+
+            self._rollback_delete(
+                eda_id=eda_id,
+                eda=eda,
+                exports=exports_snapshot,
+            )
+
+            raise RuntimeError(
+                "Failed to delete exports. "
+                "EDA deletion has been rolled back."
+            ) from exception
+
+    def _load_all_exports(
+        self,
+        eda_id: str,
+    ) -> list[ExportDocument]:
+
+        page = 0
+        size = 200
+        exports: list[ExportDocument] = []
+
+        while True:
+
+            result = (
+                self._export_repository.find_by_eda_id(
+                    eda_id=eda_id,
+                    page=page,
+                    size=size,
+                )
+            )
+
+            exports.extend(
+                result["content"]
+            )
+
+            if page + 1 >= result["total_pages"]:
+                break
+
+            page += 1
+
+        return exports
+
+    def _rollback_delete(
+        self,
+        eda_id: str,
+        eda: EdaDocument,
+        exports: list[ExportDocument],
+    ) -> None:
+
+        self._eda_repository.save_with_id(
+            eda_id=eda_id,
+            eda=eda,
+        )
+
+        for export in exports:
+
+            if export.export_id is None:
+                raise RuntimeError(
+                    "Cannot rollback export without id."
+                )
+
+            self._export_repository.save_with_id(
+                export_id=export.export_id,
+                export=export,
+            )
 
     # ============================================================
     # COUNT

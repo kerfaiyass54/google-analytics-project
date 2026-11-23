@@ -39,6 +39,24 @@ class EdaRepository:
 
         return response["_id"]
 
+    def save_with_id(
+        self,
+        eda_id: str,
+        eda: EdaDocument,
+    ) -> None:
+
+        self.client.index(
+            index=self.index,
+            id=eda_id,
+            document=eda.model_dump(
+                mode="json",
+                exclude={
+                    "eda_id"
+                },
+            ),
+            refresh="wait_for",
+        )
+
     # ============================================================
     # FIND BY ID
     # ============================================================
