@@ -69,6 +69,8 @@ export class AdminPredictionsPage implements OnInit {
     });
   }
 
+  formatMetricKey(key: string | number | symbol): string { return String(key).replace(/_/g, ' '); }
+
   showDetails(item:any){this.selected.set(item);}
   closeDetails(){this.selected.set(null);}
   get evaluations(){
