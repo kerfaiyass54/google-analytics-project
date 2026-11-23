@@ -78,7 +78,7 @@ public class GooglePlayAppService {
     ) {
         Page<GooglePlayApp> apps = admin
                 ? repository.findAll(pageable)
-                : repository.findAllByEmailIgnoreCase(requireEmail(userEmail), pageable);
+                : repository.findGlobalAndOwnedApps(requireEmail(userEmail), pageable);
 
         return apps.map(mapper::toResponse);
     }
@@ -133,7 +133,7 @@ public class GooglePlayAppService {
         }
 
         String email = requireEmail(userEmail);
-        if (app.getEmail() == null || !app.getEmail().equalsIgnoreCase(email)) {
+        if (app.getEmail() != null && !app.getEmail().equalsIgnoreCase(email)) {
             // Return 404 rather than disclose that another user's record exists.
             throw new ResourceNotFoundException(
                     "Google Play application with id " + id + " was not found."
