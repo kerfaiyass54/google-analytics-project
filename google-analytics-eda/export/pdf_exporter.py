@@ -51,15 +51,13 @@ class ChartZipExporter:
 
     @staticmethod
     def _ratings(archive: zipfile.ZipFile, data: Mapping[str, Any]) -> None:
-        rows = [r for r in ChartZipExporter._rows(data, "categories")
-                if ChartZipExporter._number(r.get("average_rating")) is not None]
+        rows = [r for r in ChartZipExporter._rows(data, "categories") if ChartZipExporter._number(r.get("average_rating")) is not None]
         fig, ax = plt.subplots(figsize=(11.69, 8.27))
         try:
             ax.set_title("Ratings by Category")
             if rows:
                 rows = sorted(rows, key=lambda r: ChartZipExporter._number(r.get("average_rating")) or 0)[-20:]
-                ax.barh([str(r.get("category", "")) for r in rows],
-                        [ChartZipExporter._number(r.get("average_rating")) or 0 for r in rows])
+                ax.barh([str(r.get("category", "")) for r in rows], [ChartZipExporter._number(r.get("average_rating")) or 0 for r in rows])
                 ax.set_xlim(0, 5)
                 ax.set_xlabel("Average rating (1–5)")
                 ax.grid(axis="x", alpha=0.25)
@@ -78,8 +76,7 @@ class ChartZipExporter:
         try:
             ax.set_title("Free vs Paid Applications")
             if rows:
-                ax.bar([str(r.get("type", "")) for r in rows],
-                       [max(0, int(ChartZipExporter._number(r.get("app_count")) or 0)) for r in rows])
+                ax.bar([str(r.get("type", "")) for r in rows], [max(0, int(ChartZipExporter._number(r.get("app_count")) or 0)) for r in rows])
                 ax.set_ylabel("Application count")
                 ax.grid(axis="y", alpha=0.25)
                 free = ChartZipExporter._number(data.get("free_percentage")) or 0
@@ -95,15 +92,13 @@ class ChartZipExporter:
 
     @staticmethod
     def _installs(archive: zipfile.ZipFile, data: Mapping[str, Any]) -> None:
-        rows = [r for r in ChartZipExporter._rows(data, "categories")
-                if ChartZipExporter._number(r.get("average_installs")) is not None]
+        rows = [r for r in ChartZipExporter._rows(data, "categories") if ChartZipExporter._number(r.get("average_installs")) is not None]
         fig, ax = plt.subplots(figsize=(11.69, 8.27))
         try:
             ax.set_title("Average Installs by Category")
             if rows:
                 rows = sorted(rows, key=lambda r: ChartZipExporter._number(r.get("average_installs")) or 0)[-20:]
-                ax.barh([str(r.get("category", "")) for r in rows],
-                        [ChartZipExporter._number(r.get("average_installs")) or 0 for r in rows])
+                ax.barh([str(r.get("category", "")) for r in rows], [ChartZipExporter._number(r.get("average_installs")) or 0 for r in rows])
                 ax.set_xlabel("Average installs")
                 ax.ticklabel_format(axis="x", style="sci", scilimits=(0, 0))
                 ax.grid(axis="x", alpha=0.25)
@@ -124,8 +119,7 @@ class ChartZipExporter:
         try:
             categories = sorted(categories, key=lambda r: ChartZipExporter._number(r.get("total_reviews")) or 0)[-15:]
             if categories:
-                axes[0].barh([str(r.get("category", "")) for r in categories],
-                    [max(0, ChartZipExporter._number(r.get("total_reviews")) or 0) for r in categories])
+                axes[0].barh([str(r.get("category", "")) for r in categories], [max(0, ChartZipExporter._number(r.get("total_reviews")) or 0) for r in categories])
                 axes[0].set_title("Reviews by Category (Top 15)")
                 axes[0].ticklabel_format(axis="x", style="sci", scilimits=(0, 0))
                 axes[0].grid(axis="x", alpha=0.25)
