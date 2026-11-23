@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from typing import Annotated
 
 from fastapi import (
@@ -19,6 +20,9 @@ from security.keycloak import (
 )
 
 from services.eda_export_service import EdaExportService
+
+
+logger = logging.getLogger(__name__)
 
 
 router = APIRouter(
