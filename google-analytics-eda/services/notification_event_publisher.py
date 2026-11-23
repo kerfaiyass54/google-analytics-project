@@ -24,7 +24,7 @@ def publish_notification_event(
     try:
         if _producer is None:
             _producer = KafkaProducer(
-                bootstrap_servers=os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092").split(","),
+                bootstrap_servers=os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9099").split(","),
                 value_serializer=lambda value: json.dumps(value, default=str).encode("utf-8"),
                 retries=3,
                 request_timeout_ms=5000,
