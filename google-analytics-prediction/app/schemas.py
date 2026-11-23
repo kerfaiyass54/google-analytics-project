@@ -8,7 +8,7 @@ class AppFeatures(BaseModel):
     category: str = Field(min_length=1, max_length=100)
     reviews: int = Field(ge=0, le=2_000_000_000)
     size_mb: float = Field(gt=0, le=10_000)
-    type: Literal["Free", "Paid"]
+    type: Literal["FREE", "PAID"]
     price: float = Field(ge=0, le=100_000)
     content_rating: str = Field(min_length=1, max_length=50)
     genres: str = Field(min_length=1, max_length=255)
@@ -19,8 +19,8 @@ class AppFeatures(BaseModel):
     @field_validator("price")
     @classmethod
     def free_app_has_no_price(cls, value, info):
-        if info.data.get("type") == "Free" and value != 0:
-            raise ValueError("Free apps must have price 0.")
+        if info.data.get("type") == "FREE" and value != 0:
+            raise ValueError("FREE apps must have price 0.")
         return value
 
 class PredictionResponse(BaseModel):
