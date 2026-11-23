@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import math
-
 from analysis.ratings_by_category import RatingsByCategoryAnalysis
 from analysis.free_vs_paid import FreeVsPaidAnalysis
 
