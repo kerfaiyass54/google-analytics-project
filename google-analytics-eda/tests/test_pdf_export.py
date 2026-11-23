@@ -39,7 +39,7 @@ def test_chart_zip_export_handles_zero_and_invalid_values():
     content = ChartZipExporter.export(_eda_with_edge_cases())
     with ZipFile(BytesIO(content)) as archive:
         assert set(archive.namelist()) == EXPECTED_CHARTS
-        assert all(archive.read(name).startswith(b"\\x89PNG") for name in EXPECTED_CHARTS)
+        assert all(archive.read(name).startswith(b"\x89PNG") for name in EXPECTED_CHARTS)
 
 
 def test_chart_zip_export_handles_empty_analysis_sections():
