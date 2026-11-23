@@ -6,7 +6,7 @@ const topics = (process.env.KAFKA_NOTIFICATION_TOPICS || 'application-events,eda
   .split(',').map(value => value.trim()).filter(Boolean);
 const kafka = new Kafka({
   clientId: 'analytics-notification-service',
-  brokers: (process.env.KAFKA_BOOTSTRAP_SERVERS || 'localhost:9092').split(',')
+  brokers: (process.env.KAFKA_BOOTSTRAP_SERVERS || 'localhost:9099').split(',')
 });
 const consumer = kafka.consumer({ groupId: process.env.KAFKA_NOTIFICATION_GROUP || 'analytics-notifications-v1' });
 
