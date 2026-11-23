@@ -6,6 +6,7 @@ from elastic.eda_repository import EdaRepository
 from elastic.export_repository import ExportRepository
 from schema.eda_document import EdaDocument
 from schema.eda_page import EdaPage
+from config import get_keycloak_config
 from security.keycloak import KeycloakUser
 from services.eda_service import EdaAnalysisService
 
@@ -218,4 +219,14 @@ class EdaManagementService:
         user: KeycloakUser,
     ) -> bool:
 
-        return "ADMIN" in user.roles
+        config = get_keycloak_config()
+        role_source = config.admin_role_source.lower()
+
+        if role_source == "realm":
+            return config.admin_role in user.realm_roles
+        if role_source == "both":
+            return (
+                config.admin_role in user.realm_roles
+                or config.admin_role in user.client_roles
+            )
+        return config.admin_role in user.client_roles

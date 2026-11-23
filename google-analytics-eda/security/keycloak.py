@@ -42,7 +42,7 @@ from fastapi.security import (
     HTTPBearer,
 )
 from jwt import PyJWKClient
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from config import get_keycloak_config
 
@@ -76,7 +76,11 @@ class KeycloakUser(BaseModel):
 
     preferred_username: str | None = None
 
-    roles: list[str] = []
+    roles: list[str] = Field(default_factory=list)
+
+    realm_roles: list[str] = Field(default_factory=list)
+
+    client_roles: list[str] = Field(default_factory=list)
 
 
 # ============================================================
@@ -317,9 +321,15 @@ class KeycloakSecurity:
         # Roles
         # ----------------------------------------------------
 
-        roles = self._extract_roles(
+        realm_roles = self._extract_realm_roles(
             claims
         )
+
+        client_roles = self._extract_client_roles(
+            claims
+        )
+
+        roles = sorted(set(realm_roles + client_roles))
 
         return KeycloakUser(
             user_id=str(
@@ -339,6 +349,8 @@ class KeycloakSecurity:
                 else None
             ),
             roles=roles,
+            realm_roles=realm_roles,
+            client_roles=client_roles,
         )
 
     # ========================================================
@@ -346,95 +358,36 @@ class KeycloakSecurity:
     # ========================================================
 
     @staticmethod
-    def _extract_roles(
+    def _extract_realm_roles(
         claims: dict[str, Any],
     ) -> list[str]:
-        """
-        Extract Keycloak realm and client roles.
+        realm_access = claims.get("realm_access", {})
+        if not isinstance(realm_access, dict):
+            return []
 
-        Keycloak commonly stores:
+        realm_roles = realm_access.get("roles", [])
+        if not isinstance(realm_roles, list):
+            return []
 
-            realm roles:
-                realm_access.roles
+        return sorted({str(role) for role in realm_roles})
 
-            client roles:
-                resource_access.<client>.roles
-        """
+    def _extract_client_roles(
+        self,
+        claims: dict[str, Any],
+    ) -> list[str]:
+        resource_access = claims.get("resource_access", {})
+        if not isinstance(resource_access, dict):
+            return []
 
-        roles: set[str] = set()
+        client_data = resource_access.get(self.client_id)
+        if not isinstance(client_data, dict):
+            return []
 
-        # ----------------------------------------------------
-        # Realm roles
-        # ----------------------------------------------------
+        client_roles = client_data.get("roles", [])
+        if not isinstance(client_roles, list):
+            return []
 
-        realm_access = claims.get(
-            "realm_access",
-            {},
-        )
-
-        if isinstance(
-            realm_access,
-            dict,
-        ):
-
-            realm_roles = realm_access.get(
-                "roles",
-                [],
-            )
-
-            if isinstance(
-                realm_roles,
-                list,
-            ):
-
-                roles.update(
-                    str(role)
-                    for role in realm_roles
-                )
-
-        # ----------------------------------------------------
-        # Client roles
-        # ----------------------------------------------------
-
-        resource_access = claims.get(
-            "resource_access",
-            {},
-        )
-
-        if isinstance(
-            resource_access,
-            dict,
-        ):
-
-            for client_data in (
-                resource_access.values()
-            ):
-
-                if not isinstance(
-                    client_data,
-                    dict,
-                ):
-
-                    continue
-
-                client_roles = client_data.get(
-                    "roles",
-                    [],
-                )
-
-                if isinstance(
-                    client_roles,
-                    list,
-                ):
-
-                    roles.update(
-                        str(role)
-                        for role in client_roles
-                    )
-
-        return sorted(
-            roles
-        )
+        return sorted({str(role) for role in client_roles})
 
     # ========================================================
     # UNAUTHORIZED
