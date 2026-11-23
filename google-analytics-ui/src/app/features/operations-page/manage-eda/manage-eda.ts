@@ -55,7 +55,7 @@ export class ManageEda {
   private readonly location = inject(Location);
 
   readonly loading = signal(false);
-  readonly filtersExpanded = signal(true);
+  readonly filtersDialogVisible = signal(false);
   readonly edaIdFilter = signal('');
   readonly creatorEmailFilter = signal('');
   readonly dateFromFilter = signal('');
@@ -201,6 +201,28 @@ export class ManageEda {
     }));
   }
 
+  openFiltersDialog(): void {
+    this.filtersDialogVisible.set(true);
+    document.body.classList.add('eda-dialog-open');
+  }
+
+  closeFiltersDialog(): void {
+    this.filtersDialogVisible.set(false);
+    document.body.classList.remove('eda-dialog-open');
+  }
+
+  get activeFilterCount(): number {
+    let count = 0;
+    if (this.edaIdFilter().trim()) count++;
+    if (this.creatorEmailFilter().trim()) count++;
+    if (this.dateFromFilter()) count++;
+    if (this.dateToFilter()) count++;
+    for (const range of Object.values(this.metricRanges())) {
+      if (range.min.trim() || range.max.trim()) count++;
+    }
+    return count;
+  }
+
   applyFilters(): void {
     this.filterError.set('');
 
@@ -240,6 +262,7 @@ export class ManageEda {
     };
 
     this.loadHistory(0, this.historyResponse().size || 10);
+    this.closeFiltersDialog();
   }
 
   resetFilters(): void {
