@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { Observable } from 'rxjs';
 import { EdaExportService } from '../../../../core/services/eda-export.service';
 
 type ExportType = 'json' | 'csv' | 'pdf';
@@ -98,7 +99,7 @@ export class ExportEda {
     this.isExporting.set(true);
     this.exportError.set('');
 
-    let request$;
+    let request$: Observable<Blob>;
 
     switch (type) {
       case 'json':
@@ -131,7 +132,6 @@ export class ExportEda {
   }
 
   private downloadFile(blob: Blob, fileName: string): void {
-
     const url = URL.createObjectURL(blob);
 
     const anchor = document.createElement('a');
@@ -141,7 +141,6 @@ export class ExportEda {
 
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
-
 
   get selectedTypeLabel(): string {
     return this.fileTypes.find((type) => type.value === this.selectedType())?.label ?? '';
