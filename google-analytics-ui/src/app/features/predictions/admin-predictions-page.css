@@ -46,3 +46,41 @@
 .empty-state{padding:28px}
 @media(max-width:1000px){.admin-shell{height:auto;min-height:0;overflow:visible}.admin-workspace{grid-template-columns:1fr}.training-panel{overflow:visible}.registry-panel{min-height:440px}.registry-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:620px){.admin-shell{padding:20px 14px}.admin-heading{align-items:flex-start;flex-direction:column}.admin-heading .refresh{margin-top:0}.workspace-card{padding:17px}.registry-list{grid-template-columns:1fr}.registry-panel{min-height:400px}}
+
+
+/* Training progress and test evaluation result */
+.training-progress{margin-top:22px;padding:17px;border:1px solid #e8e9f3;border-radius:15px;background:linear-gradient(145deg,#fbfbff,#fff);animation:admin-enter .35s ease both}
+.progress-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.progress-heading h3,.result-title h3{margin:5px 0;font-size:.95rem;font-weight:850;color:#252b43}
+.progress-heading p{margin:4px 0 0;color:#8993a6;font-size:.68rem;line-height:1.5}
+.progress-percent{font-size:1.25rem;font-weight:850;color:#625bd0}
+.progress-track{height:8px;margin:16px 0;border-radius:20px;background:#e9eaf4;overflow:hidden}
+.progress-track span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#665ee8,#a18cf1);transition:width .55s ease;position:relative;overflow:hidden}
+.progress-track span:not(.complete)::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent,#ffffff70,transparent);animation:progress-shimmer 1.4s linear infinite}
+.progress-track span.complete{background:linear-gradient(90deg,#159b70,#36c99a)}
+.training-steps{list-style:none;display:grid;gap:9px;padding:0;margin:0}
+.training-steps li{display:flex;align-items:center;gap:9px;color:#9aa3b2;font-size:.68rem;transition:color .2s}
+.step-indicator{display:grid;place-items:center;width:22px;height:22px;flex:none;border-radius:50%;background:#f0f1f7;color:#a0a6b6;font-size:.68rem}
+.training-steps li.done{color:#168665;font-weight:700}
+.training-steps li.done .step-indicator{background:#e6f8f1;color:#159b70}
+.training-steps li.current{color:#5149bd;font-weight:800}
+.training-steps li.current .step-indicator{background:#efedff;color:#665ee8}
+.training-steps li.current .step-indicator i{animation:spin-step 1.3s linear infinite}
+.training-steps li small{margin-left:auto;color:#8b83dd;font-size:.58rem;font-weight:750}
+.training-result{margin-top:20px;padding-top:17px;border-top:1px solid #e9eaf2;animation:hint-in .35s ease both}
+.result-title{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.result-status{display:inline-flex;align-items:center;gap:5px;color:#13845f;font-size:.64rem;font-weight:800}
+.result-overview{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:13px 0}
+.result-overview>div{display:flex;flex-direction:column;gap:4px;padding:10px;border-radius:9px;background:#f5f6fb;min-width:0}
+.result-overview strong{font-size:.9rem;color:#252b43;overflow-wrap:anywhere}
+.result-overview small,.result-metrics small{font-size:.57rem;color:#929bad;text-transform:capitalize}
+.result-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.result-metrics article{display:flex;flex-direction:column;gap:5px;padding:10px;border:1px solid #eceef5;border-radius:9px;min-width:0}
+.result-metrics strong{font-size:.8rem;color:#4e46b9;overflow-wrap:anywhere}
+.evaluation-reference{margin:12px 0 0;color:#929bad;font-size:.59rem;overflow-wrap:anywhere}
+.candidate-note{display:flex;gap:7px;align-items:flex-start;margin:11px 0 0;padding:10px;border-radius:9px;background:#f4f3ff;color:#625bd0;font-size:.63rem;line-height:1.5}
+.candidate-note i{flex:none;margin-top:1px}
+@keyframes progress-shimmer{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+@keyframes spin-step{to{transform:rotate(360deg)}}
+@media(max-width:560px){.result-overview{grid-template-columns:repeat(2,minmax(0,1fr))}.progress-heading{align-items:center}}
+@media(prefers-reduced-motion:reduce){.progress-track span,.training-steps li,.training-result{animation:none!important;transition:none!important}}
