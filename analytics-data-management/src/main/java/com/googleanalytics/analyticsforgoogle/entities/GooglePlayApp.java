@@ -30,6 +30,10 @@ public class GooglePlayApp {
     @Column(name = "app", nullable = false, length = 255)
     private String app;
 
+    // Nullable to preserve ownership-unknown legacy records.
+    @Column(name = "email", nullable = true, length = 320)
+    private String email;
+
     @Column(name = "category", nullable = false, length = 100)
     private String category;
 

@@ -3,6 +3,7 @@ import { Routes } from '@angular/router';
 import { HomePage } from './shared/components/home-page/home-page';
 import { DeveloperTools } from './shared/components/developer-tools/developer-tools';
 import { authGuard } from './core/guards/auth.guard';
+import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
   {
@@ -53,6 +54,7 @@ export const routes: Routes = [
       },
       {
         path: 'operations/delete-applications',
+        canActivate: [adminGuard],
         loadComponent: () =>
           import('./features/operations-page/delete-applications/delete-applications').then(
             (m) => m.DeleteApplications,

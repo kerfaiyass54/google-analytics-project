@@ -94,6 +94,7 @@
     <div class="operations-grid">
 
       @for (operation of operations; track operation.title) {
+        @if (!operation.adminOnly || auth.isAdmin()) {
         <div class="operation-card-wrapper">
           <app-card-simple
             [icon]="operation.icon"
@@ -102,6 +103,7 @@
             [color]="operation.color"
           />
         </div>
+        }
       }
 
     </div>

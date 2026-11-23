@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { AuthService } from '../../core/services/auth.service';
 
 import { CardSimple } from '../../shared/components/card-simple/card-simple';
 
@@ -7,6 +8,7 @@ interface OperationCard {
   title: string;
   link: string;
   color: string;
+  adminOnly?: boolean;
 }
 
 @Component({
@@ -18,6 +20,8 @@ interface OperationCard {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OperationsPage {
+  readonly auth = inject(AuthService);
+
   readonly operations: OperationCard[] = [
     {
       icon: 'bi bi-plus-circle-fill',
@@ -36,6 +40,7 @@ export class OperationsPage {
       title: 'Delete Applications',
       link: '/operations/delete-applications',
       color: '#ef4444',
+      adminOnly: true,
     },
     {
       icon: 'bi bi-grid-1x2-fill',

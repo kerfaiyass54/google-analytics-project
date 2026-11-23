@@ -293,8 +293,16 @@ def get_eda_by_id(
 
 
 # ============================================================
-# DELETE EDA
+# DELETE EDA (ADMIN ONLY)
 # ============================================================
+
+def require_admin(user: KeycloakUser) -> None:
+    if not any(role.upper() == "ADMIN" for role in user.roles):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Administrator role is required to delete EDA records.",
+        )
+
 
 @router.delete(
     "/{eda_id}",
@@ -305,6 +313,8 @@ def delete_eda(
     current_user: CurrentUser,
     service: EdaManagementServiceDependency,
 ) -> None:
+
+    require_admin(current_user)
 
     try:
 
