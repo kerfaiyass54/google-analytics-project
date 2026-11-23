@@ -14,10 +14,10 @@ export class NotificationsPage implements OnInit {
   readonly filters = ['ALL', 'UNREAD'] as const;
   filter: 'ALL' | 'UNREAD' = 'ALL';
 
-  ngOnInit(): void { this.service.refresh(100); }
+  ngOnInit(): void { this.service.refreshHistory(); }
 
   get visibleNotifications() {
-    const items = this.service.notifications();
+    const items = this.service.history();
     return this.filter === 'UNREAD' ? items.filter(item => !item.read_at) : items;
   }
 
