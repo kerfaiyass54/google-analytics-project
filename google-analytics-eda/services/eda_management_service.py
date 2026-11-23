@@ -52,6 +52,7 @@ class EdaManagementService:
         date_from: str | None = None,
         date_to: str | None = None,
         search: str | None = None,
+        metric_filters: dict[str, dict[str, float]] | None = None,
     ) -> EdaPage:
         # Non-admin users can only search their own history. Admins may
         # optionally narrow the search to a creator email.
@@ -64,6 +65,7 @@ class EdaManagementService:
             date_from=date_from,
             date_to=date_to,
             search=search,
+            metric_filters=metric_filters,
         )
         return EdaPage(
             content=result["content"],
