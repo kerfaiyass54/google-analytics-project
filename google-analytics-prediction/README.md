@@ -22,6 +22,13 @@ uvicorn app.main:app --reload --port 8010
 
 The defaults match the existing compose stack's host ports (PostgreSQL 5540, Elasticsearch 9290). Adjust credentials and ports in `.env`.
 
+## Run with Docker Compose
+From the repository root, after starting the existing PostgreSQL and Elasticsearch stack:
+```powershell
+docker compose -f docker-compose.yml -f google-analytics-prediction/compose.yml up -d --build prediction
+```
+The extension uses the existing `backend` network and adds a persistent `prediction_artifacts` volume. Set `KEYCLOAK_ISSUER` to an issuer URL reachable from the prediction container and identical to the token's `iss` claim. The default assumes Docker Desktop on Windows and Keycloak exposed on host port 8280.
+
 ## Run with Docker
 Build from the repository root:
 ```powershell
@@ -38,7 +45,9 @@ Inside Docker, use the compose service/container network names and internal port
 - `POST /api/v1/predictions/installs`
 - `GET /api/v1/models`
 - `GET /api/v1/models/{task}`
-- `POST /api/v1/training/{task}` (admin endpoint; authentication integration is intentionally pending)
+- `POST /api/v1/training/{task}` (ADMIN role required)
+- `POST /api/v1/models/{model_id}/activate` (ADMIN role required)
+- `GET /api/v1/models` and `GET /api/v1/evaluations/{task}` (ADMIN role required)
 - `GET /api/v1/evaluations/{task}`
 
 Training requires enough valid rows and at least two target classes for classification. Model choices are validated per task. A trained model is not activated automatically; explicitly activate it with `POST /api/v1/models/{model_id}/activate`.
@@ -46,4 +55,4 @@ Training requires enough valid rows and at least two target classes for classifi
 ## Notes
 - Install targets are converted to stable numeric buckets: <1K, 1K–<10K, 10K–<100K, 100K–<1M, 1M–<10M, 10M–<100M, and 100M+.
 - App names, category, reviews, size, type, price, content rating, genres, last-updated date, current version, and Android version are model inputs. Rating and installs are never accepted as prediction features.
-- The service deliberately does not trust an admin/user role supplied in request data. Secure the training and activation routes with the project's Keycloak admin dependency before exposing the service outside a trusted development environment.
+- All prediction routes require a valid Keycloak bearer token. Training, model listing, activation, and evaluation routes additionally require the ADMIN realm or configured client role. Configure `KEYCLOAK_ISSUER`, `KEYCLOAK_CLIENT_ID`, and optionally `KEYCLOAK_AUDIENCE` to match the existing realm/client setup.
