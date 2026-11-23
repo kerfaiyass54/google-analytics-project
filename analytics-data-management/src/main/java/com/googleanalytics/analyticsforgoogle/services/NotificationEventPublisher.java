@@ -16,7 +16,7 @@ import java.util.UUID;
 @Slf4j
 public class NotificationEventPublisher {
 
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final KafkaTemplate<Object, Object> kafkaTemplate;
 
     public void publishAfterCommit(String eventType, Long appId, String appName) {
         Runnable publish = () -> {
