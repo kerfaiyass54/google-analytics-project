@@ -8,7 +8,8 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       ELASTICSEARCH_URL: http://elasticsearch:9200
       EVENTS_INDEX: prediction_dashboard_events
-      KEYCLOAK_ISSUER: ${KEYCLOAK_ISSUER:-http://host.docker.internal:8280/realms/google-analytics}
+      KEYCLOAK_ISSUER: ${KEYCLOAK_ISSUER:-http://localhost:8280/realms/google-analytics}
+      KEYCLOAK_JWKS_URL: ${KEYCLOAK_JWKS_URL:-http://host.docker.internal:8280/realms/google-analytics/protocol/openid-connect/certs}
       KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-google-analytics-api}
       ADMIN_ROLE: ADMIN
     ports:
