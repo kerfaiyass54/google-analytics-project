@@ -5,7 +5,8 @@ import { keycloak } from '../auth/keycloak';
 export const userGuard: CanActivateFn = () => {
   const router = inject(Router);
   const roles: string[] = keycloak.tokenParsed?.['realm_access']?.['roles'] ?? [];
-  return keycloak.authenticated && roles.includes('USER')
+  // ADMIN is intentionally excluded, even if the account also carries USER.
+  return keycloak.authenticated && roles.includes('USER') && !roles.includes('ADMIN')
     ? true
     : router.createUrlTree(['/dashboard']);
 };
