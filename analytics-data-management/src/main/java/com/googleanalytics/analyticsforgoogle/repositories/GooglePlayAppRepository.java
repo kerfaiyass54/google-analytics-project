@@ -2,6 +2,8 @@ package com.googleanalytics.analyticsforgoogle.repositories;
 
 import com.googleanalytics.analyticsforgoogle.entities.GooglePlayApp;
 import com.googleanalytics.analyticsforgoogle.dtos.GooglePlayAppStatisticsResponse.CategoryStatistics;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -18,6 +20,15 @@ public interface GooglePlayAppRepository
             String app,
             Long id
     );
+
+    // Global dataset records have no owner email (NULL). Regular users can see
+    // those shared records plus records created with their own email.
+    @Query("""
+            SELECT a
+            FROM GooglePlayApp a
+            WHERE a.email IS NULL OR LOWER(a.email) = LOWER(:email)
+            """)
+    Page<GooglePlayApp> findGlobalAndOwnedApps(String email, Pageable pageable);
 
     // =========================================================
     // GENERAL STATISTICS
