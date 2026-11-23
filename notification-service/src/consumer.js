@@ -38,7 +38,13 @@ async function persist(event) {
 }
 
 export async function startConsumer() {
-  await consumer.connect();
+  while (true) {
+    try { await consumer.connect(); break; }
+    catch (error) {
+      console.error('Kafka is not ready yet; retrying in 5 seconds.', error.message);
+      await new Promise(resolve => setTimeout(resolve, 5000));
+    }
+  }
   for (const topic of topics) await consumer.subscribe({ topic, fromBeginning: false });
   await consumer.run({
     eachMessage: async ({ message }) => {
