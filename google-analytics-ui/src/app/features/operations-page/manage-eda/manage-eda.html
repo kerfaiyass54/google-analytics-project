@@ -1,343 +1,183 @@
 <section class="manage-eda-page">
-
-  <!-- ==========================================================
-       PAGE HEADER
-       ========================================================== -->
-
-  <button
-    type="button"
-    class="back-button"
-    (click)="goBack()"
-  >
+  <button type="button" class="back-button" (click)="goBack()">
     <i class="bi bi-arrow-left"></i>
     <span>Return to previous</span>
   </button>
 
   <header class="page-header">
-
     <div class="header-content">
-
-      <div class="header-icon">
-        <i class="bi bi-bar-chart-line-fill"></i>
-      </div>
-
+      <div class="header-icon"><i class="bi bi-bar-chart-line-fill"></i></div>
       <div>
-        <span class="eyebrow">
-          Exploratory data analysis
-        </span>
-
-        <h1>
-          EDA History
-        </h1>
-
-        <p>
-          Browse previous analyses and inspect each EDA result.
-        </p>
+        <span class="eyebrow">Exploratory data analysis</span>
+        <h1>EDA History</h1>
+        <p>Search, filter and inspect previous analyses stored in Elasticsearch.</p>
       </div>
-
     </div>
-
     <div class="header-stat">
-
-      <span class="stat-label">
-        Analyses
-      </span>
-
-      <strong>
-        {{ historyResponse().totalElements }}
-      </strong>
-
+      <span class="stat-label">Matching analyses</span>
+      <strong>{{ historyResponse().totalElements }}</strong>
     </div>
-
   </header>
 
+  <section class="advanced-search">
+    <button type="button" class="advanced-search-toggle"
+      (click)="filtersExpanded.update(value => !value)"
+      [attr.aria-expanded]="filtersExpanded()">
+      <span class="advanced-search-title">
+        <i class="bi bi-sliders"></i>
+        Advanced history search
+        <small>Filter Elasticsearch records</small>
+      </span>
+      <i class="bi" [class.bi-chevron-up]="filtersExpanded()" [class.bi-chevron-down]="!filtersExpanded()"></i>
+    </button>
 
-  <!-- ==========================================================
-       HISTORY TABLE
-       ========================================================== -->
+    @if (filtersExpanded()) {
+      <div class="filter-grid">
+        <label class="filter-field">
+          <span>EDA ID</span>
+          <div class="filter-input-wrap">
+            <i class="bi bi-fingerprint"></i>
+            <input type="text" placeholder="Enter full or partial EDA ID"
+              [value]="edaIdFilter()" (input)="edaIdFilter.set($any($event.target).value)" />
+          </div>
+        </label>
 
-  <section
-    class="history-section"
-    (click)="onTableClick($event)"
-  >
+        <label class="filter-field">
+          <span>Creator email</span>
+          <div class="filter-input-wrap">
+            <i class="bi bi-person"></i>
+            <input type="email" placeholder="Search by creator email"
+              [value]="creatorEmailFilter()" (input)="creatorEmailFilter.set($any($event.target).value)" />
+          </div>
+        </label>
 
+        <label class="filter-field">
+          <span>Analysis date · From</span>
+          <input type="date" [value]="dateFromFilter()"
+            (input)="dateFromFilter.set($any($event.target).value)" />
+        </label>
+
+        <label class="filter-field">
+          <span>Analysis date · To</span>
+          <input type="date" [value]="dateToFilter()"
+            (input)="dateToFilter.set($any($event.target).value)" />
+        </label>
+      </div>
+
+      @if (filterError()) {
+        <p class="filter-error"><i class="bi bi-exclamation-circle"></i>{{ filterError() }}</p>
+      }
+
+      <div class="filter-actions">
+        <span class="filter-hint"><i class="bi bi-info-circle"></i> Results are scoped to your account unless you have administrator access.</span>
+        <div>
+          <button type="button" class="reset-filter-button" (click)="resetFilters()">
+            <i class="bi bi-arrow-counterclockwise"></i> Reset
+          </button>
+          <button type="button" class="apply-filter-button" [disabled]="loading()" (click)="applyFilters()">
+            <i class="bi bi-search"></i> Search history
+          </button>
+        </div>
+      </div>
+    }
+  </section>
+
+  <section class="history-section" (click)="onTableClick($event)">
     <app-paginated-table
       title="EDA history"
-      searchPlaceholder="Search EDA history..."
+      searchPlaceholder="Quick search by EDA ID or creator..."
       [columns]="tableColumns"
       [response]="historyResponse()"
       [loading]="loading()"
       [pageSizeOptions]="[5, 10, 20, 50]"
       (pageChange)="onPageChange($event)"
     />
-
   </section>
 
-
-  <!-- ==========================================================
-       MODAL
-       ========================================================== -->
-
   @if (dialogVisible() && selectedEda(); as eda) {
-
-    <div
-      class="eda-dialog-backdrop"
-      role="presentation"
-      (click)="closeDialog()"
-    >
-
-      <section
-        class="eda-dialog"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="eda-dialog-title"
-        (click)="$event.stopPropagation()"
-      >
-
-        <!-- ====================================================
-             MODAL HEADER
-             ==================================================== -->
-
+    <div class="eda-dialog-backdrop" role="presentation" (click)="closeDialog()">
+      <section class="eda-dialog" role="dialog" aria-modal="true"
+        aria-labelledby="eda-dialog-title" (click)="$event.stopPropagation()">
         <header class="dialog-header">
-
           <div class="dialog-title-area">
-
-            <div class="dialog-icon">
-              <i class="bi bi-activity"></i>
-            </div>
-
+            <div class="dialog-icon"><i class="bi bi-activity"></i></div>
             <div>
-
-              <span class="dialog-eyebrow">
-                Historical analysis
-              </span>
-
-              <h2 id="eda-dialog-title">
-                EDA Analysis
-              </h2>
-
+              <span class="dialog-eyebrow">Historical analysis</span>
+              <h2 id="eda-dialog-title">EDA Analysis</h2>
               <div class="dialog-meta">
-
-                <span>
-                  <i class="bi bi-fingerprint"></i>
-                  {{ eda.eda_id }}
-                </span>
-
-                <span>
-                  <i class="bi bi-calendar3"></i>
-                  {{ formatDate(eda.date) }}
-                </span>
-
+                <span><i class="bi bi-fingerprint"></i>{{ eda.eda_id }}</span>
+                <span><i class="bi bi-calendar3"></i>{{ formatDate(eda.date) }}</span>
               </div>
-
             </div>
-
           </div>
-
-          <button
-            type="button"
-            class="close-button"
-            aria-label="Close EDA dialog"
-            (click)="closeDialog()"
-          >
+          <button type="button" class="close-button" aria-label="Close EDA dialog" (click)="closeDialog()">
             <i class="bi bi-x-lg"></i>
           </button>
-
         </header>
 
-
-        <!-- ====================================================
-             ANALYSIS NAVIGATION
-             ==================================================== -->
-
         <nav class="analysis-navigation">
-
-          @for (
-            button of analysisButtons;
-            track trackAnalysis($index, button)
-            ) {
-
-            <button
-              type="button"
-              class="analysis-button"
-              [class.active]="
-                selectedAnalysis() === button.key
-              "
-              (click)="selectAnalysis(button.key)"
-            >
-
-              <span class="analysis-button-icon">
-                <i [class]="button.icon"></i>
-              </span>
-
+          @for (button of analysisButtons; track trackAnalysis($index, button)) {
+            <button type="button" class="analysis-button"
+              [class.active]="selectedAnalysis() === button.key" (click)="selectAnalysis(button.key)">
+              <span class="analysis-button-icon"><i [class]="button.icon"></i></span>
               <span class="analysis-button-content">
-
-                <strong>
-                  {{ button.shortLabel }}
-                </strong>
-
-                <small>
-                  {{ button.label }}
-                </small>
-
+                <strong>{{ button.shortLabel }}</strong>
+                <small>{{ button.label }}</small>
               </span>
-
               @if (selectedAnalysis() === button.key) {
-
-                <span class="active-indicator">
-                  <i class="bi bi-arrow-right"></i>
-                </span>
-
+                <span class="active-indicator"><i class="bi bi-arrow-right"></i></span>
               }
-
             </button>
-
           }
-
         </nav>
 
-
-        <!-- ====================================================
-             ACTIVE ANALYSIS
-             ==================================================== -->
-
         <main class="analysis-content">
-
-          <div
-            class="analysis-transition"
-            [attr.data-analysis]="selectedAnalysis()"
-          >
-
+          <div class="analysis-transition" [attr.data-analysis]="selectedAnalysis()">
             <div class="analysis-heading">
-
               <div>
-
-                <span class="analysis-kicker">
-                  Selected analysis
-                </span>
-
-                <h3>
-                  {{ selectedAnalysisButton.label }}
-                </h3>
-
-                <p>
-                  {{ selectedAnalysisButton.description }}
-                </p>
-
+                <span class="analysis-kicker">Selected analysis</span>
+                <h3>{{ selectedAnalysisButton.label }}</h3>
+                <p>{{ selectedAnalysisButton.description }}</p>
               </div>
-
-              <div class="analysis-number">
-                <i [class]="selectedAnalysisButton.icon"></i>
-              </div>
-
+              <div class="analysis-number"><i [class]="selectedAnalysisButton.icon"></i></div>
             </div>
-
-
-            <!-- ==================================================
-                 ANALYSIS DATA
-                 ================================================== -->
 
             <div class="analysis-data">
-
               @if (getAnalysisDataEntries().length > 0) {
-
-                @for (
-                  entry of getAnalysisDataEntries();
-                  track trackEntry($index, entry)
-                  ) {
-
+                @for (entry of getAnalysisDataEntries(); track trackEntry($index, entry)) {
                   <article class="data-card">
-
-                    <span class="data-label">
-                      {{ entry.key }}
-                    </span>
-
-                    <strong class="data-value">
-                      {{ entry.value }}
-                    </strong>
-
+                    <span class="data-label">{{ entry.key }}</span>
+                    <strong class="data-value">{{ entry.value }}</strong>
                   </article>
-
                 }
-
               } @else {
-
                 <div class="empty-analysis">
-
-                  <div class="empty-analysis-icon">
-                    <i class="bi bi-bar-chart"></i>
-                  </div>
-
-                  <h4>
-                    No analysis data
-                  </h4>
-
-                  <p>
-                    This historical EDA does not contain
-                    data for this analysis.
-                  </p>
-
+                  <div class="empty-analysis-icon"><i class="bi bi-bar-chart"></i></div>
+                  <h4>No analysis data</h4>
+                  <p>This historical EDA does not contain data for this analysis.</p>
                 </div>
-
               }
-
             </div>
-
           </div>
-
         </main>
 
-
-        <!-- ====================================================
-             MODAL FOOTER
-             ==================================================== -->
-
         <footer class="dialog-footer">
-
           <div class="footer-info">
-
-            <span class="footer-status">
-              <span class="status-dot"></span>
-              Historical EDA
-            </span>
-
+            <span class="footer-status"><span class="status-dot"></span>Historical EDA</span>
             <span class="footer-separator"></span>
-
-            <span>
-              {{ eda.email }}
-            </span>
-
+            <span>{{ eda.email }}</span>
           </div>
-
           <div class="footer-actions">
-
-            <button
-              type="button"
-              class="secondary-button"
-              (click)="closeDialog()"
-            >
-              <i class="bi bi-x-lg"></i>
-              Close
+            <button type="button" class="secondary-button" (click)="closeDialog()">
+              <i class="bi bi-x-lg"></i> Close
             </button>
-
-            <button
-              type="button"
-              class="export-button"
-              (click)="exportEda()"
-            >
-              <i class="bi bi-box-arrow-up-right"></i>
-              Export EDA
+            <button type="button" class="export-button" (click)="exportEda()">
+              <i class="bi bi-box-arrow-up-right"></i> Export EDA
               <i class="bi bi-arrow-right export-arrow"></i>
             </button>
-
           </div>
-
         </footer>
-
       </section>
-
     </div>
-
   }
-
 </section>
