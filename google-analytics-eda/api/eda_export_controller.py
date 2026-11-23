@@ -93,14 +93,13 @@ def export_json(
 
 @router.post(
     "/{eda_id}/exports/csv",
-    response_model=ExportResponse,
     status_code=status.HTTP_201_CREATED,
 )
 def export_csv(
     eda_id: str,
     current_user: CurrentUser,
     service: EdaExportServiceDependency,
-) -> ExportResponse:
+) -> Response:
 
     try:
 
@@ -130,14 +129,13 @@ def export_csv(
 
 @router.post(
     "/{eda_id}/exports/pdf",
-    response_model=ExportResponse,
     status_code=status.HTTP_201_CREATED,
 )
 def export_pdf(
     eda_id: str,
     current_user: CurrentUser,
     service: EdaExportServiceDependency,
-) -> ExportResponse:
+) -> Response:
 
     try:
 
