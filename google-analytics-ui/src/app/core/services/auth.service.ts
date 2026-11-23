@@ -1,46 +1,23 @@
-import { Injectable, computed, inject } from '@angular/core';
-
+import { Injectable, computed } from '@angular/core';
 import { keycloak } from '../auth/keycloak';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({providedIn: 'root'})
 export class AuthService {
   readonly authenticated = computed(() => keycloak.authenticated ?? false);
-
   readonly username = computed(() => keycloak.tokenParsed?.['preferred_username'] ?? null);
-
-  readonly roles = computed<string[]>(
-    () => keycloak.tokenParsed?.['realm_access']?.['roles'] ?? [],
-  );
-
+  readonly roles = computed<string[]>(() => {
+    const realmRoles: string[] = keycloak.tokenParsed?.['realm_access']?.['roles'] ?? [];
+    const apiClientRoles: string[] = keycloak.tokenParsed?.['resource_access']?.['google-analytics-api']?.['roles'] ?? [];
+    return [...new Set([...realmRoles, ...apiClientRoles])];
+  });
   readonly isAdmin = computed(() => this.roles().includes('ADMIN'));
+  readonly isUser = computed(() => this.roles().includes('USER') && !this.isAdmin());
 
-  readonly isUser = computed(() => this.roles().includes('USER'));
-
-  async login(): Promise<void> {
-    await keycloak.login({
-      redirectUri: window.location.origin,
-    });
-  }
-
-  async logout(): Promise<void> {
-    await keycloak.logout({
-      redirectUri: window.location.origin,
-    });
-  }
-
+  async login(): Promise<void> { await keycloak.login({redirectUri: window.location.origin}); }
+  async logout(): Promise<void> { await keycloak.logout({redirectUri: window.location.origin}); }
   async refreshToken(): Promise<boolean> {
-    try {
-      await keycloak.updateToken(30);
-      return true;
-    } catch (error) {
-      console.error('Failed to refresh Keycloak token:', error);
-      return false;
-    }
+    try { await keycloak.updateToken(30); return true; }
+    catch (error) { console.error('Failed to refresh Keycloak token:', error); return false; }
   }
-
-  getToken(): string | undefined {
-    return keycloak.token;
-  }
+  getToken(): string | undefined { return keycloak.token; }
 }
