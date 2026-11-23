@@ -21,6 +21,7 @@ export class NotificationService {
   private readonly api = 'http://localhost:8030/api/notifications';
 
   readonly notifications = signal<AppNotification[]>([]);
+  readonly history = signal<AppNotification[]>([]);
   readonly unreadCount = signal(0);
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
@@ -48,6 +49,17 @@ export class NotificationService {
     });
   }
 
+  refreshHistory(): void {
+    this.loading.set(true);
+    this.http.get<AppNotification[]>(this.api, { params: { limit: '100' } }).pipe(
+      catchError(() => { this.error.set('Could not load notification history.'); return of([]); })
+    ).subscribe(items => {
+      this.history.set(items);
+      this.loading.set(false);
+      this.refreshUnreadCount();
+    });
+  }
+
   refreshUnreadCount(): void {
     this.http.get<{ count: number }>(`${this.api}/unread-count`).pipe(
       catchError(() => of({ count: 0 }))
@@ -55,10 +67,14 @@ export class NotificationService {
   }
 
   markAsRead(id: string): void {
-    const wasUnread = this.notifications().some(item => item.id === id && !item.read_at);
+    const wasUnread = [...this.notifications(), ...this.history()].some(item => item.id === id && !item.read_at);
     this.http.patch(`${this.api}/${id}/read`, {}).subscribe(() => {
+      const readAt = new Date().toISOString();
       this.notifications.update(items => items.map(item =>
-        item.id === id ? { ...item, read_at: item.read_at ?? new Date().toISOString() } : item
+        item.id === id ? { ...item, read_at: item.read_at ?? readAt } : item
+      ));
+      this.history.update(items => items.map(item =>
+        item.id === id ? { ...item, read_at: item.read_at ?? readAt } : item
       ));
       if (wasUnread) this.unreadCount.update(count => Math.max(0, count - 1));
     });
@@ -68,6 +84,7 @@ export class NotificationService {
     this.http.patch<{ updated: number }>(`${this.api}/read-all`, {}).subscribe(result => {
       const now = new Date().toISOString();
       this.notifications.update(items => items.map(item => ({ ...item, read_at: item.read_at ?? now })));
+      this.history.update(items => items.map(item => ({ ...item, read_at: item.read_at ?? now })));
       this.unreadCount.update(count => Math.max(0, count - result.updated));
     });
   }
