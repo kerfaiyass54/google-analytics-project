@@ -4,6 +4,7 @@
 }
 
 .export-page {
+  position: relative;
   min-height: 100%;
   padding: 2rem;
 }
@@ -564,4 +565,61 @@
   .secondary-button {
     transition: none;
   }
+}
+
+
+/* =========================
+   EXPORT LOADING STATE
+   ========================= */
+
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+  background: rgba(var(--bs-body-bg-rgb, 255, 255, 255), 0.78);
+  backdrop-filter: blur(3px);
+  cursor: wait;
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 2rem;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 1rem;
+  background: var(--bs-body-bg);
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.12);
+  text-align: center;
+}
+
+.loading-content .spinner-border {
+  width: 2.5rem;
+  height: 2.5rem;
+  color: var(--bs-primary);
+}
+
+.loading-content strong {
+  font-size: 1rem;
+}
+
+.loading-content span:last-child {
+  color: var(--bs-secondary-color);
+  font-size: 0.85rem;
+}
+
+.export-error {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-top: 1rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--bs-danger-border-subtle);
+  border-radius: 0.75rem;
+  background: var(--bs-danger-bg-subtle);
+  color: var(--bs-danger-text-emphasis);
 }
