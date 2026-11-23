@@ -57,15 +57,6 @@ def train_model(db: Session, task: str, algorithm: str, test_size: float) -> dic
         artifact.unlink(missing_ok=True)
         raise
     publish_event("evaluation-events", evaluation)
-    publish_event("model-events", {
-        "eventId": str(uuid4()),
-        "eventType": "MODEL_PUBLISHED",
-        "occurredAt": datetime.now(timezone.utc).isoformat(),
-        "entityType": "MODEL",
-        "entityId": model_id,
-        "entityName": f"{task} {algorithm} v{version}",
-        "payload": {"task": task, "algorithm": algorithm, "version": version},
-    })
     return {"model_id": model_id, "evaluation_id": evaluation_id, "task": task, "algorithm": algorithm,
         "version": version, "metrics": metrics, "dataset_rows": len(features), "train_rows": len(train_x),
         "test_rows": len(test_x), "is_active": False}
