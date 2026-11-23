@@ -19,103 +19,140 @@
     </div>
   </header>
 
-  <section class="advanced-search">
-    <button type="button" class="advanced-search-toggle"
-      (click)="filtersExpanded.update(value => !value)"
-      [attr.aria-expanded]="filtersExpanded()">
-      <span class="advanced-search-title">
-        <i class="bi bi-sliders"></i>
-        Advanced history search
-        <small>Filter Elasticsearch records</small>
-      </span>
-      <i class="bi" [class.bi-chevron-up]="filtersExpanded()" [class.bi-chevron-down]="!filtersExpanded()"></i>
+  <section class="history-toolbar">
+    <div class="history-toolbar-copy">
+      <span class="toolbar-eyebrow">Elasticsearch history</span>
+      <strong>Explore saved EDA runs</strong>
+      <small>Use filters to narrow down existing analysis records.</small>
+    </div>
+    <button type="button" class="open-filters-button" (click)="openFiltersDialog()">
+      <i class="bi bi-sliders"></i>
+      <span>Filters</span>
+      @if (activeFilterCount > 0) {
+        <span class="filter-count">{{ activeFilterCount }}</span>
+      }
     </button>
+  </section>
 
-    @if (filtersExpanded()) {
-      <div class="filter-grid identity-filters">
-        <label class="filter-field">
-          <span>EDA ID</span>
-          <div class="filter-input-wrap">
-            <i class="bi bi-fingerprint"></i>
-            <input type="text" placeholder="Enter exact EDA ID"
-              [value]="edaIdFilter()" (input)="edaIdFilter.set($any($event.target).value)" />
-          </div>
-        </label>
-
-        <label class="filter-field">
-          <span>Creator email</span>
-          <div class="filter-input-wrap">
-            <i class="bi bi-person"></i>
-            <input type="email" placeholder="Search by creator email"
-              [value]="creatorEmailFilter()" (input)="creatorEmailFilter.set($any($event.target).value)" />
-          </div>
-        </label>
-
-        <label class="filter-field">
-          <span>Analysis date · From</span>
-          <input type="date" [value]="dateFromFilter()"
-            (input)="dateFromFilter.set($any($event.target).value)" />
-        </label>
-
-        <label class="filter-field">
-          <span>Analysis date · To</span>
-          <input type="date" [value]="dateToFilter()"
-            (input)="dateToFilter.set($any($event.target).value)" />
-        </label>
-      </div>
-
-      <div class="metric-filter-groups">
-        @for (group of metricFilterGroups; track group.title) {
-          <section class="metric-filter-group">
-            <div class="metric-group-heading">
-              <div>
-                <h3>{{ group.title }}</h3>
-                <p>{{ group.description }}</p>
-              </div>
-              <span>{{ group.metrics.length }} metrics</span>
+  @if (filtersDialogVisible()) {
+    <div class="filters-dialog-backdrop" role="presentation" (click)="closeFiltersDialog()">
+      <section class="filters-dialog" role="dialog" aria-modal="true"
+        aria-labelledby="filters-dialog-title" (click)="$event.stopPropagation()">
+        <header class="filters-dialog-header">
+          <div class="filters-dialog-heading">
+            <div class="filters-dialog-icon"><i class="bi bi-sliders"></i></div>
+            <div>
+              <span class="dialog-eyebrow">Advanced search</span>
+              <h2 id="filters-dialog-title">Filter EDA history</h2>
+              <p>Combine general criteria with metric ranges from the four saved analyses.</p>
             </div>
-            <div class="metric-range-grid">
-              @for (metric of group.metrics; track metric.key) {
-                <div class="metric-range-field">
-                  <label>{{ metric.label }}</label>
-                  <div class="range-inputs">
-                    <div>
-                      <span>Min</span>
-                      <input type="number" [attr.step]="metric.step" placeholder="No minimum"
-                        [value]="metricRanges()[metric.key]?.min ?? ''"
-                        (input)="updateMetricRange(metric.key, 'min', $any($event.target).value)" />
-                    </div>
-                    <div>
-                      <span>Max</span>
-                      <input type="number" [attr.step]="metric.step" placeholder="No maximum"
-                        [value]="metricRanges()[metric.key]?.max ?? ''"
-                        (input)="updateMetricRange(metric.key, 'max', $any($event.target).value)" />
-                    </div>
-                  </div>
+          </div>
+          <button type="button" class="close-button" aria-label="Close filters" (click)="closeFiltersDialog()">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </header>
+
+        <div class="filters-dialog-content">
+          <section class="filter-category identity-category">
+            <div class="filter-category-heading">
+              <span class="category-icon"><i class="bi bi-fingerprint"></i></span>
+              <div>
+                <h3>General information</h3>
+                <p>Identify a specific EDA run or filter by creator and date.</p>
+              </div>
+            </div>
+            <div class="filter-grid identity-filters">
+              <label class="filter-field">
+                <span>EDA ID</span>
+                <div class="filter-input-wrap">
+                  <i class="bi bi-fingerprint"></i>
+                  <input type="text" placeholder="Enter exact EDA ID"
+                    [value]="edaIdFilter()" (input)="edaIdFilter.set($any($event.target).value)" />
                 </div>
-              }
+              </label>
+              <label class="filter-field">
+                <span>Creator email</span>
+                <div class="filter-input-wrap">
+                  <i class="bi bi-person"></i>
+                  <input type="email" placeholder="Search by creator email"
+                    [value]="creatorEmailFilter()" (input)="creatorEmailFilter.set($any($event.target).value)" />
+                </div>
+              </label>
+              <label class="filter-field">
+                <span>Analysis date · From</span>
+                <input type="date" [value]="dateFromFilter()"
+                  (input)="dateFromFilter.set($any($event.target).value)" />
+              </label>
+              <label class="filter-field">
+                <span>Analysis date · To</span>
+                <input type="date" [value]="dateToFilter()"
+                  (input)="dateToFilter.set($any($event.target).value)" />
+              </label>
             </div>
           </section>
-        }
-      </div>
 
-      @if (filterError()) {
-        <p class="filter-error"><i class="bi bi-exclamation-circle"></i>{{ filterError() }}</p>
-      }
+          <div class="metric-filter-groups">
+            @for (group of metricFilterGroups; track group.title) {
+              <section class="filter-category metric-filter-group">
+                <div class="metric-group-heading">
+                  <div class="filter-category-heading">
+                    <span class="category-icon">
+                      @if (group.title === 'Ratings by Category') { <i class="bi bi-star-half"></i> }
+                      @else if (group.title === 'Free vs Paid') { <i class="bi bi-pie-chart"></i> }
+                      @else if (group.title === 'Install Distribution') { <i class="bi bi-download"></i> }
+                      @else { <i class="bi bi-chat-square-text"></i> }
+                    </span>
+                    <div>
+                      <h3>{{ group.title }}</h3>
+                      <p>{{ group.description }}</p>
+                    </div>
+                  </div>
+                  <span>{{ group.metrics.length }} metrics</span>
+                </div>
+                <div class="metric-range-grid">
+                  @for (metric of group.metrics; track metric.key) {
+                    <div class="metric-range-field">
+                      <label>{{ metric.label }}</label>
+                      <div class="range-inputs">
+                        <div>
+                          <span>Min</span>
+                          <input type="number" [attr.step]="metric.step" placeholder="No minimum"
+                            [value]="metricRanges()[metric.key]?.min ?? ''"
+                            (input)="updateMetricRange(metric.key, 'min', $any($event.target).value)" />
+                        </div>
+                        <div>
+                          <span>Max</span>
+                          <input type="number" [attr.step]="metric.step" placeholder="No maximum"
+                            [value]="metricRanges()[metric.key]?.max ?? ''"
+                            (input)="updateMetricRange(metric.key, 'max', $any($event.target).value)" />
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </section>
+            }
+          </div>
 
-      <div class="filter-actions">
-        <span class="filter-hint"><i class="bi bi-info-circle"></i> Set a minimum, maximum, or both. All selected conditions must match.</span>
-        <div>
-          <button type="button" class="reset-filter-button" (click)="resetFilters()">
-            <i class="bi bi-arrow-counterclockwise"></i> Reset
-          </button>
-          <button type="button" class="apply-filter-button" [disabled]="loading()" (click)="applyFilters()">
-            <i class="bi bi-search"></i> Search history
-          </button>
+          @if (filterError()) {
+            <p class="filter-error"><i class="bi bi-exclamation-circle"></i>{{ filterError() }}</p>
+          }
         </div>
-      </div>
-    }
-  </section>
+
+        <footer class="filters-dialog-footer">
+          <span class="filter-hint"><i class="bi bi-info-circle"></i> Set a minimum, maximum, or both. All selected conditions must match.</span>
+          <div>
+            <button type="button" class="reset-filter-button" (click)="resetFilters()">
+              <i class="bi bi-arrow-counterclockwise"></i> Reset all
+            </button>
+            <button type="button" class="apply-filter-button" [disabled]="loading()" (click)="applyFilters()">
+              <i class="bi bi-search"></i> Apply filters
+            </button>
+          </div>
+        </footer>
+      </section>
+    </div>
+  }
 
   <section class="history-section" (click)="onTableClick($event)">
     <app-paginated-table
