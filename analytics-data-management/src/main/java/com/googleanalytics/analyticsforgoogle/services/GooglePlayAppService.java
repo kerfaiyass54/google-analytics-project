@@ -39,61 +39,52 @@ public class GooglePlayAppService {
             throw new IllegalArgumentException("Authenticated user email is required.");
         }
 
-        String appName =
-                request.app().trim();
+        String appName = request.app().trim();
 
         if (repository.existsByAppIgnoreCase(appName)) {
-
             throw new DuplicateResourceException(
-                    "Application '" +
-                            appName +
-                            "' already exists."
+                    "Application '" + appName + "' already exists."
             );
         }
 
-        GooglePlayApp entity =
-                mapper.toEntity(request);
-
+        GooglePlayApp entity = mapper.toEntity(request);
         entity.setEmail(ownerEmail.trim());
 
-        GooglePlayApp savedEntity =
-                repository.save(entity);
-
-        return mapper.toResponse(
-                savedEntity
-        );
+        return mapper.toResponse(repository.save(entity));
     }
 
     // =========================================================
-    // DETAILS
+    // DETAILS (OWNERS OR ADMIN)
     // =========================================================
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public GooglePlayAppResponse getDetails(
-            Long id
+            Long id,
+            String userEmail,
+            boolean admin
     ) {
-
-        return mapper.toResponse(
-                findById(id)
-        );
+        return mapper.toResponse(findByIdForViewer(id, userEmail, admin));
     }
 
     // =========================================================
-    // PAGINATION
+    // PAGINATION (OWNERS OR ADMIN)
     // =========================================================
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public Page<GooglePlayAppResponse> findAll(
-            Pageable pageable
+            Pageable pageable,
+            String userEmail,
+            boolean admin
     ) {
+        Page<GooglePlayApp> apps = admin
+                ? repository.findAll(pageable)
+                : repository.findAllByEmailIgnoreCase(requireEmail(userEmail), pageable);
 
-        return repository
-                .findAll(pageable)
-                .map(mapper::toResponse);
+        return apps.map(mapper::toResponse);
     }
 
     // =========================================================
-    // UPDATE
+    // UPDATE (ADMIN ONLY)
     // =========================================================
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -102,67 +93,68 @@ public class GooglePlayAppService {
             Long id,
             GooglePlayAppRequest request
     ) {
+        GooglePlayApp entity = findById(id);
+        String appName = request.app().trim();
 
-        GooglePlayApp entity =
-                findById(id);
-
-        String appName =
-                request.app().trim();
-
-        if (repository
-                .existsByAppIgnoreCaseAndIdNot(
-                        appName,
-                        id
-                )) {
-
+        if (repository.existsByAppIgnoreCaseAndIdNot(appName, id)) {
             throw new DuplicateResourceException(
-                    "Application '" +
-                            appName +
-                            "' already exists."
+                    "Application '" + appName + "' already exists."
             );
         }
 
-        mapper.updateEntity(
-                entity,
-                request
-        );
-
-        return mapper.toResponse(
-                entity
-        );
+        mapper.updateEntity(entity, request);
+        return mapper.toResponse(entity);
     }
 
     // =========================================================
-    // DELETE
+    // DELETE (ADMIN ONLY)
     // =========================================================
 
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
-    public void delete(
-            Long id
-    ) {
-
-        GooglePlayApp entity =
-                findById(id);
-
+    public void delete(Long id) {
+        GooglePlayApp entity = findById(id);
         repository.delete(entity);
     }
 
     // =========================================================
-    // PRIVATE
+    // PRIVATE HELPERS
     // =========================================================
 
-    private GooglePlayApp findById(
-            Long id
+    private GooglePlayApp findByIdForViewer(
+            Long id,
+            String userEmail,
+            boolean admin
     ) {
+        GooglePlayApp app = findById(id);
 
-        return repository
-                .findById(id)
+        if (admin) {
+            return app;
+        }
+
+        String email = requireEmail(userEmail);
+        if (app.getEmail() == null || !app.getEmail().equalsIgnoreCase(email)) {
+            // Return 404 rather than disclose that another user's record exists.
+            throw new ResourceNotFoundException(
+                    "Google Play application with id " + id + " was not found."
+            );
+        }
+
+        return app;
+    }
+
+    private String requireEmail(String email) {
+        if (email == null || email.isBlank()) {
+            throw new IllegalArgumentException("Authenticated user email is required.");
+        }
+        return email.trim();
+    }
+
+    private GooglePlayApp findById(Long id) {
+        return repository.findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
-                                "Google Play application with id "
-                                        + id
-                                        + " was not found."
+                                "Google Play application with id " + id + " was not found."
                         )
                 );
     }
