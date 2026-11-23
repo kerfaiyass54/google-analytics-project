@@ -5,10 +5,11 @@ from fastapi import Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 ISSUER=os.getenv("KEYCLOAK_ISSUER","http://localhost:8280/realms/google-analytics").rstrip("/")
+JWKS_URL=os.getenv("KEYCLOAK_JWKS_URL") or f"{ISSUER}/protocol/openid-connect/certs"
 CLIENT_ID=os.getenv("KEYCLOAK_CLIENT_ID","google-analytics-api")
 ADMIN_ROLE=os.getenv("ADMIN_ROLE","ADMIN")
 bearer=HTTPBearer(auto_error=False)
-jwks=PyJWKClient(f"{ISSUER}/protocol/openid-connect/certs",cache_jwk_set=True)
+jwks=PyJWKClient(JWKS_URL,cache_jwk_set=True)
 
 def require_admin(credentials: HTTPAuthorizationCredentials|None=Depends(bearer)):
     if credentials is None:
