@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     train_test_size: float = 0.2
     random_state: int = 42
     keycloak_issuer: str = "http://localhost:8280/realms/google-analytics"
+    keycloak_jwks_url: str | None = None
     keycloak_client_id: str = "google-analytics-api"
     keycloak_audience: str | None = None
     admin_role: str = "ADMIN"
