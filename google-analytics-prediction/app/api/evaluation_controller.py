@@ -14,9 +14,9 @@ router = APIRouter(
 def evaluations(
     task: str,
     limit: int = Query(
-        default=50,
+        default=10000,
         ge=1,
-        le=200,
+        le=10000,
     ),
     claims: dict = Depends(require_admin),
 ):
