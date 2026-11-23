@@ -38,6 +38,7 @@ class ExcelExporter:
             for key, value in ExcelExporter._summary_metrics(data):
                 overview.append([section, key, value])
 
+        ExcelExporter._format_table(overview, 6, overview.max_row, "Overview")
         ExcelExporter._format_sheet(overview, table_name="OverviewTable", header_row=6)
 
         sections = [
