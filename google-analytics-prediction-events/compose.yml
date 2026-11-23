@@ -1,0 +1,17 @@
+services:
+  prediction-events:
+    build:
+      context: ./google-analytics-prediction-events
+    container_name: analytics_prediction_events
+    restart: unless-stopped
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      EVENTS_INDEX: prediction_dashboard_events
+    ports:
+      - "8020:8020"
+    depends_on:
+      - kafka
+      - elasticsearch
+    networks:
+      - backend
