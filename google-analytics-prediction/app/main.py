@@ -45,7 +45,7 @@ async def lifespan(app: FastAPI):
     yield
 
 app = FastAPI(title=settings.app_name, version=settings.app_version,
-    description="Google Play rating regression and install-bucket classification service.")
+    description="Google Play rating regression and install-bucket classification service.", lifespan=lifespan)
 
 # Angular development server origins. CORS middleware must wrap the API routes
 # so browser preflight requests are answered before authentication dependencies run.
@@ -57,7 +57,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.router.lifespan_context = lifespan
 include_api_routers(app)
 
 @app.get("/health", tags=["System"])
