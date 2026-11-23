@@ -15,7 +15,7 @@
       <button type="button" [class.active]="filter === 'ALL'" (click)="filter = 'ALL'">All</button>
       <button type="button" [class.active]="filter === 'UNREAD'" (click)="filter = 'UNREAD'">Unread <span>{{ service.unreadCount() }}</span></button>
     </div>
-    <button class="refresh-button" type="button" (click)="service.refresh()"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+    <button class="refresh-button" type="button" (click)="service.refreshHistory()"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
   </div>
 
   <div class="notification-list">
