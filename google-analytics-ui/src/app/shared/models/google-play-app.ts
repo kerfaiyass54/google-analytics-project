@@ -15,4 +15,5 @@ export interface GooglePlayAppResponse {
   lastUpdated: string;
   currentVersion: string;
   androidVersion: string;
+  email: string | null;
 }
