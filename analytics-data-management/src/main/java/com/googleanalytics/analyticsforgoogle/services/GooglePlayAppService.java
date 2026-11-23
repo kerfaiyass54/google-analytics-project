@@ -31,8 +31,13 @@ public class GooglePlayAppService {
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @Transactional
     public GooglePlayAppResponse create(
-            GooglePlayAppRequest request
+            GooglePlayAppRequest request,
+            String ownerEmail
     ) {
+
+        if (ownerEmail == null || ownerEmail.isBlank()) {
+            throw new IllegalArgumentException("Authenticated user email is required.");
+        }
 
         String appName =
                 request.app().trim();
@@ -48,6 +53,8 @@ public class GooglePlayAppService {
 
         GooglePlayApp entity =
                 mapper.toEntity(request);
+
+        entity.setEmail(ownerEmail.trim());
 
         GooglePlayApp savedEntity =
                 repository.save(entity);
