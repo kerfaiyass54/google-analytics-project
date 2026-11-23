@@ -253,7 +253,7 @@ class EdaExportService:
         file_type: str,
         filename: str,
         content: bytes,
-    ) -> ExportResponse:
+    ) -> Response:
 
         encoded_content = (
             base64.b64encode(content)
@@ -269,17 +269,26 @@ class EdaExportService:
             content=encoded_content,
         )
 
-        export_id = (
-            self._export_repository.save(document)
-        )
+        self._export_repository.save(document)
 
-        return ExportResponse(
-            export_id=export_id,
-            eda_id=eda_id,
-            email=email,
-            date=document.date,
-            file_type=file_type,
-            filename=filename,
+        media_types = {
+            "json": "application/json",
+            "csv": "text/csv",
+            "pdf": "application/pdf",
+        }
+
+        return Response(
+            content=content,
+            media_type=media_types.get(
+                file_type,
+                "application/octet-stream",
+            ),
+            headers={
+                "Content-Disposition": (
+                    f'attachment; filename="{filename}"'
+                )
+            },
+            status_code=201,
         )
 
     # ============================================================
