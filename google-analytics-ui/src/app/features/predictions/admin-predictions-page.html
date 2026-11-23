@@ -1,67 +1,76 @@
 <main class="admin-shell">
   <header class="admin-heading">
-    <span class="eyebrow">MODEL GOVERNANCE · ADMINISTRATION</span>
-    <h1>Model settings</h1>
-    <p>Train candidate models, review the model registry and choose which version serves each prediction task.</p>
+    <div>
+      <span class="eyebrow">MODEL GOVERNANCE · ADMINISTRATION</span>
+      <h1>Model settings</h1>
+      <p>Train candidate models, review the model registry and choose which version serves each prediction task.</p>
+    </div>
     <button class="refresh" type="button" (click)="refresh()"><i class="bi bi-arrow-clockwise"></i> Refresh models</button>
   </header>
 
   @if(message()){<div class="notice">{{message()}}</div>}
 
-  <section class="section training-panel reveal-card">
-    <div class="section-head">
-      <div><span class="eyebrow">MODEL TRAINING</span><h2>Train a candidate model</h2>
-        <p>Training creates a versioned model and saves its evaluation report. It does not change the active model until you explicitly activate the candidate below.</p>
+  <div class="admin-workspace">
+    <section class="workspace-card training-panel">
+      <div class="section-head">
+        <span class="eyebrow">MODEL TRAINING</span>
+        <h2>Train a candidate model</h2>
+        <p>Training creates a versioned model and saves its evaluation report. The active model changes only after you explicitly activate a candidate.</p>
       </div>
-    </div>
-    <div class="training-controls">
-      <label>Prediction task
-        <select [ngModel]="task()" (ngModelChange)="onTaskChange($event)">
-          <option value="regression">Rating · Regression</option><option value="classification">Installs · Classification</option>
-        </select>
-      </label>
-      <label>ML algorithm
-        <select [ngModel]="algorithm()" (ngModelChange)="algorithm.set($event)">
-          @for(option of currentAlgorithms;track option){<option [value]="option">{{option.replaceAll('_',' ')}}</option>}
-        </select>
-      </label>
-      <div class="algorithm-hint"><i class="bi bi-lightbulb"></i><span>{{algorithmDescription}}</span></div>
-      <label>Test dataset ratio
-        <select [ngModel]="testSize()" (ngModelChange)="testSize.set(+$event)">
-          <option [ngValue]="0.2">20%</option><option [ngValue]="0.25">25%</option><option [ngValue]="0.3">30%</option>
-        </select>
-      </label>
-      <button class="primary train-button" [disabled]="!!busy()" (click)="train()">
-        {{busy()==='training'?'Training model…':'Train candidate model'}} <i class="bi bi-cpu"></i>
-      </button>
-    </div>
-  </section>
+      <div class="training-controls">
+        <label>Prediction task
+          <select [ngModel]="task()" (ngModelChange)="onTaskChange($event)">
+            <option value="regression">Rating · Regression</option><option value="classification">Installs · Classification</option>
+          </select>
+        </label>
+        <label>ML algorithm
+          <select [ngModel]="algorithm()" (ngModelChange)="algorithm.set($event)">
+            @for(option of currentAlgorithms;track option){<option [value]="option">{{option.replaceAll('_',' ')}}</option>}
+          </select>
+        </label>
+        <div class="algorithm-hint"><i class="bi bi-lightbulb"></i><span>{{algorithmDescription}}</span></div>
+        <label>Test dataset ratio
+          <select [ngModel]="testSize()" (ngModelChange)="testSize.set(+$event)">
+            <option [ngValue]="0.2">20%</option><option [ngValue]="0.25">25%</option><option [ngValue]="0.3">30%</option>
+          </select>
+        </label>
+        <button class="primary train-button" [disabled]="!!busy()" (click)="train()">
+          {{busy()==='training'?'Training model…':'Train candidate model'}} <i class="bi bi-cpu"></i>
+        </button>
+      </div>
+    </section>
 
-  <div class="evaluation-heading"><div><span class="eyebrow">VERSION CONTROL</span><h2>Registered models</h2></div><span>{{models().length}} models</span></div>
-  @if(loading()){
-    <div class="empty-state">Loading model registry…</div>
-  }@else{
-    <div class="evaluation-grid">
-      @for(model of models();track model.model_id){
-        <article class="evaluation-card">
-          <div class="card-top">
-            <span class="task-tag" [class.classification]="model.task==='classification'">{{model.task}}</span>
-            @if(model.is_active){<span class="task-tag classification">Active</span>}@else{<span class="date">Inactive candidate</span>}
-          </div>
-          <h3>{{model.algorithm.replaceAll('_',' ')}}</h3>
-          <p class="model-id">{{model.model_id}}</p>
-          <div class="dataset-stats">
-            <div><strong>{{model.version}}</strong><small>Version</small></div>
-            <div><strong>{{model.created_at|date:'mediumDate'}}</strong><small>Created</small></div>
-            <div><strong>{{model.evaluation_id?'Saved':'—'}}</strong><small>Evaluation</small></div>
-          </div>
-          <button class="details-btn" type="button" [disabled]="model.is_active||!!busy()" (click)="activate(model)">
-            @if(busy()===model.model_id){Activating…} @else if(model.is_active){<i class="bi bi-check-circle-fill"></i> Currently active} @else {<i class="bi bi-power"></i> Activate this model}
-          </button>
-        </article>
-      }@empty{
-        <div class="empty-state">No models registered yet. Train a candidate model to get started.</div>
+    <section class="workspace-card registry-panel">
+      <div class="registry-heading">
+        <div><span class="eyebrow">VERSION CONTROL</span><h2>Registered models</h2></div>
+        <span class="count-pill">{{models().length}} models</span>
+      </div>
+      @if(loading()){
+        <div class="empty-state">Loading model registry…</div>
+      }@else{
+        <div class="registry-list">
+          @for(model of models();track model.model_id){
+            <article class="evaluation-card">
+              <div class="card-top">
+                <span class="task-tag" [class.classification]="model.task==='classification'">{{model.task}}</span>
+                @if(model.is_active){<span class="task-tag classification">Active</span>}@else{<span class="date">Inactive candidate</span>}
+              </div>
+              <h3>{{model.algorithm.replaceAll('_',' ')}}</h3>
+              <p class="model-id">{{model.model_id}}</p>
+              <div class="dataset-stats">
+                <div><strong>{{model.version}}</strong><small>Version</small></div>
+                <div><strong>{{model.created_at|date:'mediumDate'}}</strong><small>Created</small></div>
+                <div><strong>{{model.evaluation_id?'Saved':'—'}}</strong><small>Evaluation</small></div>
+              </div>
+              <button class="details-btn" type="button" [disabled]="model.is_active||!!busy()" (click)="activate(model)">
+                @if(busy()===model.model_id){Activating…} @else if(model.is_active){<i class="bi bi-check-circle-fill"></i> Currently active} @else {<i class="bi bi-power"></i> Activate this model}
+              </button>
+            </article>
+          }@empty{
+            <div class="empty-state">No models registered yet. Train a candidate model to get started.</div>
+          }
+        </div>
       }
-    </div>
-  }
+    </section>
+  </div>
 </main>
