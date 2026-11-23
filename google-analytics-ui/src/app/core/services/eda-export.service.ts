@@ -28,19 +28,15 @@ export class EdaExportService {
   private readonly apiUrl = 'http://localhost:8000/api/eda';
 
   // ============================================================
-  // CREATE JSON EXPORT
+  // CREATE EXCEL EXPORT
   // ============================================================
 
-  exportJson(edaId: string): Observable<Blob> {
-    return this.http.post(`${this.apiUrl}/${edaId}/exports/json`, {}, { responseType: 'blob' });
-  }
-
-  // ============================================================
-  // CREATE CSV EXPORT
-  // ============================================================
-
-  exportCsv(edaId: string): Observable<Blob> {
-    return this.http.post(`${this.apiUrl}/${edaId}/exports/csv`, {}, { responseType: 'blob' });
+  exportExcel(edaId: string): Observable<Blob> {
+    return this.http.post(
+      `${this.apiUrl}/${edaId}/exports/xlsx`,
+      {},
+      { responseType: 'blob' },
+    );
   }
 
   // ============================================================
@@ -48,7 +44,11 @@ export class EdaExportService {
   // ============================================================
 
   exportPdf(edaId: string): Observable<Blob> {
-    return this.http.post(`${this.apiUrl}/${edaId}/exports/pdf`, {}, { responseType: 'blob' });
+    return this.http.post(
+      `${this.apiUrl}/${edaId}/exports/pdf`,
+      {},
+      { responseType: 'blob' },
+    );
   }
 
   // ============================================================
