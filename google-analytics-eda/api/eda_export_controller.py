@@ -111,6 +111,7 @@ def export_pdf(
             detail=str(exception),
         ) from exception
     except Exception as exception:
+        logger.exception("PDF export failed for EDA %s", eda_id)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to create PDF export.",
