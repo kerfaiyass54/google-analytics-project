@@ -6,15 +6,13 @@ import {
   signal,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { EdaDocument, EdaService } from '../../../core/services/eda.service';
+import { EdaDocument, EdaService, EdaHistoryFilters } from '../../../core/services/eda.service';
 import {
   PaginatedTable,
   PaginatedTableColumn,
   PaginatedTableRequest,
 } from '../../../shared/components/paginated-table/paginated-table';
 import { Location } from '@angular/common';
-
-
 
 type EdaAnalysisKey =
   | 'ratings_by_category'
@@ -42,8 +40,17 @@ export class ManageEda {
   private readonly edaService = inject(EdaService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly location = inject(Location);
 
   readonly loading = signal(false);
+  readonly filtersExpanded = signal(true);
+  readonly edaIdFilter = signal('');
+  readonly creatorEmailFilter = signal('');
+  readonly dateFromFilter = signal('');
+  readonly dateToFilter = signal('');
+  readonly filterError = signal('');
+
+  private activeFilters: EdaHistoryFilters = {};
 
   readonly historyResponse = signal<any>({
     content: [],
@@ -54,33 +61,17 @@ export class ManageEda {
   });
 
   readonly selectedEda = signal<EdaDocument | null>(null);
-
   readonly selectedAnalysis = signal<EdaAnalysisKey>('ratings_by_category');
-
   readonly dialogVisible = signal(false);
-
-  private readonly location = inject(Location);
 
   goBack(): void {
     this.location.back();
   }
 
   readonly tableColumns: PaginatedTableColumn[] = [
-    {
-      key: 'eda_id',
-      label: 'EDA ID',
-      type: 'text',
-    },
-    {
-      key: 'email',
-      label: 'Created by',
-      type: 'text',
-    },
-    {
-      key: 'date',
-      label: 'Analysis date',
-      type: 'date',
-    },
+    { key: 'eda_id', label: 'EDA ID', type: 'text' },
+    { key: 'email', label: 'Created by', type: 'text' },
+    { key: 'date', label: 'Analysis date', type: 'date' },
   ];
 
   readonly analysisButtons: AnalysisButton[] = [
@@ -115,17 +106,13 @@ export class ManageEda {
   ];
 
   constructor() {
-    this.destroyRef.onDestroy(() => {
-      this.closeDialog();
-    });
-
+    this.destroyRef.onDestroy(() => this.closeDialog());
     this.loadHistory(0, 10);
   }
 
-  loadHistory(page: number, size: number): void {
+  loadHistory(page: number, size: number, search = ''): void {
     this.loading.set(true);
-
-    this.edaService.getHistory(page, size).subscribe({
+    this.edaService.getHistory(page, size, { ...this.activeFilters, search }).subscribe({
       next: (response) => {
         this.historyResponse.set({
           content: response.content ?? [],
@@ -134,12 +121,10 @@ export class ManageEda {
           totalElements: response.total_elements ?? 0,
           totalPages: response.total_pages ?? 0,
         });
-
         this.loading.set(false);
       },
       error: () => {
         this.loading.set(false);
-
         this.historyResponse.set({
           content: [],
           page,
@@ -151,100 +136,86 @@ export class ManageEda {
     });
   }
 
-  onPageChange(request: PaginatedTableRequest): void {
-    this.loadHistory(request.page, request.size);
+  applyFilters(): void {
+    this.filterError.set('');
+
+    if (this.dateFromFilter() && this.dateToFilter() &&
+        this.dateFromFilter() > this.dateToFilter()) {
+      this.filterError.set('The start date must be earlier than or equal to the end date.');
+      return;
+    }
+
+    this.activeFilters = {
+      edaId: this.edaIdFilter().trim() || undefined,
+      creatorEmail: this.creatorEmailFilter().trim() || undefined,
+      dateFrom: this.dateFromFilter() ? `${this.dateFromFilter()}T00:00:00` : undefined,
+      dateTo: this.dateToFilter() ? `${this.dateToFilter()}T23:59:59.999` : undefined,
+    };
+
+    this.loadHistory(0, this.historyResponse().size || 10);
   }
 
-  /**
-   * The current PaginatedTable does not expose a rowClick output.
-   *
-   * Instead, clicks are captured here and mapped to the corresponding
-   * row in the current paginated response.
-   */
+  resetFilters(): void {
+    this.edaIdFilter.set('');
+    this.creatorEmailFilter.set('');
+    this.dateFromFilter.set('');
+    this.dateToFilter.set('');
+    this.filterError.set('');
+    this.activeFilters = {};
+    this.loadHistory(0, this.historyResponse().size || 10);
+  }
+
+  onPageChange(request: PaginatedTableRequest): void {
+    this.loadHistory(request.page, request.size, request.search);
+  }
+
   onTableClick(event: MouseEvent): void {
     const target = event.target as HTMLElement | null;
-
-    if (!target) {
-      return;
-    }
+    if (!target) return;
 
     const row = target.closest('tbody tr.table-row') as HTMLTableRowElement | null;
-
-    if (!row) {
-      return;
-    }
+    if (!row) return;
 
     const tableRows = Array.from(row.parentElement?.querySelectorAll('tr.table-row') ?? []);
-
     const rowIndex = tableRows.indexOf(row);
-
-    if (rowIndex < 0) {
-      return;
-    }
+    if (rowIndex < 0) return;
 
     const eda = this.historyResponse().content[rowIndex];
-
-    if (!eda) {
-      return;
-    }
-
-    this.openDialog(eda);
+    if (eda) this.openDialog(eda);
   }
 
   openDialog(eda: EdaDocument): void {
     this.selectedEda.set(eda);
     this.selectedAnalysis.set('ratings_by_category');
     this.dialogVisible.set(true);
-
     document.body.classList.add('eda-dialog-open');
   }
 
   closeDialog(): void {
     this.dialogVisible.set(false);
     document.body.classList.remove('eda-dialog-open');
-
     window.setTimeout(() => {
-      if (!this.dialogVisible()) {
-        this.selectedEda.set(null);
-      }
+      if (!this.dialogVisible()) this.selectedEda.set(null);
     }, 250);
   }
 
   selectAnalysis(key: EdaAnalysisKey): void {
-    if (this.selectedAnalysis() === key) {
-      return;
-    }
-
-    this.selectedAnalysis.set(key);
+    if (this.selectedAnalysis() !== key) this.selectedAnalysis.set(key);
   }
 
   get selectedAnalysisButton(): AnalysisButton {
-    const selected = this.selectedAnalysis();
-
-    return (
-      this.analysisButtons.find((button) => button.key === selected) ?? this.analysisButtons[0]
-    );
+    return this.analysisButtons.find((button) => button.key === this.selectedAnalysis())
+      ?? this.analysisButtons[0];
   }
 
   getSelectedAnalysisData(): unknown {
     const eda = this.selectedEda();
-
-    if (!eda) {
-      return null;
-    }
-
-    return eda[this.selectedAnalysis()];
+    return eda ? eda[this.selectedAnalysis()] : null;
   }
 
-  getAnalysisDataEntries(): Array<{
-    key: string;
-    value: string;
-  }> {
+  getAnalysisDataEntries(): Array<{ key: string; value: string }> {
     const data = this.getSelectedAnalysisData();
-
-    if (!data || typeof data !== 'object') {
-      return [];
-    }
+    if (!data || typeof data !== 'object') return [];
 
     return Object.entries(data as Record<string, unknown>).map(([key, value]) => ({
       key: this.formatKey(key),
@@ -257,31 +228,16 @@ export class ManageEda {
   }
 
   private formatValue(value: unknown): string {
-    if (value === null || value === undefined) {
-      return '—';
-    }
-
-    if (Array.isArray(value)) {
-      return `${value.length} items`;
-    }
-
-    if (typeof value === 'object') {
-      return JSON.stringify(value);
-    }
-
+    if (value === null || value === undefined) return '—';
+    if (Array.isArray(value)) return `${value.length} items`;
+    if (typeof value === 'object') return JSON.stringify(value);
     return String(value);
   }
 
   formatDate(date: string | Date | null | undefined): string {
-    if (!date) {
-      return '—';
-    }
-
+    if (!date) return '—';
     const parsedDate = new Date(date);
-
-    if (Number.isNaN(parsedDate.getTime())) {
-      return String(date);
-    }
+    if (Number.isNaN(parsedDate.getTime())) return String(date);
 
     return new Intl.DateTimeFormat('en-GB', {
       dateStyle: 'medium',
@@ -291,12 +247,7 @@ export class ManageEda {
 
   exportEda(): void {
     const eda = this.selectedEda();
-
-    if (!eda?.eda_id) {
-      return;
-    }
-
-    this.router.navigate(['/operations/export-eda', eda.eda_id]);
+    if (eda?.eda_id) this.router.navigate(['/operations/export-eda', eda.eda_id]);
   }
 
   trackAnalysis(_index: number, item: AnalysisButton): string {
