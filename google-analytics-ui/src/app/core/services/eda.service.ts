@@ -26,6 +26,7 @@ export interface EdaHistoryFilters {
   dateFrom?: string;
   dateTo?: string;
   search?: string;
+  metricFilters?: Record<string, { min?: number; max?: number }>;
 }
 
 @Injectable({
@@ -49,6 +50,9 @@ export class EdaService {
     if (filters.dateFrom) params = params.set('date_from', filters.dateFrom);
     if (filters.dateTo) params = params.set('date_to', filters.dateTo);
     if (filters.search?.trim()) params = params.set('search', filters.search.trim());
+    if (filters.metricFilters && Object.keys(filters.metricFilters).length) {
+      params = params.set('metric_filters', JSON.stringify(filters.metricFilters));
+    }
 
     return this.http.get<EdaPage>(this.apiUrl, { params });
   }
