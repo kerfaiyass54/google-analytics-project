@@ -92,7 +92,7 @@ class EdaRepository:
         if search and search.strip():
             term = search.strip()
             must.append({"bool": {"should": [
-                {"wildcard": {"_id": {"value": f"*{term}*", "case_insensitive": True}}},
+                {"term": {"_id": term}},
                 {"wildcard": {"email": {"value": f"*{term}*", "case_insensitive": True}}},
             ], "minimum_should_match": 1}})
 
