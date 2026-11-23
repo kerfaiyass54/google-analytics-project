@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import io
 import math
+from threading import Lock
 from collections.abc import Mapping
 from typing import Any
 
@@ -13,19 +14,25 @@ from matplotlib.backends.backend_pdf import PdfPages
 from schema.eda_document import EdaDocument
 
 
+_PDF_RENDER_LOCK = Lock()
+
+
 class PdfExporter:
     """Create a multi-page analytical PDF with charts rendered by Matplotlib."""
 
     @staticmethod
     def export(eda: EdaDocument) -> bytes:
-        output = io.BytesIO()
-        with PdfPages(output) as pdf:
-            PdfExporter._add_cover(pdf, eda)
-            PdfExporter._ratings_page(pdf, eda.ratings_by_category)
-            PdfExporter._free_paid_page(pdf, eda.free_vs_paid)
-            PdfExporter._install_page(pdf, eda.install_distribution)
-            PdfExporter._reviews_page(pdf, eda.review_counts)
-        return output.getvalue()
+        # Matplotlib uses shared process-level state; serialize PDF rendering
+        # to avoid cross-request interference when FastAPI handles exports in threads.
+        with _PDF_RENDER_LOCK:
+            output = io.BytesIO()
+            with PdfPages(output) as pdf:
+                PdfExporter._add_cover(pdf, eda)
+                PdfExporter._ratings_page(pdf, eda.ratings_by_category)
+                PdfExporter._free_paid_page(pdf, eda.free_vs_paid)
+                PdfExporter._install_page(pdf, eda.install_distribution)
+                PdfExporter._reviews_page(pdf, eda.review_counts)
+            return output.getvalue()
 
     @staticmethod
     def _rows(data: Mapping[str, Any], key: str) -> list[dict[str, Any]]:
