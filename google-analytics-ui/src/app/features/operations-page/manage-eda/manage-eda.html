@@ -32,7 +32,7 @@
     </button>
 
     @if (filtersExpanded()) {
-      <div class="filter-grid">
+      <div class="filter-grid identity-filters">
         <label class="filter-field">
           <span>EDA ID</span>
           <div class="filter-input-wrap">
@@ -64,12 +64,47 @@
         </label>
       </div>
 
+      <div class="metric-filter-groups">
+        @for (group of metricFilterGroups; track group.title) {
+          <section class="metric-filter-group">
+            <div class="metric-group-heading">
+              <div>
+                <h3>{{ group.title }}</h3>
+                <p>{{ group.description }}</p>
+              </div>
+              <span>{{ group.metrics.length }} metrics</span>
+            </div>
+            <div class="metric-range-grid">
+              @for (metric of group.metrics; track metric.key) {
+                <div class="metric-range-field">
+                  <label>{{ metric.label }}</label>
+                  <div class="range-inputs">
+                    <div>
+                      <span>Min</span>
+                      <input type="number" [attr.step]="metric.step" placeholder="No minimum"
+                        [value]="metricRanges()[metric.key]?.min ?? ''"
+                        (input)="updateMetricRange(metric.key, 'min', $any($event.target).value)" />
+                    </div>
+                    <div>
+                      <span>Max</span>
+                      <input type="number" [attr.step]="metric.step" placeholder="No maximum"
+                        [value]="metricRanges()[metric.key]?.max ?? ''"
+                        (input)="updateMetricRange(metric.key, 'max', $any($event.target).value)" />
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </section>
+        }
+      </div>
+
       @if (filterError()) {
         <p class="filter-error"><i class="bi bi-exclamation-circle"></i>{{ filterError() }}</p>
       }
 
       <div class="filter-actions">
-        <span class="filter-hint"><i class="bi bi-info-circle"></i> Results are scoped to your account unless you have administrator access.</span>
+        <span class="filter-hint"><i class="bi bi-info-circle"></i> Set a minimum, maximum, or both. All selected conditions must match.</span>
         <div>
           <button type="button" class="reset-filter-button" (click)="resetFilters()">
             <i class="bi bi-arrow-counterclockwise"></i> Reset
