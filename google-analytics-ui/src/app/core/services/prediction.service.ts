@@ -7,7 +7,7 @@ export interface AppFeatures {
   content_rating: string; genres: string; last_updated: string; current_version: string; android_version: string;
 }
 export interface PredictionRecord {
-  id: string; prediction_id?: string; task: 'regression'|'classification'; app_name: string;
+  id?: string; prediction_id?: string; task: 'regression'|'classification'; app_name: string;
   input_data?: AppFeatures; prediction: number|string; model_id: string; created_at: string;
 }
 @Injectable({providedIn:'root'})
