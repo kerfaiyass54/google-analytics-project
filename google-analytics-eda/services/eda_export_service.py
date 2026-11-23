@@ -47,7 +47,7 @@ class EdaExportService:
         self,
         eda_id: str,
         user: KeycloakUser,
-    ) -> ExportResponse:
+    ) -> Response:
 
         eda = self._get_accessible_eda(
             eda_id,
@@ -72,7 +72,7 @@ class EdaExportService:
         self,
         eda_id: str,
         user: KeycloakUser,
-    ) -> ExportResponse:
+    ) -> Response:
 
         eda = self._get_accessible_eda(
             eda_id,
@@ -97,7 +97,7 @@ class EdaExportService:
         self,
         eda_id: str,
         user: KeycloakUser,
-    ) -> ExportResponse:
+    ) -> Response:
 
         eda = self._get_accessible_eda(
             eda_id,
