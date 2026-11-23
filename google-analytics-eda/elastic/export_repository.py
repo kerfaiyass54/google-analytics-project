@@ -326,15 +326,15 @@ class ExportRepository:
             size: int = 20,
     ) -> dict:
 
-        result = self._client.search(
-            index=self._index_name,
-            query={
-                "term": {
-                    "email.keyword": email,
-                }
-            },
+        response = self.client.search(
+            index=self.index,
             from_=page * size,
             size=size,
+            query={
+                "term": {
+                    "email": email,
+                }
+            },
             sort=[
                 {
                     "date": {
@@ -344,27 +344,8 @@ class ExportRepository:
             ],
         )
 
-        exports = [
-            ExportDocument(
-                **hit["_source"]
-            )
-            for hit in result["hits"]["hits"]
-        ]
-
-        total_elements = (
-            result["hits"]["total"]["value"]
+        return self._build_page_result(
+            response,
+            page,
+            size,
         )
-
-        total_pages = (
-            (total_elements + size - 1) // size
-            if total_elements > 0
-            else 0
-        )
-
-        return {
-            "content": exports,
-            "page": page,
-            "size": size,
-            "total_elements": total_elements,
-            "total_pages": total_pages,
-        }
