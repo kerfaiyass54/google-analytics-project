@@ -12,7 +12,6 @@ from fastapi import (
 )
 
 from schema.export_page import ExportPage
-from schema.export_response import ExportResponse
 
 from security.keycloak import (
     KeycloakUser,
@@ -58,14 +57,13 @@ EdaExportServiceDependency = Annotated[
 
 @router.post(
     "/{eda_id}/exports/json",
-    response_model=ExportResponse,
     status_code=status.HTTP_201_CREATED,
 )
 def export_json(
     eda_id: str,
     current_user: CurrentUser,
     service: EdaExportServiceDependency,
-) -> ExportResponse:
+) -> Response:
 
     try:
 
