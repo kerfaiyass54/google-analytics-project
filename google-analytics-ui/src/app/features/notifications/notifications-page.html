@@ -21,7 +21,7 @@
   <div class="notification-list">
     @for (item of visibleNotifications; track item.id) {
       <article class="notification-card" [class.unread]="!item.read_at">
-        <div class="notification-icon"><i class="bi" [class]="icon(item.event_type)"></i></div>
+        <div class="notification-icon"><i [class]="'bi ' + icon(item.event_type)"></i></div>
         <div class="notification-content">
           <div class="notification-title-row"><h3>{{ item.title }}</h3><time>{{ item.created_at | date:'medium' }}</time></div>
           <p>{{ item.message }}</p>
