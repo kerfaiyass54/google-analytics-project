@@ -6,7 +6,7 @@ from dataclasses import dataclass
 class Settings:
     """Environment-backed configuration for the dashboard aggregation service."""
 
-    kafka_bootstrap_servers: str = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
+    kafka_bootstrap_servers: str = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9099")
     elasticsearch_url: str = os.getenv("ELASTICSEARCH_URL", "http://localhost:9290")
     events_index: str = os.getenv("EVENTS_INDEX", "prediction_dashboard_events")
     evaluations_index: str = os.getenv("EVALUATIONS_INDEX", "prediction_model_evaluations")

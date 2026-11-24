@@ -120,12 +120,11 @@ services:
     restart: unless-stopped
 
     environment:
-
       ZOOKEEPER_CLIENT_PORT: ${ZOOKEEPER_CLIENT_PORT}
       ZOOKEEPER_TICK_TIME: 2000
 
     ports:
-      - "${ZOOKEEPER_HOST_PORT}:2181"
+      - "${ZOOKEEPER_HOST_PORT}:${ZOOKEEPER_CLIENT_PORT}"
 
     volumes:
       - zookeeper_data:/var/lib/zookeeper/data
