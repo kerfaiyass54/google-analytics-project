@@ -12,7 +12,6 @@ import {
   PaginatedTable,
   PaginatedTableColumn,
   PaginatedTableResponse,
-
 } from '../../../shared/components/paginated-table/paginated-table';
 
 import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
@@ -74,7 +73,7 @@ export class DeleteApplications implements OnInit {
   readonly rowAction: any = {
     label: 'Delete',
     icon: 'bi bi-trash3',
-    condition: (app:any) => app.id > 0,
+    condition: (app: any) => app.id > 0,
   };
 
   readonly tableResponse = signal<PaginatedTableResponse<GooglePlayAppResponse>>({

@@ -32,11 +32,7 @@ export class EdaExportService {
   // ============================================================
 
   exportExcel(edaId: string): Observable<Blob> {
-    return this.http.post(
-      `${this.apiUrl}/${edaId}/exports/xlsx`,
-      {},
-      { responseType: 'blob' },
-    );
+    return this.http.post(`${this.apiUrl}/${edaId}/exports/xlsx`, {}, { responseType: 'blob' });
   }
 
   // ============================================================
@@ -44,11 +40,7 @@ export class EdaExportService {
   // ============================================================
 
   exportChartsZip(edaId: string): Observable<Blob> {
-    return this.http.post(
-      `${this.apiUrl}/${edaId}/exports/zip`,
-      {},
-      { responseType: 'blob' },
-    );
+    return this.http.post(`${this.apiUrl}/${edaId}/exports/zip`, {}, { responseType: 'blob' });
   }
 
   // ============================================================

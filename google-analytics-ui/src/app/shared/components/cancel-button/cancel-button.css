@@ -28,8 +28,7 @@
 
   cursor: pointer;
 
-  box-shadow:
-    0 4px 12px rgba(15, 23, 42, 0.05);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
 
   transition:
     transform 0.2s ease,
@@ -52,8 +51,7 @@
 
   transform: translateY(-2px);
 
-  box-shadow:
-    0 8px 20px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
 }
 
 /* ==========================================================
@@ -71,8 +69,7 @@
 .cancel-button i {
   font-size: 14px;
 
-  transition:
-    transform 0.2s ease;
+  transition: transform 0.2s ease;
 }
 
 .cancel-button:hover i {

@@ -1,12 +1,7 @@
 <nav class="navbar navbar-expand-lg app-navbar">
-
   <div class="container-fluid navbar-container">
-
     <!-- Brand -->
-    <a
-      class="navbar-brand app-brand"
-      routerLink="/dashboard">
-
+    <a class="navbar-brand app-brand" routerLink="/dashboard">
       <div class="brand-icon">
         <i class="bi bi-google-play"></i>
       </div>
@@ -15,7 +10,6 @@
         <span class="brand-title">PlayMetrics</span>
         <span class="brand-subtitle">Analytics Platform</span>
       </div>
-
     </a>
 
     <!-- Mobile toggle -->
@@ -26,31 +20,24 @@
       data-bs-target="#mainNavbar"
       aria-controls="mainNavbar"
       aria-expanded="false"
-      aria-label="Toggle navigation">
-
+      aria-label="Toggle navigation"
+    >
       <i class="bi bi-list"></i>
-
     </button>
 
     <!-- Navigation -->
-    <div
-      class="collapse navbar-collapse"
-      id="mainNavbar">
-
+    <div class="collapse navbar-collapse" id="mainNavbar">
       <ul class="navbar-nav main-navigation">
-
         @for (item of navigationItems; track item.route) {
-
           <li class="nav-item">
-
             <a
               class="nav-link navigation-link"
               [routerLink]="item.route"
               routerLinkActive="active"
               [routerLinkActiveOptions]="{
-                exact: item.route === '/dashboard'
-              }">
-
+                exact: item.route === '/dashboard',
+              }"
+            >
               <span class="navigation-icon">
                 <i [class]="'bi ' + item.icon"></i>
               </span>
@@ -60,27 +47,18 @@
               </span>
 
               <span class="active-indicator"></span>
-
             </a>
-
           </li>
-
         }
-
       </ul>
 
       <!-- Right section -->
       <div class="navbar-actions">
-
         <!-- Status -->
         <div class="system-status">
-
           <span class="status-dot"></span>
 
-          <span class="status-text">
-            System online
-          </span>
-
+          <span class="status-text"> System online </span>
         </div>
 
         <!-- Divider -->
@@ -88,130 +66,90 @@
 
         <!-- User -->
         <div class="dropdown user-menu">
-
           <button
             class="user-button dropdown-toggle"
             type="button"
             data-bs-toggle="dropdown"
-            aria-expanded="false">
-
+            aria-expanded="false"
+          >
             <div class="user-avatar">
               <i class="bi bi-person-fill"></i>
             </div>
 
             <div class="user-information">
-
               <span class="user-name">
                 {{ authService.username() ?? 'User' }}
               </span>
 
               <span class="user-role">
-
                 @if (authService.isAdmin()) {
                   Administrator
                 } @else {
                   Analyst
                 }
-
               </span>
-
             </div>
-
           </button>
 
           <ul class="dropdown-menu dropdown-menu-end user-dropdown">
-
             <!-- User information -->
             <li class="dropdown-header">
-
               <div class="dropdown-user-avatar">
                 <i class="bi bi-person-fill"></i>
               </div>
 
               <div>
-
                 <strong>
                   {{ authService.username() ?? 'User' }}
                 </strong>
 
                 <small>
-
                   @if (authService.isAdmin()) {
                     Administrator account
                   } @else {
                     Analyst account
                   }
-
                 </small>
-
               </div>
-
             </li>
 
             <li>
-              <hr class="dropdown-divider">
+              <hr class="dropdown-divider" />
             </li>
 
             <!-- Settings -->
             <li>
-              <a
-                class="dropdown-item"
-                routerLink="/settings">
-
+              <a class="dropdown-item" routerLink="/settings">
                 <i class="bi bi-person-gear"></i>
 
-                <span>
-                  Account settings
-                </span>
-
+                <span> Account settings </span>
               </a>
             </li>
 
             <!-- Profile -->
             <li>
-              <a
-                class="dropdown-item"
-                routerLink="/profile">
-
+              <a class="dropdown-item" routerLink="/profile">
                 <i class="bi bi-person"></i>
 
-                <span>
-                  My profile
-                </span>
-
+                <span> My profile </span>
               </a>
             </li>
 
             <li>
-              <hr class="dropdown-divider">
+              <hr class="dropdown-divider" />
             </li>
 
             <!-- Logout -->
             <li>
-
-              <button
-                class="dropdown-item logout-item"
-                type="button"
-                (click)="logout()">
-
+              <button class="dropdown-item logout-item" type="button" (click)="logout()">
                 <i class="bi bi-box-arrow-right"></i>
 
-                <span>
-                  Logout
-                </span>
-
+                <span> Logout </span>
               </button>
-
             </li>
-
           </ul>
-
         </div>
-
       </div>
-
     </div>
-
   </div>
-
 </nav>

@@ -103,7 +103,7 @@ export class ExportEda {
     this.exportError.set('');
     this.progressSubscription?.unsubscribe();
     this.progressSubscription = interval(2200).subscribe(() => {
-      this.exportProgressStage.update(stage => Math.min(stage + 1, this.exportStages.length - 1));
+      this.exportProgressStage.update((stage) => Math.min(stage + 1, this.exportStages.length - 1));
     });
 
     let request$: Observable<Blob>;
@@ -129,9 +129,7 @@ export class ExportEda {
       },
       error: (error) => {
         console.error('EDA export failed:', error);
-        this.exportError.set(
-          'The export could not be generated. Please try again.'
-        );
+        this.exportError.set('The export could not be generated. Please try again.');
         this.progressSubscription?.unsubscribe();
         this.isExporting.set(false);
       },

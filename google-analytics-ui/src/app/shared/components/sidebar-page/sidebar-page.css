@@ -21,12 +21,7 @@
   border: 1px solid rgba(255, 255, 255, 0.65);
   border-radius: 1.35rem;
 
-  background:
-    linear-gradient(
-      145deg,
-      rgba(255, 255, 255, 0.92),
-      rgba(248, 250, 252, 0.82)
-    );
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(248, 250, 252, 0.82));
 
   box-shadow:
     0 20px 45px rgba(15, 23, 42, 0.12),
@@ -180,26 +175,15 @@
 .sidebar-item.active {
   color: #4f46e5;
 
-  background:
-    linear-gradient(
-      135deg,
-      rgba(99, 102, 241, 0.13),
-      rgba(139, 92, 246, 0.07)
-    );
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.13), rgba(139, 92, 246, 0.07));
 }
 
 .sidebar-item.active .sidebar-icon {
   color: #ffffff;
 
-  background:
-    linear-gradient(
-      135deg,
-      #6366f1,
-      #8b5cf6
-    );
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
 
-  box-shadow:
-    0 7px 18px rgba(99, 102, 241, 0.28);
+  box-shadow: 0 7px 18px rgba(99, 102, 241, 0.28);
 }
 
 /* ============================================================
@@ -217,17 +201,11 @@
 
   border-radius: 10px;
 
-  background: linear-gradient(
-    to bottom,
-    #6366f1,
-    #8b5cf6
-  );
+  background: linear-gradient(to bottom, #6366f1, #8b5cf6);
 
   opacity: 0;
 
-  transform:
-    translateY(-50%)
-    scaleY(0);
+  transform: translateY(-50%) scaleY(0);
 
   transition:
     height 0.3s ease,
@@ -240,9 +218,7 @@
 
   opacity: 1;
 
-  transform:
-    translateY(-50%)
-    scaleY(1);
+  transform: translateY(-50%) scaleY(1);
 }
 
 /* ============================================================
@@ -250,12 +226,7 @@
    ============================================================ */
 
 .sidebar-item.active:hover {
-  background:
-    linear-gradient(
-      135deg,
-      rgba(99, 102, 241, 0.18),
-      rgba(139, 92, 246, 0.1)
-    );
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.18), rgba(139, 92, 246, 0.1));
 
   transform: translateX(3px);
 }

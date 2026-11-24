@@ -2,7 +2,6 @@
   display: block;
 }
 
-
 /* ==========================================================
    PAGE
    ========================================================== */
@@ -16,19 +15,9 @@
   overflow: hidden;
 
   background:
-    radial-gradient(
-      circle at 10% 10%,
-      rgba(99, 102, 241, 0.055),
-      transparent 28%
-    ),
-    radial-gradient(
-      circle at 90% 25%,
-      rgba(6, 182, 212, 0.045),
-      transparent 25%
-    ),
-    #f8fafc;
+    radial-gradient(circle at 10% 10%, rgba(99, 102, 241, 0.055), transparent 28%),
+    radial-gradient(circle at 90% 25%, rgba(6, 182, 212, 0.045), transparent 25%), #f8fafc;
 }
-
 
 /* ==========================================================
    HERO
@@ -48,20 +37,12 @@
   border: 1px solid rgba(226, 232, 240, 0.9);
   border-radius: 30px;
 
-  background:
-    linear-gradient(
-      135deg,
-      #ffffff 0%,
-      #f8fafc 55%,
-      #eef2ff 100%
-    );
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 55%, #eef2ff 100%);
 
-  box-shadow:
-    0 18px 50px rgba(15, 23, 42, 0.07);
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.07);
 
   animation: heroReveal 0.65s ease both;
 }
-
 
 /* ==========================================================
    HERO BACKGROUND
@@ -81,24 +62,12 @@
   opacity: 0.3;
 
   background-image:
-    linear-gradient(
-      rgba(99, 102, 241, 0.045) 1px,
-      transparent 1px
-    ),
-    linear-gradient(
-      90deg,
-      rgba(99, 102, 241, 0.045) 1px,
-      transparent 1px
-    );
+    linear-gradient(rgba(99, 102, 241, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99, 102, 241, 0.045) 1px, transparent 1px);
 
   background-size: 32px 32px;
 
-  mask-image:
-    linear-gradient(
-      to right,
-      black,
-      transparent 75%
-    );
+  mask-image: linear-gradient(to right, black, transparent 75%);
 }
 
 .hero-orb {
@@ -134,7 +103,6 @@
 
   animation-delay: -3s;
 }
-
 
 /* ==========================================================
    HERO CONTENT
@@ -178,8 +146,7 @@
 
   background: #6366f1;
 
-  box-shadow:
-    0 0 0 4px rgba(99, 102, 241, 0.1);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
 
   animation: pulseDot 2s ease-in-out infinite;
 }
@@ -216,11 +183,7 @@
 
   border-radius: 999px;
 
-  background: linear-gradient(
-    90deg,
-    #6366f1,
-    #06b6d4
-  );
+  background: linear-gradient(90deg, #6366f1, #06b6d4);
 
   transform-origin: left;
 
@@ -239,7 +202,6 @@
 
   animation: fadeUp 0.6s 0.26s ease both;
 }
-
 
 /* ==========================================================
    HERO META
@@ -306,7 +268,6 @@
   background: #e2e8f0;
 }
 
-
 /* ==========================================================
    HERO DECORATION
    ========================================================== */
@@ -360,7 +321,6 @@
 
   animation-delay: -4s;
 }
-
 
 /* ==========================================================
    OPERATIONS SECTION
@@ -427,7 +387,6 @@
   line-height: 1.5;
 }
 
-
 /* ==========================================================
    COUNTER
    ========================================================== */
@@ -444,8 +403,7 @@
   border: 1px solid #e2e8f0;
   border-radius: 12px;
 
-  box-shadow:
-    0 4px 15px rgba(15, 23, 42, 0.04);
+  box-shadow: 0 4px 15px rgba(15, 23, 42, 0.04);
 }
 
 .section-counter span {
@@ -462,7 +420,6 @@
   font-weight: 650;
 }
 
-
 /* ==========================================================
    OPERATIONS GRID
    ========================================================== */
@@ -470,8 +427,7 @@
 .operations-grid {
   display: grid;
 
-  grid-template-columns:
-    repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
 
   gap: 16px;
 }
@@ -492,7 +448,7 @@
 
 .operation-card-wrapper:nth-child(3) {
   grid-column: span 2;
-  animation-delay: 0.20s;
+  animation-delay: 0.2s;
 }
 
 .operation-card-wrapper:nth-child(4) {
@@ -504,7 +460,6 @@
   grid-column: span 3;
   animation-delay: 0.32s;
 }
-
 
 /* ==========================================================
    WORKFLOW
@@ -526,18 +481,12 @@
 
   padding: 22px 24px;
 
-  background:
-    linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.96),
-      rgba(248, 250, 252, 0.96)
-    );
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.96));
 
   border: 1px solid #e2e8f0;
   border-radius: 20px;
 
-  box-shadow:
-    0 8px 28px rgba(15, 23, 42, 0.045);
+  box-shadow: 0 8px 28px rgba(15, 23, 42, 0.045);
 
   transition:
     transform 0.25s ease,
@@ -547,8 +496,7 @@
 .workflow-card:hover {
   transform: translateY(-2px);
 
-  box-shadow:
-    0 14px 35px rgba(15, 23, 42, 0.07);
+  box-shadow: 0 14px 35px rgba(15, 23, 42, 0.07);
 }
 
 .workflow-icon {
@@ -602,7 +550,6 @@
   line-height: 1.5;
 }
 
-
 /* ==========================================================
    WORKFLOW STEPS
    ========================================================== */
@@ -650,7 +597,6 @@
   font-weight: 800;
 }
 
-
 /* ==========================================================
    HINT
    ========================================================== */
@@ -678,7 +624,6 @@
 
   animation: cursorBounce 1.8s ease-in-out infinite;
 }
-
 
 /* ==========================================================
    ANIMATIONS
@@ -743,13 +688,11 @@
 @keyframes pulseDot {
   0%,
   100% {
-    box-shadow:
-      0 0 0 4px rgba(99, 102, 241, 0.1);
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
   }
 
   50% {
-    box-shadow:
-      0 0 0 7px rgba(99, 102, 241, 0.03);
+    box-shadow: 0 0 0 7px rgba(99, 102, 241, 0.03);
   }
 }
 
@@ -786,7 +729,6 @@
   }
 }
 
-
 /* ==========================================================
    TABLET
    ========================================================== */
@@ -801,8 +743,7 @@
   }
 
   .operations-grid {
-    grid-template-columns:
-      repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .operation-card-wrapper:nth-child(n) {
@@ -822,7 +763,6 @@
     padding-top: 5px;
   }
 }
-
 
 /* ==========================================================
    MOBILE
@@ -899,7 +839,6 @@
     font-size: 9px;
   }
 }
-
 
 /* ==========================================================
    REDUCED MOTION

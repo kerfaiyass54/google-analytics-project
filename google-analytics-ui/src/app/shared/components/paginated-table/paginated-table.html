@@ -1,372 +1,195 @@
 <section class="table-card">
-
   <!-- ======================================================
        HEADER
        ====================================================== -->
 
   <header class="table-header">
-
     <div class="title-section">
-
       <div class="title-icon">
         <i class="bi bi-grid-3x3-gap-fill"></i>
       </div>
 
       <div class="title-content">
-
         <h2>
           {{ title() }}
         </h2>
 
-        <span class="table-subtitle">
-          {{ totalElements }} records
-        </span>
-
+        <span class="table-subtitle"> {{ totalElements }} records </span>
       </div>
-
     </div>
-
 
     <!-- ====================================================
          HEADER ACTIONS
          ==================================================== -->
 
     <div class="header-actions">
-
       @if (hasAction) {
-
         <button
           type="button"
           class="table-action-button"
-          [disabled]="
-            loading() ||
-            selectedCount === 0
-          "
+          [disabled]="loading() || selectedCount === 0"
           (click)="onAction()"
         >
-
-          <i
-            class="bi"
-            [class]="actionIcon()"
-          ></i>
+          <i class="bi" [class]="actionIcon()"></i>
 
           <span>
             {{ actionLabel() }}
           </span>
 
           @if (selectedCount > 0) {
-
             <span class="selected-count">
               {{ selectedCount }}
             </span>
-
           }
-
         </button>
-
       }
-
 
       <!-- SEARCH -->
 
       <div class="search-container">
-
-        <i
-          class="bi bi-search search-icon"
-        ></i>
+        <i class="bi bi-search search-icon"></i>
 
         <input
           type="search"
           class="search-input"
           [value]="search()"
           [placeholder]="searchPlaceholder()"
-          (input)="
-            onSearch(
-              $any($event.target).value
-            )
-          "
-          (keydown)="
-            onSearchKeydown($event)
-          "
+          (input)="onSearch($any($event.target).value)"
+          (keydown)="onSearchKeydown($event)"
           autocomplete="off"
         />
 
         @if (search()) {
-
           <button
             type="button"
             class="clear-search"
             aria-label="Clear search"
             (click)="clearSearch()"
           >
-
             <i class="bi bi-x-lg"></i>
-
           </button>
-
         } @else {
-
-          <span class="search-shortcut">
-            /
-          </span>
-
+          <span class="search-shortcut"> / </span>
         }
-
       </div>
-
     </div>
-
   </header>
-
 
   <!-- ======================================================
        TABLE
        ====================================================== -->
 
   <div class="table-wrapper">
-
     <table class="modern-table">
-
       <!-- ==================================================
            TABLE HEAD
            ================================================== -->
 
       <thead>
+        <tr>
+          @if (showCheckbox()) {
+            <th class="checkbox-column">
+              <input
+                type="checkbox"
+                class="table-checkbox"
+                [checked]="allVisibleSelected"
+                [indeterminate]="someVisibleSelected"
+                [disabled]="loading() || rows.length === 0"
+                (change)="toggleAllVisible()"
+                aria-label="Select all visible rows"
+              />
+            </th>
+          }
 
-      <tr>
-
-        @if (showCheckbox()) {
-
-          <th class="checkbox-column">
-
-            <input
-              type="checkbox"
-              class="table-checkbox"
-              [checked]="allVisibleSelected"
-              [indeterminate]="
-                  someVisibleSelected
-                "
-              [disabled]="
-                  loading() ||
-                  rows.length === 0
-                "
-              (change)="toggleAllVisible()"
-              aria-label="Select all visible rows"
-            />
-
-          </th>
-
-        }
-
-
-        @for (
-          column of columns();
-          track column.key
-          ) {
-
-          <th>
-
+          @for (column of columns(); track column.key) {
+            <th>
               <span class="column-label">
                 {{ column.label }}
               </span>
-
-          </th>
-
-        }
-
-      </tr>
-
+            </th>
+          }
+        </tr>
       </thead>
-
 
       <!-- ==================================================
            TABLE BODY
            ================================================== -->
 
       <tbody>
-
         @if (loading()) {
-
-          @for (
-            item of [1, 2, 3, 4, 5];
-            track item
-            ) {
-
+          @for (item of [1, 2, 3, 4, 5]; track item) {
             <tr class="skeleton-row">
-
               @if (showCheckbox()) {
-
                 <td class="checkbox-column">
-
-                  <span
-                    class="skeleton checkbox-skeleton"
-                  ></span>
-
+                  <span class="skeleton checkbox-skeleton"></span>
                 </td>
-
               }
 
-
-              @for (
-                column of columns();
-                track column.key
-                ) {
-
+              @for (column of columns(); track column.key) {
                 <td>
-
                   <span class="skeleton"></span>
-
                 </td>
-
               }
-
             </tr>
-
           }
-
         } @else {
-
-          @for (
-            row of rows;
-            track trackRow($index, row)
-            ) {
-
-            <tr
-              class="table-row"
-              [class.row-selected]="
-                isSelected(row)
-              "
-            >
-
+          @for (row of rows; track trackRow($index, row)) {
+            <tr class="table-row" [class.row-selected]="isSelected(row)">
               @if (showCheckbox()) {
-
-                <td
-                  class="checkbox-column"
-                  (click)="$event.stopPropagation()"
-                >
-
+                <td class="checkbox-column" (click)="$event.stopPropagation()">
                   <input
                     type="checkbox"
                     class="table-checkbox"
-                    [checked]="
-                      isSelected(row)
-                    "
-                    (change)="
-                      toggleRowSelection(row)
-                    "
-                    [attr.aria-label]="
-                      'Select row ' +
-                      ($index + 1)
-                    "
+                    [checked]="isSelected(row)"
+                    (change)="toggleRowSelection(row)"
+                    [attr.aria-label]="'Select row ' + ($index + 1)"
                   />
-
                 </td>
-
               }
 
-
-              @for (
-                column of columns();
-                track column.key
-                ) {
-
+              @for (column of columns(); track column.key) {
                 <td>
-
-                  @if (
-                    column.type === 'badge'
-                    ) {
-
+                  @if (column.type === 'badge') {
                     <span class="status-badge">
+                      <span class="badge-dot"></span>
 
-                      <span
-                        class="badge-dot"
-                      ></span>
-
-                      {{
-                        getCellValue(
-                          row,
-                          column
-                        )
-                      }}
-
+                      {{ getCellValue(row, column) }}
                     </span>
-
                   } @else {
-
                     <span class="cell-value">
-                      {{
-                        getCellValue(
-                          row,
-                          column
-                        )
-                      }}
+                      {{ getCellValue(row, column) }}
                     </span>
-
                   }
-
                 </td>
-
               }
-
             </tr>
-
           } @empty {
-
             <tr class="empty-row">
-
-              <td
-                [attr.colspan]="
-                  columns().length +
-                  (showCheckbox() ? 1 : 0)
-                "
-              >
-
+              <td [attr.colspan]="columns().length + (showCheckbox() ? 1 : 0)">
                 <div class="empty-state">
-
                   <div class="empty-icon">
-                    <i
-                      class="bi bi-search"
-                    ></i>
+                    <i class="bi bi-search"></i>
                   </div>
 
-                  <strong>
-                    No results found
-                  </strong>
+                  <strong> No results found </strong>
 
-                  <span>
-                    Try changing your search criteria.
-                  </span>
-
+                  <span> Try changing your search criteria. </span>
                 </div>
-
               </td>
-
             </tr>
-
           }
-
         }
-
       </tbody>
-
     </table>
-
   </div>
-
 
   <!-- ======================================================
        SELECTION SUMMARY
        ====================================================== -->
 
-  @if (
-    showCheckbox() &&
-    selectedCount > 0
-    ) {
-
+  @if (showCheckbox() && selectedCount > 0) {
     <div class="selection-bar">
-
       <div class="selection-summary">
-
         <div class="selection-check">
           <i class="bi bi-check2"></i>
         </div>
@@ -376,40 +199,25 @@
             {{ selectedCount }}
           </strong>
 
-          row{{
-            selectedCount === 1
-              ? ''
-              : 's'
-          }}
+          row{{ selectedCount === 1 ? '' : 's' }}
           selected
         </span>
-
       </div>
 
-
-      <button
-        type="button"
-        class="clear-selection-button"
-        (click)="clearSelection()"
-      >
+      <button type="button" class="clear-selection-button" (click)="clearSelection()">
         Clear selection
       </button>
-
     </div>
-
   }
-
 
   <!-- ======================================================
        FOOTER
        ====================================================== -->
 
   <footer class="table-footer">
-
     <!-- RESULT INFORMATION -->
 
     <div class="pagination-info">
-
       Showing
 
       <strong>
@@ -427,168 +235,95 @@
       <strong>
         {{ totalElements }}
       </strong>
-
     </div>
-
 
     <!-- PAGINATION -->
 
     <div class="pagination">
-
       <!-- FIRST -->
 
       <button
         type="button"
         class="page-button navigation-button"
-        [disabled]="
-          loading() ||
-          currentPage() === 0 ||
-          totalPages === 0
-        "
+        [disabled]="loading() || currentPage() === 0 || totalPages === 0"
         (click)="firstPage()"
         aria-label="First page"
       >
-
-        <i
-          class="bi bi-chevron-double-left"
-        ></i>
-
+        <i class="bi bi-chevron-double-left"></i>
       </button>
-
 
       <!-- PREVIOUS -->
 
       <button
         type="button"
         class="page-button navigation-button"
-        [disabled]="
-          loading() ||
-          currentPage() === 0 ||
-          totalPages === 0
-        "
+        [disabled]="loading() || currentPage() === 0 || totalPages === 0"
         (click)="previousPage()"
         aria-label="Previous page"
       >
-
-        <i
-          class="bi bi-chevron-left"
-        ></i>
-
+        <i class="bi bi-chevron-left"></i>
       </button>
-
 
       <!-- PAGE NUMBERS -->
 
-      @for (
-        page of visiblePageNumbers;
-        track $index
-        ) {
-
+      @for (page of visiblePageNumbers; track $index) {
         @if (page === -1) {
-
-          <span class="pagination-dots">
-            ...
-          </span>
-
+          <span class="pagination-dots"> ... </span>
         } @else {
-
           <button
             type="button"
             class="page-button"
-            [class.active]="
-              page === currentPage()
-            "
+            [class.active]="page === currentPage()"
             [disabled]="loading()"
             (click)="goToPage(page)"
           >
-
             {{ page + 1 }}
-
           </button>
-
         }
-
       }
-
 
       <!-- NEXT -->
 
       <button
         type="button"
         class="page-button navigation-button"
-        [disabled]="
-          loading() ||
-          currentPage() >= totalPages - 1 ||
-          totalPages === 0
-        "
+        [disabled]="loading() || currentPage() >= totalPages - 1 || totalPages === 0"
         (click)="nextPage()"
         aria-label="Next page"
       >
-
-        <i
-          class="bi bi-chevron-right"
-        ></i>
-
+        <i class="bi bi-chevron-right"></i>
       </button>
-
 
       <!-- LAST -->
 
       <button
         type="button"
         class="page-button navigation-button"
-        [disabled]="
-          loading() ||
-          currentPage() >= totalPages - 1 ||
-          totalPages === 0
-        "
+        [disabled]="loading() || currentPage() >= totalPages - 1 || totalPages === 0"
         (click)="lastPage()"
         aria-label="Last page"
       >
-
-        <i
-          class="bi bi-chevron-double-right"
-        ></i>
-
+        <i class="bi bi-chevron-double-right"></i>
       </button>
-
     </div>
-
 
     <!-- PAGE SIZE -->
 
     <div class="page-size">
-
-      <span>
-        Rows
-      </span>
+      <span> Rows </span>
 
       <select
         [value]="selectedPageSize()"
         [disabled]="loading()"
-        (change)="
-          onPageSizeChange(
-            $any($event.target).value
-          )
-        "
+        (change)="onPageSizeChange($any($event.target).value)"
         aria-label="Rows per page"
       >
-
-        @for (
-          size of pageSizeOptions();
-          track size
-          ) {
-
+        @for (size of pageSizeOptions(); track size) {
           <option [value]="size">
             {{ size }}
           </option>
-
         }
-
       </select>
-
     </div>
-
   </footer>
-
 </section>

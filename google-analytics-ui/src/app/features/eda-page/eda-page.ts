@@ -1,24 +1,14 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  OnInit,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, signal } from '@angular/core';
 import { ChartOptions } from 'chart.js';
 
 import { EdaService } from '../../core/services/eda.service';
 
-import {
-  SidebarItem,
-  SidebarPage,
-} from '../../shared/components/sidebar-page/sidebar-page';
+import { SidebarItem, SidebarPage } from '../../shared/components/sidebar-page/sidebar-page';
 
 import { BarChart } from '../../shared/components/charts/bar-chart/bar-chart';
 import { LineChart } from '../../shared/components/charts/line-chart/line-chart';
 import { PieChart } from '../../shared/components/charts/pie-chart/pie-chart';
 import { ChartDataset } from '../../shared/models/chart.model';
-
-
 
 /*
  * ============================================================
@@ -44,7 +34,6 @@ interface RatingsByCategoryResponse {
   overall_average_rating: number | null;
   categories: RatingCategory[];
 }
-
 
 /*
  * ============================================================
@@ -76,7 +65,6 @@ interface FreeVsPaidResponse {
   average_reviews_difference: number | null;
   applications: FreePaidApplication[];
 }
-
 
 /*
  * ============================================================
@@ -121,7 +109,6 @@ interface InstallDistributionResponse {
   categories: InstallCategory[];
   top_applications: TopInstalledApplication[];
 }
-
 
 /*
  * ============================================================
@@ -175,22 +162,15 @@ interface ReviewCountsResponse {
   reviews_vs_installs: ReviewsVsInstalls[];
 }
 
-
 @Component({
   selector: 'app-eda-page',
   standalone: true,
-  imports: [
-    SidebarPage,
-    BarChart,
-    LineChart,
-    PieChart,
-  ],
+  imports: [SidebarPage, BarChart, LineChart, PieChart],
   templateUrl: './eda-page.html',
   styleUrl: './eda-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EdaPage implements OnInit {
-
   private readonly edaService = new EdaService();
 
   /*
@@ -210,7 +190,6 @@ export class EdaPage implements OnInit {
   readonly installs = signal<InstallDistributionResponse | null>(null);
 
   readonly reviews = signal<ReviewCountsResponse | null>(null);
-
 
   /*
    * ============================================================
@@ -240,7 +219,6 @@ export class EdaPage implements OnInit {
       icon: 'bi bi-chat-left-text',
     },
   ];
-
 
   /*
    * ============================================================
@@ -274,7 +252,6 @@ export class EdaPage implements OnInit {
     },
   };
 
-
   readonly comparisonBarOptions: ChartOptions<'bar'> = {
     responsive: true,
     maintainAspectRatio: false,
@@ -289,7 +266,6 @@ export class EdaPage implements OnInit {
       },
     },
   };
-
 
   readonly installDistributionOptions: ChartOptions<'line'> = {
     responsive: true,
@@ -315,7 +291,6 @@ export class EdaPage implements OnInit {
     },
   };
 
-
   readonly pieOptions: ChartOptions<'pie'> = {
     responsive: true,
     maintainAspectRatio: false,
@@ -325,7 +300,6 @@ export class EdaPage implements OnInit {
       },
     },
   };
-
 
   /*
    * ============================================================
@@ -337,42 +311,29 @@ export class EdaPage implements OnInit {
 
   readonly ratingsDataset = signal<ChartDataset[]>([]);
 
-
-  readonly freePaidLabels = signal<string[]>([
-    'Free',
-    'Paid',
-  ]);
+  readonly freePaidLabels = signal<string[]>(['Free', 'Paid']);
 
   readonly freePaidDataset = signal<ChartDataset[]>([]);
 
-
-  readonly freePaidRatingLabels = signal<string[]>([
-    'Free',
-    'Paid',
-  ]);
+  readonly freePaidRatingLabels = signal<string[]>(['Free', 'Paid']);
 
   readonly freePaidRatingDataset = signal<ChartDataset[]>([]);
-
 
   readonly installDistributionLabels = signal<string[]>([]);
 
   readonly installDistributionDataset = signal<ChartDataset[]>([]);
 
-
   readonly installCategoryLabels = signal<string[]>([]);
 
   readonly installCategoryDataset = signal<ChartDataset[]>([]);
-
 
   readonly reviewCategoryLabels = signal<string[]>([]);
 
   readonly reviewCategoryDataset = signal<ChartDataset[]>([]);
 
-
   readonly topReviewedLabels = signal<string[]>([]);
 
   readonly topReviewedDataset = signal<ChartDataset[]>([]);
-
 
   /*
    * ============================================================
@@ -383,7 +344,6 @@ export class EdaPage implements OnInit {
   ngOnInit(): void {
     this.loadAllAnalyses();
   }
-
 
   /*
    * ============================================================
@@ -397,21 +357,13 @@ export class EdaPage implements OnInit {
 
     this.edaService.runAndSave().subscribe({
       next: (response) => {
-        this.ratings.set(
-          response.ratings_by_category as RatingsByCategoryResponse
-        );
+        this.ratings.set(response.ratings_by_category as RatingsByCategoryResponse);
 
-        this.freeVsPaid.set(
-          response.free_vs_paid as FreeVsPaidResponse
-        );
+        this.freeVsPaid.set(response.free_vs_paid as FreeVsPaidResponse);
 
-        this.installs.set(
-          response.install_distribution as InstallDistributionResponse
-        );
+        this.installs.set(response.install_distribution as InstallDistributionResponse);
 
-        this.reviews.set(
-          response.review_counts as ReviewCountsResponse
-        );
+        this.reviews.set(response.review_counts as ReviewCountsResponse);
 
         this.prepareCharts();
 
@@ -420,14 +372,13 @@ export class EdaPage implements OnInit {
 
       error: () => {
         this.error.set(
-          'Unable to load and save the EDA analyses. Please check that the FastAPI backend and Elasticsearch are running.'
+          'Unable to load and save the EDA analyses. Please check that the FastAPI backend and Elasticsearch are running.',
         );
 
         this.loading.set(false);
       },
     });
   }
-
 
   /*
    * ============================================================
@@ -441,7 +392,6 @@ export class EdaPage implements OnInit {
     this.prepareInstallCharts();
     this.prepareReviewCharts();
   }
-
 
   /*
    * ============================================================
@@ -458,28 +408,18 @@ export class EdaPage implements OnInit {
 
     const categories = response.categories ?? [];
 
-    this.ratingsLabels.set(
-      categories.map(
-        (item) => item.category
-      )
-    );
+    this.ratingsLabels.set(categories.map((item) => item.category));
 
     this.ratingsDataset.set([
       {
         label: 'Average rating',
-        data: categories.map(
-          (item) =>
-            this.numberOrZero(
-              item.average_rating
-            )
-        ),
+        data: categories.map((item) => this.numberOrZero(item.average_rating)),
         borderWidth: 0,
         borderRadius: 7,
         backgroundColor: 'rgba(99, 102, 241, 0.78)',
       },
     ]);
   }
-
 
   /*
    * ============================================================
@@ -497,15 +437,9 @@ export class EdaPage implements OnInit {
     this.freePaidDataset.set([
       {
         label: 'Applications',
-        data: [
-          response.free_applications,
-          response.paid_applications,
-        ],
+        data: [response.free_applications, response.paid_applications],
         borderWidth: 1,
-        backgroundColor: [
-          'rgba(59, 130, 246, 0.82)',
-          'rgba(168, 85, 247, 0.82)',
-        ],
+        backgroundColor: ['rgba(59, 130, 246, 0.82)', 'rgba(168, 85, 247, 0.82)'],
       },
     ]);
 
@@ -515,27 +449,15 @@ export class EdaPage implements OnInit {
       {
         label: 'Average rating',
         data: [
-          this.numberOrZero(
-            applications.find(
-              (item) => item.type === 'FREE'
-            )?.average_rating
-          ),
-          this.numberOrZero(
-            applications.find(
-              (item) => item.type === 'PAID'
-            )?.average_rating
-          ),
+          this.numberOrZero(applications.find((item) => item.type === 'FREE')?.average_rating),
+          this.numberOrZero(applications.find((item) => item.type === 'PAID')?.average_rating),
         ],
         borderWidth: 0,
         borderRadius: 8,
-        backgroundColor: [
-          'rgba(59, 130, 246, 0.78)',
-          'rgba(168, 85, 247, 0.78)',
-        ],
+        backgroundColor: ['rgba(59, 130, 246, 0.78)', 'rgba(168, 85, 247, 0.78)'],
       },
     ]);
   }
-
 
   /*
    * ============================================================
@@ -552,18 +474,12 @@ export class EdaPage implements OnInit {
 
     const distribution = response.distribution ?? [];
 
-    this.installDistributionLabels.set(
-      distribution.map(
-        (item) => item.installs
-      )
-    );
+    this.installDistributionLabels.set(distribution.map((item) => item.installs));
 
     this.installDistributionDataset.set([
       {
         label: 'Applications',
-        data: distribution.map(
-          (item) => item.app_count
-        ),
+        data: distribution.map((item) => item.app_count),
         borderWidth: 2,
         tension: 0.3,
         fill: true,
@@ -574,32 +490,20 @@ export class EdaPage implements OnInit {
       },
     ]);
 
-    const categories = (
-      response.categories ?? []
-    ).slice(0, 15);
+    const categories = (response.categories ?? []).slice(0, 15);
 
-    this.installCategoryLabels.set(
-      categories.map(
-        (item) => item.category
-      )
-    );
+    this.installCategoryLabels.set(categories.map((item) => item.category));
 
     this.installCategoryDataset.set([
       {
         label: 'Average installs',
-        data: categories.map(
-          (item) =>
-            this.numberOrZero(
-              item.average_installs
-            )
-        ),
+        data: categories.map((item) => this.numberOrZero(item.average_installs)),
         borderWidth: 0,
         borderRadius: 7,
         backgroundColor: 'rgba(16, 185, 129, 0.78)',
       },
     ]);
   }
-
 
   /*
    * ============================================================
@@ -614,44 +518,28 @@ export class EdaPage implements OnInit {
       return;
     }
 
-    const categories = (
-      response.categories ?? []
-    ).slice(0, 15);
+    const categories = (response.categories ?? []).slice(0, 15);
 
-    this.reviewCategoryLabels.set(
-      categories.map(
-        (item) => item.category
-      )
-    );
+    this.reviewCategoryLabels.set(categories.map((item) => item.category));
 
     this.reviewCategoryDataset.set([
       {
         label: 'Total reviews',
-        data: categories.map(
-          (item) => item.total_reviews
-        ),
+        data: categories.map((item) => item.total_reviews),
         borderWidth: 0,
         borderRadius: 7,
         backgroundColor: 'rgba(245, 158, 11, 0.78)',
       },
     ]);
 
-    const topApplications = (
-      response.top_applications ?? []
-    ).slice(0, 10);
+    const topApplications = (response.top_applications ?? []).slice(0, 10);
 
-    this.topReviewedLabels.set(
-      topApplications.map(
-        (item) => this.shortLabel(item.app)
-      )
-    );
+    this.topReviewedLabels.set(topApplications.map((item) => this.shortLabel(item.app)));
 
     this.topReviewedDataset.set([
       {
         label: 'Reviews',
-        data: topApplications.map(
-          (item) => item.reviews
-        ),
+        data: topApplications.map((item) => item.reviews),
         borderWidth: 0,
         borderRadius: 7,
         backgroundColor: 'rgba(239, 68, 68, 0.78)',
@@ -659,66 +547,39 @@ export class EdaPage implements OnInit {
     ]);
   }
 
-
   /*
    * ============================================================
    * HELPERS
    * ============================================================
    */
 
-  numberOrZero(
-    value: number | null | undefined
-  ): number {
-    if (
-      value === null ||
-      value === undefined ||
-      !Number.isFinite(value)
-    ) {
+  numberOrZero(value: number | null | undefined): number {
+    if (value === null || value === undefined || !Number.isFinite(value)) {
       return 0;
     }
 
     return value;
   }
 
-
-  formatNumber(
-    value: number | null | undefined
-  ): string {
-    if (
-      value === null ||
-      value === undefined ||
-      !Number.isFinite(value)
-    ) {
+  formatNumber(value: number | null | undefined): string {
+    if (value === null || value === undefined || !Number.isFinite(value)) {
       return '—';
     }
 
-    return new Intl.NumberFormat(
-      'en-US',
-      {
-        maximumFractionDigits: 2,
-      }
-    ).format(value);
+    return new Intl.NumberFormat('en-US', {
+      maximumFractionDigits: 2,
+    }).format(value);
   }
 
-
-  formatRating(
-    value: number | null | undefined
-  ): string {
-    if (
-      value === null ||
-      value === undefined ||
-      !Number.isFinite(value)
-    ) {
+  formatRating(value: number | null | undefined): string {
+    if (value === null || value === undefined || !Number.isFinite(value)) {
       return '—';
     }
 
     return value.toFixed(2);
   }
 
-
-  shortLabel(
-    value: string
-  ): string {
+  shortLabel(value: string): string {
     if (value.length <= 24) {
       return value;
     }

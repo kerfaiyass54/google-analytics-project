@@ -23,18 +23,12 @@
   color: #0f172a;
   text-decoration: none;
 
-  background:
-    linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.98),
-      rgba(248, 250, 252, 0.95)
-    );
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.95));
 
   border: 1px solid rgba(226, 232, 240, 0.9);
   border-radius: 20px;
 
-  box-shadow:
-    0 8px 25px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 8px 25px rgba(15, 23, 42, 0.06);
 
   transition:
     transform 0.25s ease,
@@ -63,8 +57,7 @@
 
   border-radius: 0 4px 4px 0;
 
-  transition:
-    transform 0.25s ease;
+  transition: transform 0.25s ease;
 }
 
 /* ==========================================================
@@ -98,14 +91,9 @@
 .simple-card:hover {
   transform: translateY(-5px);
 
-  border-color: color-mix(
-    in srgb,
-    var(--card-color) 30%,
-    #e2e8f0
-  );
+  border-color: color-mix(in srgb, var(--card-color) 30%, #e2e8f0);
 
-  box-shadow:
-    0 18px 40px rgba(15, 23, 42, 0.11);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.11);
 }
 
 .simple-card:hover::before {
@@ -135,17 +123,9 @@
 
   color: var(--card-color);
 
-  background: color-mix(
-    in srgb,
-    var(--card-color) 10%,
-    white
-  );
+  background: color-mix(in srgb, var(--card-color) 10%, white);
 
-  border: 1px solid color-mix(
-    in srgb,
-    var(--card-color) 15%,
-    transparent
-  );
+  border: 1px solid color-mix(in srgb, var(--card-color) 15%, transparent);
 
   border-radius: 15px;
 
@@ -159,11 +139,7 @@
 .simple-card:hover .card-icon {
   transform: scale(1.08) rotate(-3deg);
 
-  background: color-mix(
-    in srgb,
-    var(--card-color) 15%,
-    white
-  );
+  background: color-mix(in srgb, var(--card-color) 15%, white);
 }
 
 /* ==========================================================
@@ -208,8 +184,7 @@
   font-size: 12px;
   font-weight: 650;
 
-  transition:
-    gap 0.2s ease;
+  transition: gap 0.2s ease;
 }
 
 .simple-card:hover .card-link {

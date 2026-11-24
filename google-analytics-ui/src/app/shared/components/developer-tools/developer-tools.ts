@@ -7,8 +7,6 @@ import {
 } from '../paginated-table/paginated-table';
 import { SidebarItem, SidebarPage } from '../sidebar-page/sidebar-page';
 
-
-
 export interface GooglePlayApp {
   id: number;
   app: string;

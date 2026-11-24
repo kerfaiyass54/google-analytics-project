@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { EdaDocument, EdaService, EdaHistoryFilters } from '../../../core/services/eda.service';
 import {
@@ -15,10 +9,7 @@ import {
 import { Location } from '@angular/common';
 
 type EdaAnalysisKey =
-  | 'ratings_by_category'
-  | 'free_vs_paid'
-  | 'install_distribution'
-  | 'review_counts';
+  'ratings_by_category' | 'free_vs_paid' | 'install_distribution' | 'review_counts';
 
 interface AnalysisButton {
   key: EdaAnalysisKey;
@@ -69,8 +60,16 @@ export class ManageEda {
       description: 'Filter by category count and overall application ratings.',
       metrics: [
         { key: 'ratings_by_category.total_categories', label: 'Total categories', step: 1 },
-        { key: 'ratings_by_category.total_rated_applications', label: 'Rated applications', step: 1 },
-        { key: 'ratings_by_category.overall_average_rating', label: 'Overall average rating', step: 0.01 },
+        {
+          key: 'ratings_by_category.total_rated_applications',
+          label: 'Rated applications',
+          step: 1,
+        },
+        {
+          key: 'ratings_by_category.overall_average_rating',
+          label: 'Overall average rating',
+          step: 0.01,
+        },
       ],
     },
     {
@@ -103,7 +102,11 @@ export class ManageEda {
         { key: 'review_counts.statistics.minimum_reviews', label: 'Minimum reviews', step: 1 },
         { key: 'review_counts.statistics.maximum_reviews', label: 'Maximum reviews', step: 1 },
         { key: 'review_counts.statistics.total_reviews', label: 'Total reviews', step: 1 },
-        { key: 'review_counts.correlation_reviews_installs', label: 'Reviews / installs correlation', step: 0.01 },
+        {
+          key: 'review_counts.correlation_reviews_installs',
+          label: 'Reviews / installs correlation',
+          step: 0.01,
+        },
       ],
     },
   ];
@@ -226,8 +229,11 @@ export class ManageEda {
   applyFilters(): void {
     this.filterError.set('');
 
-    if (this.dateFromFilter() && this.dateToFilter() &&
-        this.dateFromFilter() > this.dateToFilter()) {
+    if (
+      this.dateFromFilter() &&
+      this.dateToFilter() &&
+      this.dateFromFilter() > this.dateToFilter()
+    ) {
       this.filterError.set('The start date must be earlier than or equal to the end date.');
       return;
     }
@@ -239,7 +245,10 @@ export class ManageEda {
         const min = range?.min.trim() ? Number(range.min) : undefined;
         const max = range?.max.trim() ? Number(range.max) : undefined;
 
-        if (min !== undefined && !Number.isFinite(min) || max !== undefined && !Number.isFinite(max)) {
+        if (
+          (min !== undefined && !Number.isFinite(min)) ||
+          (max !== undefined && !Number.isFinite(max))
+        ) {
           this.filterError.set(`Enter valid numeric bounds for ${metric.label}.`);
           return;
         }
@@ -315,8 +324,10 @@ export class ManageEda {
   }
 
   get selectedAnalysisButton(): AnalysisButton {
-    return this.analysisButtons.find((button) => button.key === this.selectedAnalysis())
-      ?? this.analysisButtons[0];
+    return (
+      this.analysisButtons.find((button) => button.key === this.selectedAnalysis()) ??
+      this.analysisButtons[0]
+    );
   }
 
   getSelectedAnalysisData(): unknown {

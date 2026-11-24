@@ -11,7 +11,7 @@ import {
 
 import { ChartConfiguration, ChartOptions } from 'chart.js';
 
-import { Chart } from '../../../utils/chartjs'
+import { Chart } from '../../../utils/chartjs';
 import { ChartDataset } from '../../../models/chart.model';
 
 @Component({

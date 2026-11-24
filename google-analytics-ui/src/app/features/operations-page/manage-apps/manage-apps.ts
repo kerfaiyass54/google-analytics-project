@@ -13,7 +13,6 @@ import { GooglePlayAppResponse } from '../../../shared/models/google-play-app';
 
 import { AppType } from '../../../shared/models/app-type';
 
-
 import {
   PaginatedTable,
   PaginatedTableColumn,

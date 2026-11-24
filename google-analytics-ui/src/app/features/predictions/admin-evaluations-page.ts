@@ -16,45 +16,80 @@ export class AdminEvaluationsPage implements OnInit {
   readonly loading = signal(true);
   readonly error = signal('');
   readonly selected = signal<any | null>(null);
-  readonly filter = signal<'all' | 'regression' | 'classification'>('all');
+  readonly filter = signal<string>('all');
 
-  ngOnInit(): void { this.refresh(); }
+  ngOnInit(): void {
+    this.refresh();
+  }
 
   refresh(): void {
     this.loading.set(true);
     this.error.set('');
     let remaining = 2;
-    const done = () => { remaining -= 1; if (!remaining) this.loading.set(false); };
+    const done = () => {
+      remaining -= 1;
+      if (!remaining) this.loading.set(false);
+    };
     this.api.evaluations('regression').subscribe({
-      next: rows => { this.regression.set(rows ?? []); done(); },
-      error: () => { this.error.set('Unable to load regression evaluations.'); done(); },
+      next: (rows) => {
+        this.regression.set(rows ?? []);
+        done();
+      },
+      error: () => {
+        this.error.set('Unable to load regression evaluations.');
+        done();
+      },
     });
     this.api.evaluations('classification').subscribe({
-      next: rows => { this.classification.set(rows ?? []); done(); },
-      error: () => { this.error.set('Unable to load classification evaluations.'); done(); },
+      next: (rows) => {
+        this.classification.set(rows ?? []);
+        done();
+      },
+      error: () => {
+        this.error.set('Unable to load classification evaluations.');
+        done();
+      },
     });
   }
 
   get allEvaluations(): any[] {
-    return [...this.regression(), ...this.classification()]
-      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    return [...this.regression(), ...this.classification()].sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+    );
   }
   get visibleEvaluations(): any[] {
-    return this.filter() === 'all' ? this.allEvaluations :
-      this.allEvaluations.filter(item => item.task === this.filter());
+    return this.filter() === 'all'
+      ? this.allEvaluations
+      : this.allEvaluations.filter((item) => item.task === this.filter());
   }
-  get total(): number { return this.allEvaluations.length; }
-  get regressionCount(): number { return this.regression().length; }
-  get classificationCount(): number { return this.classification().length; }
+  get total(): number {
+    return this.allEvaluations.length;
+  }
+  get regressionCount(): number {
+    return this.regression().length;
+  }
+  get classificationCount(): number {
+    return this.classification().length;
+  }
   get averageAccuracy(): number | null {
-    const values = this.classification().map(item => Number(item.metrics?.accuracy)).filter(Number.isFinite);
+    const values = this.classification()
+      .map((item) => Number(item.metrics?.accuracy))
+      .filter(Number.isFinite);
     return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : null;
   }
   get averageR2(): number | null {
-    const values = this.regression().map(item => Number(item.metrics?.r2)).filter(Number.isFinite);
+    const values = this.regression()
+      .map((item) => Number(item.metrics?.r2))
+      .filter(Number.isFinite);
     return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : null;
   }
-  formatMetricKey(key: string): string { return key.replace(/_/g, ' '); }
-  showDetails(item: any): void { this.selected.set(item); }
-  closeDetails(): void { this.selected.set(null); }
+  formatMetricKey(key: any): string {
+    return key.replace(/_/g, ' ');
+  }
+  showDetails(item: any): void {
+    this.selected.set(item);
+  }
+  closeDetails(): void {
+    this.selected.set(null);
+  }
 }

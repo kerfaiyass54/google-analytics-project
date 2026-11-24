@@ -21,7 +21,6 @@ import {
   Tooltip,
 } from 'chart.js';
 
-
 Chart.register(BarController, BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 @Component({

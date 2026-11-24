@@ -11,14 +11,10 @@
   (click)="onClick()"
 >
   @if (loading()) {
-    <span
-      class="spinner-border spinner-border-sm"
-      aria-hidden="true"
-    ></span>
+    <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
 
     <span>Processing...</span>
   } @else {
-
     @if (icon()) {
       <i [class]="icon()"></i>
     }

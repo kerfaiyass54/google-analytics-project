@@ -36,8 +36,13 @@
 
   @if (filtersDialogVisible()) {
     <div class="filters-dialog-backdrop" role="presentation" (click)="closeFiltersDialog()">
-      <section class="filters-dialog" role="dialog" aria-modal="true"
-        aria-labelledby="filters-dialog-title" (click)="$event.stopPropagation()">
+      <section
+        class="filters-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="filters-dialog-title"
+        (click)="$event.stopPropagation()"
+      >
         <header class="filters-dialog-header">
           <div class="filters-dialog-heading">
             <div class="filters-dialog-icon"><i class="bi bi-sliders"></i></div>
@@ -47,7 +52,12 @@
               <p>Combine general criteria with metric ranges from the four saved analyses.</p>
             </div>
           </div>
-          <button type="button" class="close-button" aria-label="Close filters" (click)="closeFiltersDialog()">
+          <button
+            type="button"
+            class="close-button"
+            aria-label="Close filters"
+            (click)="closeFiltersDialog()"
+          >
             <i class="bi bi-x-lg"></i>
           </button>
         </header>
@@ -66,27 +76,41 @@
                 <span>EDA ID</span>
                 <div class="filter-input-wrap">
                   <i class="bi bi-fingerprint"></i>
-                  <input type="text" placeholder="Enter exact EDA ID"
-                    [value]="edaIdFilter()" (input)="edaIdFilter.set($any($event.target).value)" />
+                  <input
+                    type="text"
+                    placeholder="Enter exact EDA ID"
+                    [value]="edaIdFilter()"
+                    (input)="edaIdFilter.set($any($event.target).value)"
+                  />
                 </div>
               </label>
               <label class="filter-field">
                 <span>Creator email</span>
                 <div class="filter-input-wrap">
                   <i class="bi bi-person"></i>
-                  <input type="email" placeholder="Search by creator email"
-                    [value]="creatorEmailFilter()" (input)="creatorEmailFilter.set($any($event.target).value)" />
+                  <input
+                    type="email"
+                    placeholder="Search by creator email"
+                    [value]="creatorEmailFilter()"
+                    (input)="creatorEmailFilter.set($any($event.target).value)"
+                  />
                 </div>
               </label>
               <label class="filter-field">
                 <span>Analysis date · From</span>
-                <input type="date" [value]="dateFromFilter()"
-                  (input)="dateFromFilter.set($any($event.target).value)" />
+                <input
+                  type="date"
+                  [value]="dateFromFilter()"
+                  (input)="dateFromFilter.set($any($event.target).value)"
+                />
               </label>
               <label class="filter-field">
                 <span>Analysis date · To</span>
-                <input type="date" [value]="dateToFilter()"
-                  (input)="dateToFilter.set($any($event.target).value)" />
+                <input
+                  type="date"
+                  [value]="dateToFilter()"
+                  (input)="dateToFilter.set($any($event.target).value)"
+                />
               </label>
             </div>
           </section>
@@ -97,10 +121,15 @@
                 <div class="metric-group-heading">
                   <div class="filter-category-heading">
                     <span class="category-icon">
-                      @if (group.title === 'Ratings by Category') { <i class="bi bi-star-half"></i> }
-                      @else if (group.title === 'Free vs Paid') { <i class="bi bi-pie-chart"></i> }
-                      @else if (group.title === 'Install Distribution') { <i class="bi bi-download"></i> }
-                      @else { <i class="bi bi-chat-square-text"></i> }
+                      @if (group.title === 'Ratings by Category') {
+                        <i class="bi bi-star-half"></i>
+                      } @else if (group.title === 'Free vs Paid') {
+                        <i class="bi bi-pie-chart"></i>
+                      } @else if (group.title === 'Install Distribution') {
+                        <i class="bi bi-download"></i>
+                      } @else {
+                        <i class="bi bi-chat-square-text"></i>
+                      }
                     </span>
                     <div>
                       <h3>{{ group.title }}</h3>
@@ -116,15 +145,27 @@
                       <div class="range-inputs">
                         <div>
                           <span>Min</span>
-                          <input type="number" [attr.step]="metric.step" placeholder="No minimum"
+                          <input
+                            type="number"
+                            [attr.step]="metric.step"
+                            placeholder="No minimum"
                             [value]="metricRanges()[metric.key]?.min ?? ''"
-                            (input)="updateMetricRange(metric.key, 'min', $any($event.target).value)" />
+                            (input)="
+                              updateMetricRange(metric.key, 'min', $any($event.target).value)
+                            "
+                          />
                         </div>
                         <div>
                           <span>Max</span>
-                          <input type="number" [attr.step]="metric.step" placeholder="No maximum"
+                          <input
+                            type="number"
+                            [attr.step]="metric.step"
+                            placeholder="No maximum"
                             [value]="metricRanges()[metric.key]?.max ?? ''"
-                            (input)="updateMetricRange(metric.key, 'max', $any($event.target).value)" />
+                            (input)="
+                              updateMetricRange(metric.key, 'max', $any($event.target).value)
+                            "
+                          />
                         </div>
                       </div>
                     </div>
@@ -140,12 +181,20 @@
         </div>
 
         <footer class="filters-dialog-footer">
-          <span class="filter-hint"><i class="bi bi-info-circle"></i> Set a minimum, maximum, or both. All selected conditions must match.</span>
+          <span class="filter-hint"
+            ><i class="bi bi-info-circle"></i> Set a minimum, maximum, or both. All selected
+            conditions must match.</span
+          >
           <div>
             <button type="button" class="reset-filter-button" (click)="resetFilters()">
               <i class="bi bi-arrow-counterclockwise"></i> Reset all
             </button>
-            <button type="button" class="apply-filter-button" [disabled]="loading()" (click)="applyFilters()">
+            <button
+              type="button"
+              class="apply-filter-button"
+              [disabled]="loading()"
+              (click)="applyFilters()"
+            >
               <i class="bi bi-search"></i> Apply filters
             </button>
           </div>
@@ -168,8 +217,13 @@
 
   @if (dialogVisible() && selectedEda(); as eda) {
     <div class="eda-dialog-backdrop" role="presentation" (click)="closeDialog()">
-      <section class="eda-dialog" role="dialog" aria-modal="true"
-        aria-labelledby="eda-dialog-title" (click)="$event.stopPropagation()">
+      <section
+        class="eda-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="eda-dialog-title"
+        (click)="$event.stopPropagation()"
+      >
         <header class="dialog-header">
           <div class="dialog-title-area">
             <div class="dialog-icon"><i class="bi bi-activity"></i></div>
@@ -182,15 +236,24 @@
               </div>
             </div>
           </div>
-          <button type="button" class="close-button" aria-label="Close EDA dialog" (click)="closeDialog()">
+          <button
+            type="button"
+            class="close-button"
+            aria-label="Close EDA dialog"
+            (click)="closeDialog()"
+          >
             <i class="bi bi-x-lg"></i>
           </button>
         </header>
 
         <nav class="analysis-navigation">
           @for (button of analysisButtons; track trackAnalysis($index, button)) {
-            <button type="button" class="analysis-button"
-              [class.active]="selectedAnalysis() === button.key" (click)="selectAnalysis(button.key)">
+            <button
+              type="button"
+              class="analysis-button"
+              [class.active]="selectedAnalysis() === button.key"
+              (click)="selectAnalysis(button.key)"
+            >
               <span class="analysis-button-icon"><i [class]="button.icon"></i></span>
               <span class="analysis-button-content">
                 <strong>{{ button.shortLabel }}</strong>

@@ -1,11 +1,9 @@
 <div class="operations-page">
-
   <!-- =========================================================
        HERO
        ========================================================= -->
 
   <section class="operations-hero">
-
     <div class="hero-background">
       <span class="hero-orb hero-orb-one"></span>
       <span class="hero-orb hero-orb-two"></span>
@@ -13,7 +11,6 @@
     </div>
 
     <div class="hero-content">
-
       <div class="hero-badge">
         <span class="badge-dot"></span>
         <span>Application Operations</span>
@@ -26,8 +23,8 @@
       </h1>
 
       <p>
-        Access the tools you need to manage applications,
-        inspect EDA results, and maintain your analytics workspace.
+        Access the tools you need to manage applications, inspect EDA results, and maintain your
+        analytics workspace.
       </p>
 
       <div class="hero-meta">
@@ -68,7 +65,6 @@
           </div>
         </div>
       </div>
-
     </div>
 
     <div class="hero-decoration">
@@ -76,49 +72,39 @@
       <div class="floating-square square-two"></div>
       <div class="floating-square square-three"></div>
     </div>
-
   </section>
-
 
   <!-- =========================================================
        OPERATIONS
        ========================================================= -->
 
   <section class="operations-section">
-
-
     <!-- =======================================================
          CARDS
          ======================================================= -->
 
     <div class="operations-grid">
-
       @for (operation of operations; track operation.title) {
         @if (!operation.adminOnly || auth.isAdmin()) {
-        <div class="operation-card-wrapper">
-          <app-card-simple
-            [icon]="operation.icon"
-            [title]="operation.title"
-            [link]="operation.link"
-            [color]="operation.color"
-          />
-        </div>
+          <div class="operation-card-wrapper">
+            <app-card-simple
+              [icon]="operation.icon"
+              [title]="operation.title"
+              [link]="operation.link"
+              [color]="operation.color"
+            />
+          </div>
         }
       }
-
     </div>
-
   </section>
-
 
   <!-- =========================================================
        WORKFLOW
        ========================================================= -->
 
   <section class="workflow-section">
-
     <div class="workflow-card">
-
       <div class="workflow-icon">
         <i class="bi bi-diagram-3-fill"></i>
       </div>
@@ -126,18 +112,15 @@
       <div class="workflow-content">
         <span class="workflow-label">WORKSPACE FLOW</span>
 
-        <h3>
-          From application management to analytics
-        </h3>
+        <h3>From application management to analytics</h3>
 
         <p>
-          Add or manage applications, verify your EDA files,
-          then maintain your analysis results from one workspace.
+          Add or manage applications, verify your EDA files, then maintain your analysis results
+          from one workspace.
         </p>
       </div>
 
       <div class="workflow-steps">
-
         <div class="workflow-step">
           <span class="step-number">01</span>
           <span>Add</span>
@@ -156,13 +139,7 @@
           <span class="step-number">03</span>
           <span>Analyze</span>
         </div>
-
       </div>
-
     </div>
-
   </section>
-
-
-
 </div>

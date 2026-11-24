@@ -48,17 +48,11 @@
 
   color: #6366f1;
 
-  background:
-    linear-gradient(
-      135deg,
-      rgba(99, 102, 241, 0.14),
-      rgba(139, 92, 246, 0.08)
-    );
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.14), rgba(139, 92, 246, 0.08));
 
   font-size: 1.4rem;
 
-  box-shadow:
-    0 8px 24px rgba(99, 102, 241, 0.1);
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.1);
 }
 
 .section-eyebrow {

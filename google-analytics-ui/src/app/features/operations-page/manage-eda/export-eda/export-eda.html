@@ -1,7 +1,5 @@
 <div class="export-page">
-
   <div class="export-container">
-
     <!-- Header -->
     <header class="page-header">
       <button type="button" class="back-button" [disabled]="isExporting()" (click)="goBack()">
@@ -17,20 +15,13 @@
 
         <h1>Export analysis</h1>
 
-        <p>
-          Configure your export in three simple steps.
-        </p>
+        <p>Configure your export in three simple steps.</p>
       </div>
     </header>
 
     <!-- Stepper -->
     <div class="stepper">
-
-      <div
-        class="step"
-        [class.active]="currentStep() === 1"
-        [class.completed]="currentStep() > 1"
-      >
+      <div class="step" [class.active]="currentStep() === 1" [class.completed]="currentStep() > 1">
         <div class="step-number">
           @if (currentStep() > 1) {
             <i class="bi bi-check"></i>
@@ -47,11 +38,7 @@
 
       <div class="step-line" [class.completed]="currentStep() > 1"></div>
 
-      <div
-        class="step"
-        [class.active]="currentStep() === 2"
-        [class.completed]="currentStep() > 2"
-      >
+      <div class="step" [class.active]="currentStep() === 2" [class.completed]="currentStep() > 2">
         <div class="step-number">
           @if (currentStep() > 2) {
             <i class="bi bi-check"></i>
@@ -68,30 +55,21 @@
 
       <div class="step-line" [class.completed]="currentStep() > 2"></div>
 
-      <div
-        class="step"
-        [class.active]="currentStep() === 3"
-      >
-        <div class="step-number">
-          3
-        </div>
+      <div class="step" [class.active]="currentStep() === 3">
+        <div class="step-number">3</div>
 
         <div class="step-info">
           <span class="step-label">Step 3</span>
           <strong>Review</strong>
         </div>
       </div>
-
     </div>
 
     <!-- Card -->
     <section class="export-card">
-
       <!-- STEP 1 -->
       @if (currentStep() === 1) {
-
         <div class="step-content">
-
           <div class="content-icon">
             <i class="bi bi-file-earmark-text"></i>
           </div>
@@ -100,18 +78,12 @@
 
           <h2>Name your file</h2>
 
-          <p class="content-description">
-            Choose a clear name for your exported EDA analysis.
-          </p>
+          <p class="content-description">Choose a clear name for your exported EDA analysis.</p>
 
           <div class="form-group">
-
-            <label for="fileName">
-              File name
-            </label>
+            <label for="fileName"> File name </label>
 
             <div class="input-wrapper">
-
               <i class="bi bi-file-earmark"></i>
 
               <input
@@ -123,23 +95,18 @@
                 autocomplete="off"
                 [disabled]="isExporting()"
               />
-
             </div>
 
             <span class="input-hint">
               The selected format extension will be added automatically.
             </span>
-
           </div>
-
         </div>
       }
 
       <!-- STEP 2 -->
       @if (currentStep() === 2) {
-
         <div class="step-content">
-
           <div class="content-icon">
             <i class="bi bi-file-earmark-arrow-down"></i>
           </div>
@@ -148,14 +115,10 @@
 
           <h2>Choose the export type</h2>
 
-          <p class="content-description">
-            Select the format you want to generate.
-          </p>
+          <p class="content-description">Select the format you want to generate.</p>
 
           <div class="type-grid">
-
             @for (type of fileTypes; track type.value) {
-
               <button
                 type="button"
                 class="type-card"
@@ -163,7 +126,6 @@
                 [disabled]="isExporting()"
                 (click)="selectType(type.value)"
               >
-
                 <div class="type-icon">
                   <i class="bi {{ type.icon }}"></i>
                 </div>
@@ -180,21 +142,15 @@
                     <i class="bi bi-circle"></i>
                   }
                 </div>
-
               </button>
-
             }
-
           </div>
-
         </div>
       }
 
       <!-- STEP 3 -->
       @if (currentStep() === 3) {
-
         <div class="step-content">
-
           <div class="content-icon">
             <i class="bi bi-clipboard-check"></i>
           </div>
@@ -203,12 +159,9 @@
 
           <h2>Review your export</h2>
 
-          <p class="content-description">
-            Check the details before generating your file.
-          </p>
+          <p class="content-description">Check the details before generating your file.</p>
 
           <div class="review-list">
-
             <div class="review-row">
               <span>
                 <i class="bi bi-file-earmark"></i>
@@ -241,23 +194,21 @@
                 {{ edaId }}
               </strong>
             </div>
-
           </div>
 
           <div class="review-notice">
             <i class="bi bi-info-circle"></i>
 
             <span>
-              Your EDA will be exported as a multi-sheet Excel workbook or a ZIP archive containing Matplotlib PNG charts.
+              Your EDA will be exported as a multi-sheet Excel workbook or a ZIP archive containing
+              Matplotlib PNG charts.
             </span>
           </div>
-
         </div>
       }
 
       <!-- Footer -->
       <footer class="step-footer">
-
         <button
           type="button"
           class="secondary-button"
@@ -269,7 +220,6 @@
         </button>
 
         @if (currentStep() < 3) {
-
           <button
             type="button"
             class="primary-button"
@@ -283,9 +233,7 @@
             Continue
             <i class="bi bi-arrow-right"></i>
           </button>
-
         } @else {
-
           <button
             type="button"
             class="primary-button export-button"
@@ -293,18 +241,19 @@
             (click)="export()"
           >
             @if (isExporting()) {
-              <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              <span
+                class="spinner-border spinner-border-sm"
+                role="status"
+                aria-hidden="true"
+              ></span>
               Exporting...
             } @else {
               <i class="bi bi-download"></i>
               Export EDA
             }
           </button>
-
         }
-
       </footer>
-
     </section>
 
     @if (exportError()) {
@@ -313,7 +262,6 @@
         {{ exportError() }}
       </div>
     }
-
   </div>
 
   @if (isExporting()) {
@@ -325,11 +273,20 @@
         <div class="progress-track" aria-hidden="true">
           <div class="progress-fill" [style.width.%]="(exportProgressStage() + 1) * 22.5"></div>
         </div>
-        <small class="progress-note">Progress is an estimated stage indicator while the report is being generated.</small>
+        <small class="progress-note"
+          >Progress is an estimated stage indicator while the report is being generated.</small
+        >
         <div class="progress-steps">
           @for (stage of exportStages; track stage.title; let index = $index) {
-            <span [class.active]="exportProgressStage() === index" [class.completed]="exportProgressStage() > index">
-              @if (exportProgressStage() > index) { <i class="bi bi-check-circle-fill"></i> } @else { <i class="bi bi-circle"></i> }
+            <span
+              [class.active]="exportProgressStage() === index"
+              [class.completed]="exportProgressStage() > index"
+            >
+              @if (exportProgressStage() > index) {
+                <i class="bi bi-check-circle-fill"></i>
+              } @else {
+                <i class="bi bi-circle"></i>
+              }
               {{ stage.title }}
             </span>
           }
@@ -337,5 +294,4 @@
       </div>
     </div>
   }
-
 </div>
