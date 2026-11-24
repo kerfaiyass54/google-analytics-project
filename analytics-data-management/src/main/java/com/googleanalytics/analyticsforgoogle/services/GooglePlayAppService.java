@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.googleanalytics.analyticsforgoogle.services.NotificationEventPublisher;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +24,8 @@ public class GooglePlayAppService {
     private final GooglePlayAppRepository repository;
 
     private final GooglePlayAppMapper mapper;
+
+    private final NotificationEventPublisher notificationEventPublisher;
 
     // =========================================================
     // CREATE
@@ -49,8 +52,9 @@ public class GooglePlayAppService {
 
         GooglePlayApp entity = mapper.toEntity(request);
         entity.setEmail(ownerEmail.trim());
-
-        return mapper.toResponse(repository.save(entity));
+        GooglePlayApp saved = repository.save(entity);
+        notificationEventPublisher.publishAfterCommit("APP_CREATED", saved.getId(), saved.getApp());
+        return mapper.toResponse(saved);
     }
 
     // =========================================================
@@ -103,6 +107,7 @@ public class GooglePlayAppService {
         }
 
         mapper.updateEntity(entity, request);
+        notificationEventPublisher.publishAfterCommit("APP_UPDATED", entity.getId(), entity.getApp());
         return mapper.toResponse(entity);
     }
 
@@ -114,6 +119,7 @@ public class GooglePlayAppService {
     @Transactional
     public void delete(Long id) {
         GooglePlayApp entity = findById(id);
+        notificationEventPublisher.publishAfterCommit("APP_DELETED", entity.getId(), entity.getApp());
         repository.delete(entity);
     }
 

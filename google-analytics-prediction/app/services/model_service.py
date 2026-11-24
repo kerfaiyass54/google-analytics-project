@@ -1,9 +1,12 @@
 from pathlib import Path
+from datetime import datetime, timezone
+from uuid import uuid4
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.models import ModelRegistry
+from app.services.event_publisher import publish_event
 
 
 def activate_model(
@@ -18,6 +21,7 @@ def activate_model(
         raise FileNotFoundError(
             "Model artifact is missing; cannot activate."
         )
+    was_active = model.is_active
     (
         db.query(ModelRegistry)
         .filter(ModelRegistry.task == model.task)
@@ -25,6 +29,16 @@ def activate_model(
     )
     model.is_active = True
     db.commit()
+    if not was_active:
+        publish_event("model-events", {
+            "eventId": str(uuid4()),
+            "eventType": "MODEL_PUBLISHED",
+            "occurredAt": datetime.now(timezone.utc).isoformat(),
+            "entityType": "MODEL",
+            "entityId": model.id,
+            "entityName": f"{model.task} {model.algorithm} v{model.version}",
+            "payload": {"task": model.task, "algorithm": model.algorithm, "version": model.version},
+        })
     return {
         "model_id": model.id,
         "task": model.task,
