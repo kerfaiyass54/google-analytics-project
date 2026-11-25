@@ -23,7 +23,6 @@ export class ProfilePage implements OnInit {
   readonly profileDialogOpen = signal(false);
   readonly passwordDialogOpen = signal(false);
   readonly details = { firstName: '', lastName: '', email: '' };
-  readonly passwords = { currentPassword: '', newPassword: '', confirmPassword: '' };
 
   ngOnInit(): void { this.load(); }
 
@@ -66,18 +65,17 @@ export class ProfilePage implements OnInit {
     });
   }
 
-  changePassword(): void {
-    if (this.passwords.newPassword !== this.passwords.confirmPassword) {
-      this.error.set('The new password and confirmation do not match.'); return;
-    }
+  requestPasswordReset(): void {
     this.saving.set(true); this.error.set(''); this.success.set('');
-    this.identity.changePassword(this.passwords.currentPassword, this.passwords.newPassword).subscribe({
+    this.identity.requestPasswordReset().subscribe({
       next: () => {
         this.passwordDialogOpen.set(false); this.saving.set(false);
-        this.passwords.currentPassword = ''; this.passwords.newPassword = ''; this.passwords.confirmPassword = '';
-        this.success.set('Your password was changed successfully.');
+        this.success.set('A secure password-update link has been sent to your account email.');
       },
-      error: err => { this.saving.set(false); this.error.set(err?.error?.detail ?? 'Password update failed. Check your current password and Keycloak account settings.'); },
+      error: err => {
+        this.saving.set(false);
+        this.error.set(err?.error?.detail ?? 'Could not send the password-update email. Check that Keycloak SMTP is configured.');
+      },
     });
   }
 
