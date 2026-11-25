@@ -25,10 +25,11 @@ public class SessionService {
             LocalDate day = today.minusDays(offset);
             var start = day.atStartOfDay(ZoneOffset.UTC).toInstant();
             var end = day.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant();
-            long active = sessions.countByStartedAtAfter(start) - sessions.countByStartedAtAfter(end);
+            long started = sessions.countByStatusAndStartedAtGreaterThanEqualAndStartedAtLessThan("ACTIVE", start, end)
+                + sessions.countByStatusAndStartedAtGreaterThanEqualAndStartedAtLessThan("CLOSED", start, end);
             long closed = sessions.findByStatus("CLOSED").stream()
                 .filter(s -> s.getClosedAt() != null && !s.getClosedAt().isBefore(start) && s.getClosedAt().isBefore(end)).count();
-            return new SessionSummaryResponse.DailySessionCount(day.toString(), Math.max(active, 0), closed);
+            return new SessionSummaryResponse.DailySessionCount(day.toString(), started, closed);
         }).toList();
         return new SessionSummaryResponse(sessions.countByStatus("ACTIVE"), sessions.countByStatus("CLOSED"), daily);
     }
