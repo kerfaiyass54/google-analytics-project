@@ -91,6 +91,19 @@ export const routes: Routes = [
           import('./features/operations-page/manage-eda/manage-eda').then((m) => m.ManageEda),
       },
       {
+        path: 'notifications',
+        loadComponent: () => import('./features/notifications/notifications-page').then((m) => m.NotificationsPage),
+      },
+      {
+        path: 'profile',
+        loadComponent: () => import('./features/profile/profile-page').then((m) => m.ProfilePage),
+      },
+      {
+        path: 'admin/sessions',
+        canActivate: [adminGuard],
+        loadComponent: () => import('./features/admin-session-analytics/session-analytics-page').then((m) => m.SessionAnalyticsPage),
+      },
+      {
         path: 'eda',
         loadComponent: () => import('./features/eda-page/eda-page').then((m) => m.EdaPage),
       },
