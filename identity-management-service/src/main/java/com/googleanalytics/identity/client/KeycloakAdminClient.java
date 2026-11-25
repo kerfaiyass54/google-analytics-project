@@ -59,21 +59,15 @@ public class KeycloakAdminClient {
     }
 
     public void sendVerificationEmail(String userId) {
-        client.put().uri(uriBuilder -> uriBuilder
-                .path(adminBase() + "/users/{id}/send-verify-email")
-                .queryParam("client_id", properties.frontendClientId())
-                .queryParam("redirect_uri", properties.frontendRedirectUri())
-                .build(userId))
+        client.put().uri(adminBase() + "/users/{id}/send-verify-email?client_id={clientId}&redirect_uri={redirectUri}",
+                userId, properties.frontendClientId(), properties.frontendRedirectUri())
             .headers(headers -> headers.setBearerAuth(adminToken()))
             .retrieve().toBodilessEntity();
     }
 
     public void sendPasswordResetEmail(String userId) {
-        client.put().uri(uriBuilder -> uriBuilder
-                .path(adminBase() + "/users/{id}/execute-actions-email")
-                .queryParam("client_id", properties.frontendClientId())
-                .queryParam("redirect_uri", properties.frontendRedirectUri())
-                .build(userId))
+        client.put().uri(adminBase() + "/users/{id}/execute-actions-email?client_id={clientId}&redirect_uri={redirectUri}",
+                userId, properties.frontendClientId(), properties.frontendRedirectUri())
             .headers(headers -> headers.setBearerAuth(adminToken()))
             .contentType(MediaType.APPLICATION_JSON)
             .body(List.of("UPDATE_PASSWORD"))
