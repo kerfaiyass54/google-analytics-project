@@ -1,0 +1,70 @@
+<main class="profile-page">
+  <header class="profile-hero" appScrollReveal>
+    <div class="hero-copy"><span class="eyebrow"><i class="bi bi-shield-check"></i> ACCOUNT CENTER</span><h1>Profile details</h1><p>Manage your personal information and keep track of the devices connected to your account.</p></div>
+    <div class="hero-avatar"><i class="bi bi-person-fill"></i></div>
+    <div class="hero-orbit"></div>
+  </header>
+
+  @if (error()) { <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">{{ error() }}<button type="button" class="btn-close" (click)="error.set('')" aria-label="Close"></button></div> }
+  @if (success()) { <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">{{ success() }}<button type="button" class="btn-close" (click)="success.set('')" aria-label="Close"></button></div> }
+
+  @if (loading()) {
+    <div class="profile-loading"><span class="spinner-border text-primary"></span><span>Loading your account…</span></div>
+  } @else if (profile(); as user) {
+    <section class="profile-grid">
+      <article class="profile-card identity-card" appScrollReveal>
+        <div class="card-heading"><div><span class="card-kicker">PERSONAL INFORMATION</span><h2>Account overview</h2></div><span class="verified-pill"><i class="bi bi-patch-check-fill"></i> {{ user.emailVerified ? 'Verified' : 'Account' }}</span></div>
+        <div class="profile-identity"><div class="profile-avatar">{{ (user.firstName || user.username).charAt(0).toUpperCase() }}</div><div><h3>{{ user.firstName || user.username }} {{ user.lastName || '' }}</h3><p>@{{ user.username }}</p></div></div>
+        <div class="detail-grid">
+          <div class="detail-item"><span>Email address</span><strong>{{ user.email || 'Not provided' }}</strong></div>
+          <div class="detail-item"><span>First name</span><strong>{{ user.firstName || '—' }}</strong></div>
+          <div class="detail-item"><span>Last name</span><strong>{{ user.lastName || '—' }}</strong></div>
+          <div class="detail-item"><span>Account status</span><strong><i class="status-dot" [class.disabled]="!user.enabled"></i>{{ user.enabled ? 'Enabled' : 'Disabled' }}</strong></div>
+          <div class="detail-item"><span>Member since</span><strong>{{ user.createdAt ? (user.createdAt | date:'mediumDate') : '—' }}</strong></div>
+          <div class="detail-item"><span>Identity provider</span><strong><i class="bi bi-shield-lock me-1"></i> Keycloak</strong></div>
+        </div>
+        <div class="card-actions"><button class="btn btn-primary" type="button" (click)="openProfileDialog()"><i class="bi bi-pencil-square me-2"></i>Edit details</button><button class="btn btn-outline-secondary" type="button" (click)="passwordDialogOpen.set(true)"><i class="bi bi-key me-2"></i>Change password</button></div>
+      </article>
+
+      <article class="profile-card security-card" appScrollReveal>
+        <div class="card-heading"><div><span class="card-kicker">SECURITY SNAPSHOT</span><h2>Connected sessions</h2></div><span class="security-icon"><i class="bi bi-laptop"></i></span></div>
+        <div class="session-stats"><div><strong>{{ activeSessions() }}</strong><span>Active</span></div><div><strong>{{ sessions().length - activeSessions() }}</strong><span>Closed</span></div><div><strong>{{ sessions().length }}</strong><span>Total</span></div></div>
+        <p class="security-description">Review recent sign-ins and the sessions associated with your Keycloak account.</p>
+        <a class="session-link" href="#session-history"><span>View session history</span><i class="bi bi-arrow-down-right"></i></a>
+      </article>
+    </section>
+
+    <section class="sessions-section" id="session-history" appScrollReveal>
+      <div class="section-heading"><div><span class="card-kicker">DEVICE ACTIVITY</span><h2>Session history</h2><p>Active sessions are refreshed automatically from Keycloak.</p></div><button class="btn btn-outline-secondary btn-sm" type="button" (click)="load()"><i class="bi bi-arrow-clockwise me-1"></i>Refresh</button></div>
+      <div class="sessions-table-wrap">
+        <table class="table sessions-table align-middle mb-0">
+          <thead><tr><th>SESSION</th><th>IP ADDRESS</th><th>STARTED</th><th>LAST ACTIVITY</th><th>STATUS</th></tr></thead>
+          <tbody>
+            @for (session of sessions(); track session.id) {
+              <tr><td><div class="device-cell"><span class="device-icon"><i class="bi bi-display"></i></span><span><strong>Browser session</strong><small>{{ session.id.slice(0, 12) }}…</small></span></div></td><td>{{ session.ipAddress || '—' }}</td><td>{{ session.startedAt ? (session.startedAt | date:'medium') : '—' }}</td><td>{{ session.lastAccessAt ? (session.lastAccessAt | date:'short') : '—' }}</td><td><span class="session-status" [class.closed]="session.status === 'CLOSED'"><i></i>{{ sessionLabel(session) }}</span></td></tr>
+            } @empty { <tr><td colspan="5" class="empty-sessions"><i class="bi bi-laptop"></i><span>No session history has been synchronized yet.</span></td></tr> }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+</main>
+
+@if (profileDialogOpen()) {
+  <div class="dialog-backdrop" (click)="profileDialogOpen.set(false)">
+    <section class="profile-dialog" role="dialog" aria-modal="true" aria-labelledby="profileDialogTitle" (click)="$event.stopPropagation()">
+      <div class="dialog-heading"><div><span class="card-kicker">ACCOUNT SETTINGS</span><h2 id="profileDialogTitle">Edit profile details</h2></div><button type="button" class="dialog-close" (click)="profileDialogOpen.set(false)" aria-label="Close"><i class="bi bi-x-lg"></i></button></div>
+      <form (ngSubmit)="saveProfile()"><label>First name<input class="form-control" name="firstName" [(ngModel)]="details.firstName" required maxlength="100"></label><label>Last name<input class="form-control" name="lastName" [(ngModel)]="details.lastName" required maxlength="100"></label><label>Email address<input class="form-control" name="email" type="email" [(ngModel)]="details.email" required maxlength="180"></label><div class="dialog-actions"><button class="btn btn-light" type="button" (click)="profileDialogOpen.set(false)">Cancel</button><button class="btn btn-primary" type="submit" [disabled]="saving()"><span class="spinner-border spinner-border-sm me-2" [hidden]="!saving()"></span>Save changes</button></div></form>
+    </section>
+  </div>
+}
+
+@if (passwordDialogOpen()) {
+  <div class="dialog-backdrop" (click)="passwordDialogOpen.set(false)">
+    <section class="profile-dialog" role="dialog" aria-modal="true" aria-labelledby="passwordDialogTitle" (click)="$event.stopPropagation()">
+      <div class="dialog-heading"><div><span class="card-kicker">ACCOUNT SECURITY</span><h2 id="passwordDialogTitle">Change password</h2></div><button type="button" class="dialog-close" (click)="passwordDialogOpen.set(false)" aria-label="Close"><i class="bi bi-x-lg"></i></button></div>
+      <p class="dialog-hint">Your current password is verified by Keycloak. Use at least 12 characters for the new password.</p>
+      <form (ngSubmit)="changePassword()"><label>Current password<input class="form-control" name="currentPassword" type="password" [(ngModel)]="passwords.currentPassword" required autocomplete="current-password"></label><label>New password<input class="form-control" name="newPassword" type="password" [(ngModel)]="passwords.newPassword" required minlength="12" autocomplete="new-password"></label><label>Confirm new password<input class="form-control" name="confirmPassword" type="password" [(ngModel)]="passwords.confirmPassword" required minlength="12" autocomplete="new-password"></label><div class="dialog-actions"><button class="btn btn-light" type="button" (click)="passwordDialogOpen.set(false)">Cancel</button><button class="btn btn-primary" type="submit" [disabled]="saving()">Update password</button></div></form>
+    </section>
+  </div>
+}
