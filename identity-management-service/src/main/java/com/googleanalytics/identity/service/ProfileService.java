@@ -34,6 +34,7 @@ public class ProfileService {
             "email", request.email().trim(),
             "emailVerified", emailChanged ? false : user.isEmailVerified()
         ));
+        if (emailChanged) keycloak.sendVerificationEmail(userId);
         user.synchronize(updated.path("username").asText(user.getUsername()),
             updated.path("email").asText(request.email()), updated.path("firstName").asText(request.firstName()),
             updated.path("lastName").asText(request.lastName()), updated.path("enabled").asBoolean(true),
