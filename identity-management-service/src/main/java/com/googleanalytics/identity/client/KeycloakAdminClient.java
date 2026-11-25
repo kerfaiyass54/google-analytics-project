@@ -58,6 +58,16 @@ public class KeycloakAdminClient {
             .retrieve().body(JsonNode.class);
     }
 
+    public void sendVerificationEmail(String userId) {
+        client.put().uri(uriBuilder -> uriBuilder
+                .path(adminBase() + "/users/{id}/send-verify-email")
+                .queryParam("client_id", properties.frontendClientId())
+                .queryParam("redirect_uri", properties.frontendRedirectUri())
+                .build(userId))
+            .headers(headers -> headers.setBearerAuth(adminToken()))
+            .retrieve().toBodilessEntity();
+    }
+
     public void sendPasswordResetEmail(String userId) {
         client.put().uri(uriBuilder -> uriBuilder
                 .path(adminBase() + "/users/{id}/execute-actions-email")
