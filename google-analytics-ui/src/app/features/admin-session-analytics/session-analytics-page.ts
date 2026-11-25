@@ -14,7 +14,13 @@ Chart.register(...registerables);
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SessionAnalyticsPage implements AfterViewInit, OnDestroy {
-  @ViewChild('sessionChart') private chartCanvas?: ElementRef<HTMLCanvasElement>;
+  private chartCanvas?: ElementRef<HTMLCanvasElement>;
+  @ViewChild('sessionChart')
+  set sessionChart(element: ElementRef<HTMLCanvasElement> | undefined) {
+    this.chartCanvas = element;
+    const data = this.summary();
+    if (element && data) this.renderChart(data);
+  }
   private readonly identity = inject(IdentityService);
   private chart?: Chart;
   readonly summary = signal<SessionSummary | null>(null);
