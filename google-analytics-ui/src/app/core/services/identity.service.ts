@@ -38,8 +38,8 @@ export class IdentityService {
   updateProfile(data: Pick<UserProfile, 'firstName' | 'lastName' | 'email'>): Observable<UserProfile> {
     return this.http.put<UserProfile>(`${this.api}/profile`, data);
   }
-  changePassword(currentPassword: string, newPassword: string): Observable<void> {
-    return this.http.put<void>(`${this.api}/profile/password`, { currentPassword, newPassword });
+  requestPasswordReset(): Observable<void> {
+    return this.http.put<void>(`${this.api}/profile/password-reset`, {});
   }
   getMySessions(): Observable<UserSession[]> { return this.http.get<UserSession[]>(`${this.api}/profile/sessions`); }
   getSessionSummary(): Observable<SessionSummary> { return this.http.get<SessionSummary>(`${this.api}/admin/sessions/summary`); }
