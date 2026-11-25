@@ -9,7 +9,8 @@ services:
       DB_USERNAME: ${POSTGRES_USER:-postgres}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
       KEYCLOAK_BASE_URL: http://keycloak:8080
-      KEYCLOAK_ISSUER_URI: http://keycloak:8080/realms/google-analytics
+      KEYCLOAK_ISSUER_URI: http://localhost:8280/realms/google-analytics
+      KEYCLOAK_JWK_SET_URI: http://keycloak:8080/realms/google-analytics/protocol/openid-connect/certs
       KEYCLOAK_REALM: google-analytics
       KEYCLOAK_ADMIN_CLIENT_ID: analytics-identity-admin
       KEYCLOAK_ADMIN_CLIENT_SECRET: ${KEYCLOAK_IDENTITY_CLIENT_SECRET}
