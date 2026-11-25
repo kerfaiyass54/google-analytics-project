@@ -63,11 +63,11 @@
 
         <!-- Notifications -->
         <div class="notification-menu">
-          <button class="notification-trigger" type="button" aria-label="Open notifications" [attr.aria-expanded]="notificationsOpen" (click)="toggleNotifications()">
+          <button class="notification-trigger" type="button" aria-label="Open notifications" [attr.aria-expanded]="notificationsOpen()" (click)="toggleNotifications()">
             <i class="bi bi-bell"></i>
             @if (notificationService.unreadCount() > 0) { <span class="notification-badge">{{ notificationService.unreadCount() > 99 ? '99+' : notificationService.unreadCount() }}</span> }
           </button>
-          @if (notificationsOpen) {
+          @if (notificationsOpen()) {
             <section class="notification-popover">
               <header class="notification-popover-header">
                 <div><strong>Notifications</strong><small>{{ notificationService.unreadCount() }} unread</small></div>
@@ -76,7 +76,7 @@
               <div class="notification-popover-list">
                 @for (item of notificationService.notifications(); track item.id) {
                   <button type="button" class="notification-popover-item" [class.unread]="!item.read_at" (click)="openNotification(item.id)">
-                    <span class="notification-popover-icon"><i [class]="item.event_type.includes('APP') ? 'bi bi-phone' : item.event_type.includes('EDA') ? 'bi bi-bar-chart' : 'bi bi-cpu'"></i></span>
+                    <span class="notification-popover-icon"><i [class]="'bi ' + notificationIcon(item)"></i></span>
                     <span class="notification-popover-copy"><strong>{{ item.title }}</strong><span>{{ item.message }}</span><small>{{ item.created_at | date:'short' }}</small></span>
                     @if (!item.read_at) { <span class="notification-unread-dot"></span> }
                   </button>
