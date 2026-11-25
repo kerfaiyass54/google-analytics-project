@@ -27,7 +27,7 @@ public class ProfileService {
     @Transactional
     public ProfileResponse updateProfile(String userId, ProfileUpdateRequest request) {
         IdentityUser user = users.findById(userId).orElseGet(() -> new IdentityUser(userId));
-        boolean emailChanged = user.getEmail() != null && !user.getEmail().equalsIgnoreCase(request.email().trim());
+        boolean emailChanged = !java.util.Objects.equals(user.getEmail() == null ? null : user.getEmail().toLowerCase(java.util.Locale.ROOT), request.email().trim().toLowerCase(java.util.Locale.ROOT));
         JsonNode updated = keycloak.updateUser(userId, Map.of(
             "firstName", request.firstName().trim(),
             "lastName", request.lastName().trim(),
