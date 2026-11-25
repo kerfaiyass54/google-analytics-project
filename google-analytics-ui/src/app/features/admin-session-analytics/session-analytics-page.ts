@@ -21,10 +21,7 @@ export class SessionAnalyticsPage implements AfterViewInit, OnDestroy {
   readonly loading = signal(true);
   readonly error = signal('');
 
-  ngAfterViewInit(): void {
-    this.load();
-  }
-
+  ngAfterViewInit(): void { this.load(); }
   ngOnDestroy(): void { this.chart?.destroy(); }
 
   load(): void {
@@ -43,7 +40,7 @@ export class SessionAnalyticsPage implements AfterViewInit, OnDestroy {
       data: {
         labels: data.daily.map(item => item.date),
         datasets: [
-          { label: 'Sessions started', data: data.daily.map(item => item.active), backgroundColor: 'rgba(99,102,241,.78)', borderRadius: 7, maxBarThickness: 32 },
+          { label: 'Sessions started', data: data.daily.map(item => item.started), backgroundColor: 'rgba(99,102,241,.78)', borderRadius: 7, maxBarThickness: 32 },
           { label: 'Sessions closed', data: data.daily.map(item => item.closed), backgroundColor: 'rgba(14,165,233,.68)', borderRadius: 7, maxBarThickness: 32 },
         ],
       },
