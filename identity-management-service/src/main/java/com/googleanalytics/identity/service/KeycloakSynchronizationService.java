@@ -49,8 +49,8 @@ public class KeycloakSynchronizationService {
                 long lastAccess = sourceSession.path("lastAccess").asLong(0);
                 String clients = sourceSession.path("clients").isObject() ? sourceSession.path("clients").toString() : null;
                 session.markActive(userId, text(sourceSession, "ipAddress"),
-                    started > 0 ? Instant.ofEpochMilli(started) : Instant.now(),
-                    lastAccess > 0 ? Instant.ofEpochMilli(lastAccess) : null, clients);
+                    started > 0 ? sessionInstant(started) : Instant.now(),
+                    lastAccess > 0 ? sessionInstant(lastAccess) : null, clients);
                 sessions.save(session);
             }
         }
@@ -62,6 +62,10 @@ public class KeycloakSynchronizationService {
                 sessions.save(session);
             }
         }
+    }
+
+    private Instant sessionInstant(long epoch) {
+        return epoch < 10_000_000_000L ? Instant.ofEpochSecond(epoch) : Instant.ofEpochMilli(epoch);
     }
 
     private String text(JsonNode node, String field) {
