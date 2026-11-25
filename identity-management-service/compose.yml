@@ -5,7 +5,7 @@ services:
     restart: unless-stopped
     environment:
       SERVER_PORT: 8040
-      DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-analyticsforgoogle}
+      DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-keycloak}
       DB_USERNAME: ${POSTGRES_USER:-postgres}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
       KEYCLOAK_BASE_URL: http://keycloak:8080
