@@ -1,6 +1,5 @@
 package com.googleanalytics.identity.controller;
 
-import com.googleanalytics.identity.dto.PasswordChangeRequest;
 import com.googleanalytics.identity.dto.ProfileResponse;
 import com.googleanalytics.identity.dto.ProfileUpdateRequest;
 import com.googleanalytics.identity.dto.SessionResponse;
@@ -30,10 +29,10 @@ public class ProfileController {
         return profiles.updateProfile(jwt.getSubject(), request);
     }
 
-    @PutMapping("/password")
+    @PutMapping("/password-reset")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void changePassword(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody PasswordChangeRequest request) {
-        profiles.changePassword(jwt.getTokenValue(), request);
+    public void requestPasswordReset(@AuthenticationPrincipal Jwt jwt) {
+        profiles.requestPasswordReset(jwt.getSubject());
     }
 
     @GetMapping("/sessions")
