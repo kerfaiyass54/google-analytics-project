@@ -4,7 +4,7 @@ spring:
   application:
     name: identity-management-service
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5540/analyticsforgoogle}
+    url: ${DB_URL:jdbc:postgresql://localhost:5540/keycloak}
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:postgres}
   jpa:
