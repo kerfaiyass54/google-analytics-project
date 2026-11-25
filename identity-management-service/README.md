@@ -13,13 +13,13 @@ This service **does not read or write Keycloak's internal tables**. Those tables
 - Active sessions are fetched per user and upserted with IP, start time, last access, and client metadata.
 - A mirrored ACTIVE session missing from the next Keycloak session snapshot is changed to CLOSED with `closed_at`.
 - Profile updates are sent to Keycloak first, then update the local mirror.
-- Password changes use the authenticated user's Keycloak Account API and current-password verification. Passwords are never stored in this service database.
+- Password changes use Keycloak's supported `execute-actions-email` flow with the `UPDATE_PASSWORD` required action. Keycloak emails a one-time password-update link; passwords are never sent to or stored by this service.
 
 ## Keycloak setup
 
 Create a confidential client named `analytics-identity-admin` in the `google-analytics` realm and enable Service Accounts. Grant its service-account user the realm-management roles needed to list users and inspect user sessions (at minimum `view-users`; use `query-users` if required by the realm's fine-grained admin permissions). Store its secret in `KEYCLOAK_IDENTITY_CLIENT_SECRET`, never in source control.
 
-For password changes, enable the account-management feature and make sure the authenticated frontend client has the required account-management permissions. Configure the frontend's realm/client audience so the JWT is accepted by this API.
+For password changes, configure SMTP for the realm and allow the configured redirect URI on the `google-analytics-frontend` client. The admin service account needs permission to execute required actions. Configure the frontend's realm/client audience so the JWT is accepted by this API.
 
 ## Run
 
@@ -35,7 +35,7 @@ API base URL: `http://localhost:8040`.
 
 - `GET /api/profile` — current user's profile
 - `PUT /api/profile` — update first name, last name, and email in Keycloak and the mirror
-- `PUT /api/profile/password` — change password with current-password verification
+- `PUT /api/profile/password-reset` — send the current user a Keycloak password-update email
 - `GET /api/profile/sessions` — current user's active and closed sessions
 - `GET /api/admin/users` — admin-only synchronized user list
 - `GET /api/admin/sessions/summary` — admin-only session totals and seven-day trend
