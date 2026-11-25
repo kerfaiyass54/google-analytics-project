@@ -1,0 +1,13 @@
+<main class="session-analytics-page">
+  <header class="analytics-hero" appScrollReveal><div><span class="eyebrow"><i class="bi bi-activity"></i> ADMIN INSIGHTS</span><h1>Session analytics</h1><p>Monitor connected accounts, session activity, and sign-in trends across the platform.</p></div><div class="hero-symbol"><i class="bi bi-bar-chart-line-fill"></i></div></header>
+  @if (error()) { <div class="alert alert-danger mt-3">{{ error() }} <button class="btn btn-sm btn-outline-danger ms-2" (click)="load()">Retry</button></div> }
+  @if (loading()) { <div class="analytics-loading"><span class="spinner-border text-primary"></span> Loading session metrics…</div> }
+  @else if (summary(); as data) {
+    <section class="metric-grid" appScrollReveal>
+      <article class="metric-card"><span class="metric-icon active"><i class="bi bi-person-check-fill"></i></span><div><small>ACTIVE SESSIONS</small><strong>{{ data.active }}</strong><span>Currently connected</span></div></article>
+      <article class="metric-card"><span class="metric-icon closed"><i class="bi bi-clock-history"></i></span><div><small>CLOSED SESSIONS</small><strong>{{ data.closed }}</strong><span>Historical sessions</span></div></article>
+      <article class="metric-card"><span class="metric-icon total"><i class="bi bi-people-fill"></i></span><div><small>TOTAL TRACKED</small><strong>{{ data.active + data.closed }}</strong><span>All synchronized sessions</span></div></article>
+    </section>
+    <section class="chart-card" appScrollReveal><div class="chart-heading"><div><span class="card-kicker">LAST 7 DAYS</span><h2>Session activity overview</h2><p>Daily session starts compared with sessions closed</p></div><button class="btn btn-outline-secondary btn-sm" (click)="load()"><i class="bi bi-arrow-clockwise me-1"></i>Refresh</button></div><div class="chart-area"><canvas #sessionChart aria-label="Bar chart of session activity over the last seven days"></canvas></div></section>
+  }
+</main>
