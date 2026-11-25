@@ -2,7 +2,6 @@ package com.googleanalytics.identity.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.googleanalytics.identity.client.KeycloakAdminClient;
-import com.googleanalytics.identity.dto.PasswordChangeRequest;
 import com.googleanalytics.identity.dto.ProfileResponse;
 import com.googleanalytics.identity.dto.ProfileUpdateRequest;
 import com.googleanalytics.identity.entity.IdentityUser;
@@ -44,8 +43,8 @@ public class ProfileService {
         return toResponse(user);
     }
 
-    public void changePassword(String accessToken, PasswordChangeRequest request) {
-        keycloak.changePasswordWithUserToken(accessToken, request.currentPassword(), request.newPassword());
+    public void requestPasswordReset(String userId) {
+        keycloak.sendPasswordResetEmail(userId);
     }
 
     private ProfileResponse toResponse(IdentityUser user) {
