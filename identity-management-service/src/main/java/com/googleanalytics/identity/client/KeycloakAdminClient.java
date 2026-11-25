@@ -58,12 +58,15 @@ public class KeycloakAdminClient {
             .retrieve().body(JsonNode.class);
     }
 
-    public void changePasswordWithUserToken(String userAccessToken, String currentPassword, String newPassword) {
-        String url = properties.baseUrl() + "/realms/" + properties.realm() + "/account/credentials/password";
-        client.put().uri(url)
-            .headers(headers -> headers.setBearerAuth(userAccessToken))
+    public void sendPasswordResetEmail(String userId) {
+        client.put().uri(uriBuilder -> uriBuilder
+                .path(adminBase() + "/users/{id}/execute-actions-email")
+                .queryParam("client_id", properties.frontendClientId())
+                .queryParam("redirect_uri", properties.frontendRedirectUri())
+                .build(userId))
+            .headers(headers -> headers.setBearerAuth(adminToken()))
             .contentType(MediaType.APPLICATION_JSON)
-            .body(Map.of("currentPassword", currentPassword, "newPassword", newPassword, "confirmation", newPassword))
+            .body(List.of("UPDATE_PASSWORD"))
             .retrieve().toBodilessEntity();
     }
 
