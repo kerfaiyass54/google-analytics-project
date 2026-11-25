@@ -12,12 +12,12 @@ This service **does not read or write Keycloak's internal tables**. Those tables
 - User attributes and enabled/email-verification state are mirrored from Keycloak.
 - Active sessions are fetched per user and upserted with IP, start time, last access, and client metadata.
 - A mirrored ACTIVE session missing from the next Keycloak session snapshot is changed to CLOSED with `closed_at`.
-- Profile updates are sent to Keycloak first, then update the local mirror.
+- Profile updates are sent to Keycloak first, then update the local mirror. Changing the email address marks it unverified and triggers Keycloak's verification email.
 - Password changes use Keycloak's supported `execute-actions-email` flow with the `UPDATE_PASSWORD` required action. Keycloak emails a one-time password-update link; passwords are never sent to or stored by this service.
 
 ## Keycloak setup
 
-Create a confidential client named `analytics-identity-admin` in the `google-analytics` realm and enable Service Accounts. Grant its service-account user the realm-management roles needed to list users and inspect user sessions (at minimum `view-users`; use `query-users` if required by the realm's fine-grained admin permissions). Store its secret in `KEYCLOAK_IDENTITY_CLIENT_SECRET`, never in source control.
+Create a confidential client named `analytics-identity-admin` in the `google-analytics` realm and enable Service Accounts. Grant its service-account user the realm-management roles needed to list users and inspect user sessions (grant `view-users` and `query-users` for synchronization, plus `manage-users` for profile updates and required-action emails). Store its secret in `KEYCLOAK_IDENTITY_CLIENT_SECRET`, never in source control.
 
 For password changes, configure SMTP for the realm and allow the configured redirect URI on the `google-analytics-frontend` client. The admin service account needs permission to execute required actions. Configure the frontend's realm/client audience so the JWT is accepted by this API.
 
