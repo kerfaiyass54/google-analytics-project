@@ -27,12 +27,14 @@ public class ProfileService {
 
     @Transactional
     public ProfileResponse updateProfile(String userId, ProfileUpdateRequest request) {
+        IdentityUser user = users.findById(userId).orElseGet(() -> new IdentityUser(userId));
+        boolean emailChanged = user.getEmail() != null && !user.getEmail().equalsIgnoreCase(request.email().trim());
         JsonNode updated = keycloak.updateUser(userId, Map.of(
             "firstName", request.firstName().trim(),
             "lastName", request.lastName().trim(),
-            "email", request.email().trim()
+            "email", request.email().trim(),
+            "emailVerified", emailChanged ? false : user.isEmailVerified()
         ));
-        IdentityUser user = users.findById(userId).orElseGet(() -> new IdentityUser(userId));
         user.synchronize(updated.path("username").asText(user.getUsername()),
             updated.path("email").asText(request.email()), updated.path("firstName").asText(request.firstName()),
             updated.path("lastName").asText(request.lastName()), updated.path("enabled").asBoolean(true),
