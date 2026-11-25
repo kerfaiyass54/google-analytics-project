@@ -91,6 +91,10 @@ export const routes: Routes = [
           import('./features/operations-page/manage-eda/manage-eda').then((m) => m.ManageEda),
       },
       {
+        path: 'notifications',
+        loadComponent: () => import('./features/notifications/notifications-page').then((m) => m.NotificationsPage),
+      },
+      {
         path: 'eda',
         loadComponent: () => import('./features/eda-page/eda-page').then((m) => m.EdaPage),
       },
