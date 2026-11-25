@@ -7,11 +7,14 @@ import com.googleanalytics.identity.dto.ProfileUpdateRequest;
 import com.googleanalytics.identity.entity.IdentityUser;
 import com.googleanalytics.identity.repository.IdentityUserRepository;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ProfileService {
+    private static final Logger log = LoggerFactory.getLogger(ProfileService.class);
     private final KeycloakAdminClient keycloak;
     private final IdentityUserRepository users;
 
@@ -34,7 +37,13 @@ public class ProfileService {
             "email", request.email().trim(),
             "emailVerified", emailChanged ? false : user.isEmailVerified()
         ));
-        if (emailChanged) keycloak.sendVerificationEmail(userId);
+        if (emailChanged) {
+            try {
+                keycloak.sendVerificationEmail(userId);
+            } catch (RuntimeException exception) {
+                log.warn("Profile email changed but Keycloak verification email could not be sent for user {}", userId, exception);
+            }
+        }
         user.synchronize(updated.path("username").asText(user.getUsername()),
             updated.path("email").asText(request.email()), updated.path("firstName").asText(request.firstName()),
             updated.path("lastName").asText(request.lastName()), updated.path("enabled").asBoolean(true),
