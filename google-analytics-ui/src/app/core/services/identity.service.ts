@@ -26,7 +26,7 @@ export interface UserSession {
 export interface SessionSummary {
   active: number;
   closed: number;
-  daily: Array<{ date: string; active: number; closed: number }>;
+  daily: Array<{ date: string; started: number; closed: number }>;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -34,23 +34,13 @@ export class IdentityService {
   private readonly http = inject(HttpClient);
   private readonly api = 'http://localhost:8040/api';
 
-  getProfile(): Observable<UserProfile> {
-    return this.http.get<UserProfile>(`${this.api}/profile`);
-  }
-
+  getProfile(): Observable<UserProfile> { return this.http.get<UserProfile>(`${this.api}/profile`); }
   updateProfile(data: Pick<UserProfile, 'firstName' | 'lastName' | 'email'>): Observable<UserProfile> {
     return this.http.put<UserProfile>(`${this.api}/profile`, data);
   }
-
   changePassword(currentPassword: string, newPassword: string): Observable<void> {
     return this.http.put<void>(`${this.api}/profile/password`, { currentPassword, newPassword });
   }
-
-  getMySessions(): Observable<UserSession[]> {
-    return this.http.get<UserSession[]>(`${this.api}/profile/sessions`);
-  }
-
-  getSessionSummary(): Observable<SessionSummary> {
-    return this.http.get<SessionSummary>(`${this.api}/admin/sessions/summary`);
-  }
+  getMySessions(): Observable<UserSession[]> { return this.http.get<UserSession[]>(`${this.api}/profile/sessions`); }
+  getSessionSummary(): Observable<SessionSummary> { return this.http.get<SessionSummary>(`${this.api}/admin/sessions/summary`); }
 }
